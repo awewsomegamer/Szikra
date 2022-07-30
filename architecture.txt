@@ -1,0 +1,115 @@
+awewsomegamer - 28/7/2022
+  
+Operations:  
+	MOV 	V1, V2 			  : Move V2 into V1
+  
+	ADD 	V1, V2 			  : Add V2 to V1
+	SUB 	V1, V2 			  : Subtract V2 from V1
+	MUL 	V1, V2 			  : Multiply V1 by V2
+	DIV 	V1, V2 			  : Divide V1 by V2
+  
+	OR		V1, V2 			  : Bitwise OR V1 with V2
+	XOR 	V1, V2 			  : Bitwise XOR V1 with V2
+	AND		V1, V2 			  : Bitwise AND V1 with V2
+  
+	NOT		V1	   			  : Bitwise NOT V1
+  
+	INT 	V1	   			  : Call interrupt V1
+	SIVTE 	V1, V2 			  : Set interrupt V1 to point to V2
+	RIVTE 	V1	   			  : Reset interrupt V1 to default pointer
+	IRET		   			  : Restore the context before interrupt was called
+  
+	CMP 	V1, V2 			  : Compare V1 with V2
+  
+	JMP 	V1	   			  : Jump to address V1
+  
+	CALL 	V1	   			  : Push the current IP and jump to address V1
+	RET		   			  : Return to the next instruction after a call
+  
+	JE		V1	   			  : Jump to V1 if compare yielded an equal
+	JNE		V1	   			  : Jump to V1 if compare did not yield an equal
+  
+	JG		V1	   			  : Jump to V1 if compare yielded a greater than
+	JGE		V1	   			  : Jump to V1 if compare did not yield a greater than
+  
+	JL		V1	   			  : Jump to V1 if compare yielded a less than
+	JLE		V1	   			  : Jump to V1 if compare did not yield a less than
+  
+	JC		V1	   			  : Jump to V1 if carry flag is set
+	JNC		V1	   			  : Jump to V1 if carry flag is not set
+  
+	JZ		V1	   			  : Jump to V1 if zero flag is set
+	JNZ		V1	   			  : Jump to V1 if zero flag is not set
+  
+	PUSH	V1	   			  : Push V1 to the stack
+	POP		V1 	   			  : Pop the last element on the stack into V1
+
+	DB		... <, ...> 	  : Define (a) value(s)
+	DS		"..." <, "...">   : Define (a) string(s) of ASCII characters
+
+Operation:
+	+ 1 byte opcode
+	+------------------------------ Repeated for each argument ---------------------------------+
+	|	+ 1 byte arg descriptor																	|
+	|		+ 2 bits - argument type (0: regular, 1: pointer, 2: register, 3: register pointer)	|
+	|		+ 2 bits - argument length (subtracted by 1)										|
+	|		+ 2 bits - argument cast (0: dword, 1: word, 2: byte, 3: reserved)					|
+	|		+ 2 bits - reserved	(May become offset descriptor (one bit specifies if there is	|
+	|							 an offset, and the second bit specifies the sign))				|
+	|	+ x byte arg																			|
+	+-------------------------------------------------------------------------------------------+
+
+Syntax:
+	[] 	-> Reference a memory address
+	:  	-> Define a label (label:)
+	.:  -> Define a local label (.label:)
+	!	-> Define different properties assembly (!AT 0x0, !DATA, !TEXT)
+
+	(Might make macros, if so #macro <name> <argc> and #macro_end)
+	include(#: binary, $: code) <path/to/file>
+
+	Operation <<Size (byte, word, default: dword)> <Value>> ...
+
+Registers (32 bit):
+	AX -+ General purpose registers
+	BX	| Mostly used for specifying arguments for interrupts
+	CX	|
+	DX -+
+
+	BP - Stack's base pointer in RAM
+	SP - Stack's current pointer in RAM
+	* Stack is used for specifying arguments of function calls
+
+	IP - Current instruction pointer in RAM
+
+	I1 -+ General purpose registers
+	I2	| Mostly used for pointers and such, not used by interrupts
+	I3	|
+	I4 -+
+
+Memory: (this is not the final map (currently based on 1 GB of memory))
+	*No map yet*
+	
+	Possibly:
+		0x00000000 -> 0x00001FFF : BIOS
+		0x00002000 -> 0x00002200 : Sector 0 (512 bytes) (Bootloader)
+		0x00002201 -> 0x3E0BFDFF : Free memory
+		0x3E0BFDFF -> 0x3E0BFFFF : 512 byte disk buffer
+		0x3E0C0000 -> 0x40000000 : 640x480x32 framebuffer (0x01F40000 bytes of framebuffer (1280x800x32))
+
+Serial Port: (this is not the final map)
+	No map yet
+
+Display:
+	640 x 480 (may be made variable in the future)
+	32 bit color
+
+Interrupts:
+	0: Exception interrupt
+		+ Exception code contained in AX
+	1: Timer interrupt
+	2: Screen functions
+		+ AX: Argument (data)
+		+ BX: Argument (mode)
+	3: Keyboard interrupt
+		+ Keyboard scancode
