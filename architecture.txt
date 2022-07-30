@@ -1,6 +1,8 @@
 awewsomegamer - 28/7/2022
   
-Operations:  
+Operations:
+	NOP						  ; Preform no operation
+
 	MOV 	V1, V2 			  : Move V2 into V1
   
 	ADD 	V1, V2 			  : Add V2 to V1
@@ -24,7 +26,7 @@ Operations:
 	JMP 	V1	   			  : Jump to address V1
   
 	CALL 	V1	   			  : Push the current IP and jump to address V1
-	RET		   			  : Return to the next instruction after a call
+	RET						  : Return to the next instruction after a call
   
 	JE		V1	   			  : Jump to V1 if compare yielded an equal
 	JNE		V1	   			  : Jump to V1 if compare did not yield an equal
