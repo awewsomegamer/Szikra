@@ -15,9 +15,9 @@
 
 extern uint32_t 	_line;
 extern char* 		_file_format;
-extern char			_putback;
-extern bool			_error_detected;
-extern bool			_eof_reached;
+extern char		_putback;
+extern bool		_error_detected;
+extern bool		_eof_reached;
 
 extern FILE* 		_in_file;
 extern FILE* 		_out_file;
