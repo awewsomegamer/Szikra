@@ -1,7 +1,7 @@
 awewsomegamer - 28/7/2022
   
-Operations:
-	NOP				  ; Preform no operation
+Instructions:
+	NOP				  : Preform no operation
 
 	MOV 		V1, V2 		  : Move V2 into V1
   
@@ -49,15 +49,15 @@ Operations:
 	DB		... <, ...> 	  : Define (a) value(s)
 	DS		"..." <, "...">   : Define (a) string(s) of ASCII characters
 
-Operation:
+Instruction:
 	+ 1 byte opcode
 	+------------------------------------ Repeated for each argument ---------------------------------------+
 	|	+ 1 byte arg descriptor										|
 	|		+ 2 bits - argument type (0: regular, 1: pointer, 2: register, 3: register pointer)	|
 	|		+ 2 bits - argument length (subtracted by 1)						|
 	|		+ 2 bits - argument cast (0: dword, 1: word, 2: byte, 3: reserved)			|
-	|		+ 2 bits - reserved	(May become offset descriptor (one bit specifies if there is	|
-	|					 an offset, and the second bit specifies the sign))		|
+	|		+ 1 bit  - argument is offset (0: no, 1: yes)						|
+	|		+ 1 bit  - argument sign (0: positive, 1: negative)					|
 	|	+ x byte arg											|
 	+-------------------------------------------------------------------------------------------------------+
 
