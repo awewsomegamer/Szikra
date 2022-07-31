@@ -3,6 +3,8 @@
 
 #include <global.h>
 
-void assemble(struct token* list);
+void assemble(struct token* list, int count);
+
+
 
 #endif

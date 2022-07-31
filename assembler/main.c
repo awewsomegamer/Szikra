@@ -3,6 +3,7 @@
 #include <assembly.h>
 
 uint32_t _line = 1;
+uint32_t _label_count = 0;
 char* _file_format = NULL;
 char _putback = 0;
 bool _error_detected = false;
@@ -10,6 +11,9 @@ bool _eof_reached = false;
 
 FILE* _in_file = NULL;
 FILE* _out_file = NULL;
+
+struct label* _labels = NULL;
+struct label* _current_label = NULL;
 
 int main(int argc, char** argv){
 	char* in_file_name = NULL;
@@ -42,7 +46,10 @@ int main(int argc, char** argv){
 	_in_file = fopen(in_file_name, "r");
 	_out_file = fopen(out_file_name, "w");
 	_file_format = out_file_format;
-
+	
+	_labels = (struct label*)malloc(sizeof(struct label));
+	_current_label = _labels;
+	
 	bool stop = false;
 
 	while (true){
@@ -50,10 +57,12 @@ int main(int argc, char** argv){
 		struct token* current = head;
 
 		int current_line = _line;
+		int token_count = 1; // There is at least 1 token
 
 		// Get current token series
 		while (_line == current_line){
 			lex(current);
+			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
 			n->next = NULL;
@@ -70,7 +79,7 @@ int main(int argc, char** argv){
 
 		// Assembling
 		if (head->type != T_EOF)
-			assemble(head);
+			assemble(head, token_count);
 
 		// Clean up
 		current = head;

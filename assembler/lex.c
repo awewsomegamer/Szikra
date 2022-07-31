@@ -83,20 +83,56 @@ int lex(struct token* t){
 
 		return 1;
 
+	case '-':
+		t->type = T_SUB;
+
+		return 1;
+
+	case '*':
+		t->type = T_MUL;
+
+		return 1;
+
+	case '/':
+		t->type = T_DIV;
+
+		return 1;
+
 	case ',':
 		t->type = T_COMMA;
 
 		return 1;
 
-	default:
-		t->type = T_INT;
-		t->value = get_number(c);
+	case '.':
+		t->type = T_DOT;
 
-		// if (find_operation(c)){
-		// 	// Found operation, very cool
-		// } else {
-		// 	error("Invalid character '%c' on line %d\n", c, _line);
-		// }
+		return 1;
+
+	case ':':
+		t->type = T_COLON;
+
+		return 1;
+
+	case '!':
+		t->type = T_DIRECTIVE;
+
+		return 1;
+
+	default:
+		if (IS_DIGIT(c)){
+			t->type = T_INT;
+			t->value = get_number(c);
+		} else if (IS_VISUAL(c)){
+			int operation_found = find_operation(c);
+
+			if (operation_found != -1){
+				// Operation found
+			} else {
+				// Regular string of characters found
+				// Possibly label, local label follow up, or directive specifier
+			}
+		}
+
 
 		return 1;
 	}
