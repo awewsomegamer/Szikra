@@ -1,7 +1,9 @@
 #include <global.h>
 #include <lex.h>
+#include <assembly.h>
 
 uint32_t _line = 1;
+char* _file_format = NULL;
 char _putback = 0;
 bool _error_detected = false;
 bool _eof_reached = false;
@@ -12,6 +14,7 @@ FILE* _out_file = NULL;
 int main(int argc, char** argv){
 	char* in_file_name = NULL;
 	char* out_file_name = NULL;
+	char* out_file_format = NULL;
 
 	for (int i = 1; i < argc; i++){
 		if (strcmp(argv[i], "-i") == 0){
@@ -19,6 +22,9 @@ int main(int argc, char** argv){
 			continue;
 		} else if (strcmp(argv[i], "-o") == 0){
 			out_file_name = strdup(argv[++i]);
+			continue;
+		} else if (strcmp(argv[i], "-format") == 0){
+			out_file_format = strdup(argv[++i]);
 			continue;
 		}
 	}
@@ -35,16 +41,15 @@ int main(int argc, char** argv){
 
 	_in_file = fopen(in_file_name, "r");
 	_out_file = fopen(out_file_name, "w");
-	
+	_file_format = out_file_format;
+
 	bool stop = false;
 
-	while (!stop){
+	while (true){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
 
 		int current_line = _line;
-		
-		// printf("%d, %d\n", current_line, _line);
 
 		// Get current token series
 		while (_line == current_line){
@@ -64,19 +69,17 @@ int main(int argc, char** argv){
 		}
 
 		// Assembling
+		if (head->type != T_EOF)
+			assemble(head);
 
 		// Clean up
 		current = head;
-		struct token* next = current->next;
 
-		// while (current->next != NULL){
-		// 	free(current);
+		while (current != NULL){
+			free(current);
 
-		// 	next = next->next;
-		// 	current = next;	
-		// }
-
-		free(current);
+			current = current->next;	
+		}
 
 		if (stop)
 			break;

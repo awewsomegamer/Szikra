@@ -9,7 +9,6 @@ char read_char(){
 	if (c == EOF)
 		_eof_reached = true;
 	
-
 	if (c == '\n')
 		_line++;
 
@@ -23,7 +22,7 @@ void putback(char c) {
 char skip(){
 	char c = read_char();
 
-	while (!IS_VISUAL(c))
+	while (!IS_VISUAL(c) && !_eof_reached)
 		c = read_char();
 		
 	return c;
@@ -45,7 +44,7 @@ char* get_str(char c){
 	memset(buffer, 0, 1024);
 
 	int i = 0;
-	while (IS_VISUAL(c)){
+	while (IS_VISUAL(c) && !_eof_reached){
 		buffer[i++] = c;
 		c = read_char();
 	}
@@ -72,11 +71,16 @@ int find_operation(char c){
 
 int lex(struct token* t){
 	char c = next();
-
+	
 	switch (c) {
+	case EOF:
+		t->type = T_EOF;
+	
+		return 1;
+
 	case '+':
 		t->type = T_ADD;
-		t->value = 0;
+
 		return 1;
 
 	case ',':

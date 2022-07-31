@@ -3,6 +3,8 @@
 
 #define DEFINE_INSTRUCTION(name, args) {name, args}
 
+#include <global.h>
+
 enum {
 	T_EOF,
 	
@@ -23,6 +25,7 @@ struct instruction {
 struct token {
 	int type;
 	int value;
+	uint8_t* extra_bytes;
 
 	struct token* next;
 };

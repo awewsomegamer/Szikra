@@ -14,6 +14,7 @@
 #include <error_handler.h>
 
 extern uint32_t 	_line;
+extern char* 		_file_format;
 extern char			_putback;
 extern bool			_error_detected;
 extern bool			_eof_reached;
