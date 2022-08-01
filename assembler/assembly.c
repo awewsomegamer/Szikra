@@ -13,7 +13,7 @@ void assemble(struct token* list, int count){
 		tokens[i++] = *current;
 		current = current->next;
 	}
-	
+
 	// Format instructions	   : instrucion <...>
 	// Format directives       : !DIRECTIVE <...>
 	// Format local labels     : .LABEL:
@@ -21,7 +21,7 @@ void assemble(struct token* list, int count){
 	switch (tokens[0].type){
 	case T_INSTRUCTION:
 		// Generate instruction
-		(*instruction_list[tokens[0].value])(tokens);
+		(*instruction_list[ISA[tokens[0].value].argc])(tokens);
 
 		break;
 	

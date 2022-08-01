@@ -1,6 +1,7 @@
 #include <global.h>
 #include <lex.h>
 #include <assembly.h>
+#include <instructions.h>
 
 uint32_t _line = 1;
 uint32_t _label_count = 0;
@@ -50,6 +51,8 @@ int main(int argc, char** argv){
 	_labels = (struct label*)malloc(sizeof(struct label));
 	_current_label = _labels;
 	
+	init_instructions();
+
 	bool stop = false;
 
 	while (true){

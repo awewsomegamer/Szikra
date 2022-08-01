@@ -1,0 +1,4 @@
+mov
+jmp
+nop
+db

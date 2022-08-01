@@ -63,10 +63,15 @@ int get_number(char c){
 }
 
 int find_operation(char c){
+	char* name = strdup(get_str(c));
+	uppercaseString(name);
 
-
-
-	return 0;
+	for (int i = 0; i < I_INSTRUCTION_MAX; i++)
+		if (strcmp(ISA[i].name, name) == 0)
+			return i;
+	
+	// No valid instruction found
+	return -1;
 }
 
 int lex(struct token* t){
@@ -123,10 +128,11 @@ int lex(struct token* t){
 			t->type = T_INT;
 			t->value = get_number(c);
 		} else if (IS_VISUAL(c)){
-			int operation_found = find_operation(c);
+			int instruction_found = find_operation(c);
 
-			if (operation_found != -1){
-				// Operation found
+			if (instruction_found != -1){
+				t->type = T_INSTRUCTION;
+				t->value = instruction_found;
 			} else {
 				// Regular string of characters found
 				// Possibly label, local label follow up, or directive specifier

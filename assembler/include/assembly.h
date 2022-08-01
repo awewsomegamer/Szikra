@@ -5,6 +5,4 @@
 
 void assemble(struct token* list, int count);
 
-
-
 #endif
