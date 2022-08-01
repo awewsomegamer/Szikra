@@ -82,9 +82,9 @@ enum {
 };
 
 enum {
-	SZ_BYTE,
+	SZ_DWORD,
 	SZ_WORD,
-	SZ_DWORD
+	SZ_BYTE
 };
 
 enum {
