@@ -17,7 +17,32 @@ int get_size(struct token tokens[], int* index){
 	return 0;
 }
 
+// Check for:
+// Register - ax (T_REGISTER)
+// Register ptr - [ax] (T_LSQR, T_REGISTER, T_RSQR)
+// Value - 123, 0x55, 0b11 (T_INT)
+// Value ptr - [123], [0x55], [0b11] (T_LSQR, T_INT, T_RSQR)
+
 int get_arg(struct token tokens[], int* index, int* arg_info){
+	int type_arg = 0;
+	int offset_value = 0;
+	
+	switch (tokens[*index].type){
+	case T_REGISTER:
+		*arg_info = CODE_RREG;
+		return tokens[*index].value;
+
+	case T_LSQR_BRACKET:
+		int index_ = *index + 1;
+		int value = get_arg(tokens, &index_, arg_info);
+		*arg_info = *arg_info == CODE_RREG ? CODE_PREG : CODE_PVALUE;
+		return value;
+
+	case T_INT:
+		*arg_info = CODE_RVALUE;
+		return tokens[*index].value;
+	}
+
 
 
 	return 0;
@@ -51,10 +76,11 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 
 void ONE_ARG_INSTRUCTION(struct token tokens[]){
 	int index = 1;
-
 	int size = get_size(tokens, &index);
 	int arg_info = 0;
 	int arg = get_arg(tokens, &index, &arg_info);
+
+	printf("size: %d, arg_info: %d, arg: %d\n", size, arg_info, arg);
 }
 
 void ZERO_ARG_INSTRUCTION(struct token tokens[]){

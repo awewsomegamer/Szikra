@@ -90,6 +90,13 @@ enum {
 };
 
 enum {
+	CODE_RVALUE,
+	CODE_PVALUE,
+	CODE_RREG,
+	CODE_PREG	
+};
+
+enum {
 	I_REG_AX,
 	I_REG_BX,
 	I_REG_CX,

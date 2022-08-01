@@ -175,14 +175,13 @@ int lex(struct token* t){
 			t->value = get_number(c);
 
 			return 1;
-		} else if (IS_VISUAL(c)){
-			char* str = strdup(get_str(c, IS_VISUAL));
-			char* filtered = filter_characters(str, IS_ALPHANUMERIC);
-			char* upper = strdup(filtered);
+		} else if (IS_ALPHANUMERIC(c)){
+			char* str = get_str(c, IS_ALPHANUMERIC);
+			char* upper = strdup(str);
 			uppercaseString(upper);
 
+			// Check for an instruction
 			int instruction_found = find_operation(upper);
-
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
 				t->value = instruction_found;
@@ -190,8 +189,8 @@ int lex(struct token* t){
 				return 1;
 			}
 
+			// Check for a size descriptor
 			int size = find_size(upper);
-
 			if (size != -1){
 				t->type = T_SIZE;
 				t->value = size;
@@ -199,21 +198,25 @@ int lex(struct token* t){
 				return 1;
 			}
 
+			// Check for a register
 			int reg = find_register(upper);
-
 			if (reg != -1){
 				t->type = T_REGISTER;
 				t->value = reg;
 
 				return 1;
 			}
-
+			
+			// Label
+			t->type = T_STRING;
+			t->extra_bytes = str;
+			return 1;
+		} else if (IS_VISUAL(c)){
+			// Dump string into a string token
+			char* str = get_str(c, IS_VISUAL);
 			t->type = T_STRING;
 			t->extra_bytes = malloc(strlen(str));
 			strcpy(t->extra_bytes, str);
-
-			// Regular string of characters found
-			// Possibly label, local label follow up, or directive specifier
 		}
 
 

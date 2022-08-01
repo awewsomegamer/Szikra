@@ -8,12 +8,15 @@ void assemble(struct token* list, int count){
 	
 	struct token tokens[count];
 	
+
 	int i = 0;
 	while (current != NULL){
 		tokens[i++] = *current;
+		printf("%s ", TOKEN_NAMES[current->type]);
+
 		current = current->next;
 	}
-
+	
 	printf("\n");
 
 	// Format instructions	   : instrucion <...>

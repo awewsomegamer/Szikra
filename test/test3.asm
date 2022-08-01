@@ -1,1 +1,1 @@
-mov byte, bx
+jmp [bx]

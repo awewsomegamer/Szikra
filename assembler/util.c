@@ -6,7 +6,7 @@ void uppercaseString(char* string){
 }
 
 void lowercaseString(char* string){
-	for (int i = 0; i < strlen(string); i++)
+	for (int i = 0; i <= strlen(string); i++)
 		*(string + i) = tolower(*(string + i));
 }
 
@@ -27,15 +27,16 @@ bool IS_ALPHANUMERIC(char c){
 }
 
 char* filter_characters(char* string, bool(*function)(char c)){
-	char buffer[strlen(string)];
-	memset(buffer, 0, strlen(string));
+	char buffer[strlen(string) + 1];
+	memset(buffer, 0, strlen(string) + 1);
 	
 	int buffer_i = 0;
 	for (int i = 0; i < strlen(string); i++)
 		if ((*function)(*(string + i)))
 			buffer[buffer_i++] = *(string + i);
 	
-	char* str = malloc(strlen(buffer));
+	char* str = malloc(strlen(buffer) + 1);
+	memset(str, 0, strlen(buffer) + 1);
 	strcpy(str, buffer);
 
 	return str;
