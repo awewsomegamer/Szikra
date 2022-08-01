@@ -26,14 +26,17 @@ bool IS_ALPHANUMERIC(char c){
 	return (IS_ALPHA(c) || IS_DIGIT(c));
 }
 
-// char* filter_characters(char* string, bool(*function)(char c)){
-// 	char buffer[strlen(string)];
-// 	memset(buffer, 0, strlen(string));
+char* filter_characters(char* string, bool(*function)(char c)){
+	char buffer[strlen(string)];
+	memset(buffer, 0, strlen(string));
 	
-// 	int buffer_i = 0;
-// 	for (int i = 0; i < strlen(string); i++)
-// 		if ((*function)(*(string + i)))
-// 			buffer[buffer_i++] = *(string + i);
+	int buffer_i = 0;
+	for (int i = 0; i < strlen(string); i++)
+		if ((*function)(*(string + i)))
+			buffer[buffer_i++] = *(string + i);
 	
-// 	return buffer;
-// }
+	char* str = malloc(strlen(buffer));
+	strcpy(str, buffer);
+
+	return str;
+}

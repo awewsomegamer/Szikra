@@ -1,1 +1,1 @@
-byte
+mov byte ax, word bx

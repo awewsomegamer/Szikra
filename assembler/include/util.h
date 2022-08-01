@@ -15,6 +15,6 @@ bool IS_ALPHA(char c);
 bool IS_DIGIT(char c);
 bool IS_ALPHANUMERIC(char c);
 
-// char* filter_characters(char* string, bool* function);
+char* filter_characters(char* string, bool(*function)(char c));
 
 #endif

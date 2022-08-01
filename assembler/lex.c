@@ -47,6 +47,7 @@ char* get_str(char c, bool(*function)(char c)){
 	}
 
 	putback(c);
+	printf("PUTBACK: %c, BUFFER: %s\n", c, buffer);
 
 	char* str = malloc(i + 1);
 	memset(str, 0, i + 1);
@@ -59,40 +60,39 @@ int get_number(char c){
 	return strtol(strdup(get_str(c, IS_VISUAL)), NULL, 10);
 }
 
-int find_operation(char c){
-	char* name = strdup(get_str(c, IS_VISUAL));
-	uppercaseString(name);
+int find_operation(char* str){
+	char* filtered = strdup(str);
+	filter_characters(filtered, IS_ALPHA);
 
 	for (int i = 0; i < I_INSTRUCTION_MAX; i++)
-		if (strcmp(ISA[i].name, name) == 0)
+		if (strcmp(ISA[i].name, filtered) == 0)
 			return i;
 	
 	// No valid instruction found
 	return -1;
 }
 
-int find_size(char c){
-	char* size = strdup(get_str(c, IS_ALPHA));
-	uppercaseString(size);
+int find_size(char* str){
+	char* filtered = strdup(str);
+	filter_characters(filtered, IS_ALPHA);
 
-	printf("%s\n", size);
-
-	if (strcmp(size, "BYTE") == 0){
+	if (strcmp(filtered, "BYTE") == 0){
 		return SZ_BYTE;
-	} else if (strcmp(size, "WORD") == 0){
+	} else if (strcmp(filtered, "WORD") == 0){
 		return SZ_WORD;
-	} else if (strcmp(size, "DWORD") == 0){
+	} else if (strcmp(filtered, "DWORD") == 0){
 		return SZ_DWORD;
 	}
 
 	return -1;
 }
 
-int find_register(char c){
-	char* reg = strdup(get_str(c, IS_ALPHANUMERIC));
+int find_register(char* str){
+	char* filtered = strdup(str);
+	filter_characters(filtered, IS_ALPHANUMERIC);
 
 	for (int i = 0; i < I_REG_MAX; i++)
-		if (strcmp(REGISTERS[i], reg) == 0)
+		if (strcmp(REGISTERS[i], filtered) == 0)
 			return i;
 
 	return -1;
@@ -174,7 +174,11 @@ int lex(struct token* t){
 
 			return 1;
 		} else if (IS_VISUAL(c)){
-			int instruction_found = find_operation(c);
+			char* str = strdup(get_str(c, IS_ALPHANUMERIC));
+			char* upper = strdup(str);
+			uppercaseString(upper);
+
+			int instruction_found = find_operation(upper);
 
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
@@ -183,7 +187,7 @@ int lex(struct token* t){
 				return 1;
 			}
 
-			int size = find_size(c);
+			int size = find_size(upper);
 
 			if (size != -1){
 				t->type = T_SIZE;
@@ -192,7 +196,7 @@ int lex(struct token* t){
 				return 1;
 			}
 
-			int reg = find_register(c);
+			int reg = find_register(upper);
 
 			if (reg != -1){
 				t->type = T_REGISTER;
@@ -201,11 +205,9 @@ int lex(struct token* t){
 				return 1;
 			}
 
-			char* string = strdup(get_str(c, IS_ALPHA));
-
 			t->type = T_STRING;
-			t->extra_bytes = malloc(strlen(string));
-			strcpy(t->extra_bytes, string);
+			t->extra_bytes = malloc(strlen(str));
+			strcpy(t->extra_bytes, str);
 
 			// Regular string of characters found
 			// Possibly label, local label follow up, or directive specifier
