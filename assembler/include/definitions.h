@@ -31,6 +31,27 @@ enum {
 	T_SIZE
 };
 
+static const char* TOKEN_NAMES[] = {
+	[T_EOF] 		= "EOF",
+	[T_ADD] 		= "ADD",
+	[T_SUB] 		= "SUB",
+	[T_MUL] 		= "MUL",
+	[T_DIV] 		= "DIV",
+	[T_COMMA] 		= ",",
+	[T_DOT] 		= ".",
+	[T_COLON] 		= ":",
+	[T_DIRECTIVE] 		= "!",
+	[T_LSQR_BRACKET] 	= "[",
+	[T_RSQR_BRACKET] 	= "]",
+	[T_LPARAN] 		= "(",
+	[T_RPARAN] 		= ")",
+	[T_INT] 		= "INT",
+	[T_STRING] 		= "STRING",
+	[T_INSTRUCTION] 	= "INSTRUCTION",
+	[T_REGISTER] 		= "REGISTER",
+	[T_SIZE] 		= "SIZE"
+};
+
 struct instruction {
 	char* name;
 	int argc;
@@ -154,7 +175,7 @@ static const struct instruction ISA[] = {
 	[I_DS_INSTRUCTION] = DEFINE_INSTRUCTION("DS", N_ARGUMENTS)
 };
 
-static const char* REGISTERS[] {
+static const char* REGISTERS[] = {
 	[I_REG_AX] = "AX",
 	[I_REG_BX] = "BX",
 	[I_REG_CX] = "CX",

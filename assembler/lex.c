@@ -75,6 +75,8 @@ int find_size(char c){
 	char* size = strdup(get_str(c, IS_ALPHA));
 	uppercaseString(size);
 
+	printf("%s\n", size);
+
 	if (strcmp(size, "BYTE") == 0){
 		return SZ_BYTE;
 	} else if (strcmp(size, "WORD") == 0){
@@ -169,12 +171,16 @@ int lex(struct token* t){
 		if (IS_DIGIT(c)){
 			t->type = T_INT;
 			t->value = get_number(c);
+
+			return 1;
 		} else if (IS_VISUAL(c)){
 			int instruction_found = find_operation(c);
 
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
 				t->value = instruction_found;
+				
+				return 1;
 			}
 
 			int size = find_size(c);
@@ -182,6 +188,8 @@ int lex(struct token* t){
 			if (size != -1){
 				t->type = T_SIZE;
 				t->value = size;
+
+				return 1;
 			}
 
 			int reg = find_register(c);
@@ -189,6 +197,8 @@ int lex(struct token* t){
 			if (reg != -1){
 				t->type = T_REGISTER;
 				t->value = reg;
+
+				return 1;
 			}
 
 			char* string = strdup(get_str(c, IS_ALPHA));

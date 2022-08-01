@@ -12,6 +12,8 @@ void init_instructions(){
 // Syntax functions
 int get_size(struct token tokens[], int* index){
 	if (tokens[*index].type == T_SIZE){
+		printf("Found size\n");
+
 		(*index)++;
 		return tokens[*index].value;
 	}
@@ -39,12 +41,14 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	int index = 1;					  // Current token index
 
 	int size_1 = get_size(tokens, &index); 		  // Check current token for size
-	int arg_info_1 = 0;				  // Info parsed from arg
-	int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
+	// int arg_info_1 = 0;				  // Info parsed from arg
+	// int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
 
-	int size_2 = get_size(tokens, &index); 		  // Check current token for size
-	int arg_info_2 = 0;				  // Info parsed from arg
-	int arg_2 = get_arg(tokens, &index, &arg_info_1); // Get argument 2
+	// int size_2 = get_size(tokens, &index); 		  // Check current token for size
+	// int arg_info_2 = 0;				  // Info parsed from arg
+	// int arg_2 = get_arg(tokens, &index, &arg_info_1); // Get argument 2
+
+	printf("size 1: %d (@%d)\n", size_1, index);
 
 	// Write
 }

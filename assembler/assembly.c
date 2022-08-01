@@ -13,6 +13,12 @@ void assemble(struct token* list, int count){
 		tokens[i++] = *current;
 		current = current->next;
 	}
+	
+	for (int i = 0; i < count; i++){
+		printf("%s ", TOKEN_NAMES[tokens[i].type]);
+	}
+
+	printf("\n");
 
 	// Format instructions	   : instrucion <...>
 	// Format directives       : !DIRECTIVE <...>
@@ -21,7 +27,8 @@ void assemble(struct token* list, int count){
 	switch (tokens[0].type){
 	case T_INSTRUCTION:
 		// Generate instruction
-		(*instruction_list[ISA[tokens[0].value].argc])(tokens);
+		
+		// (*instruction_list[ISA[tokens[0].value].argc])(tokens);
 
 		break;
 	
