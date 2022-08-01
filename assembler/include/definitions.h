@@ -6,22 +6,29 @@
 #include <global.h>
 
 enum {
+	// End token
 	T_EOF,
 	
 	// Symbols
-	T_ADD,
-	T_SUB,
-	T_MUL,
-	T_DIV,
-	T_COMMA,
-	T_DOT,
-	T_COLON,
-	T_DIRECTIVE,
-	
-	// Complex
+	T_ADD, 		// +
+	T_SUB, 		// -
+	T_MUL, 		// *
+	T_DIV, 		// /
+	T_COMMA, 	// ,
+	T_DOT, 		// .
+	T_COLON,	// :
+	T_DIRECTIVE,	// !
+	T_LSQR_BRACKET, // [
+	T_RSQR_BRACKET, // ]
+	T_LPARAN,	// (
+	T_RPARAN,	// )
+
+	// Complex construct
 	T_INT,
 	T_STRING,
 	T_INSTRUCTION,
+	T_REGISTER,
+	T_SIZE
 };
 
 struct instruction {
@@ -49,7 +56,31 @@ enum {
 	ZERO_ARGUMENTS,
 	ONE_ARGUMENT,
 	TWO_ARGUMENTS,
-	N_ARGUMENTS
+	N_ARGUMENTS,
+	ARGUMENTS_MAX
+};
+
+enum {
+	SZ_BYTE,
+	SZ_WORD,
+	SZ_DWORD
+};
+
+enum {
+	I_REG_AX,
+	I_REG_BX,
+	I_REG_CX,
+	I_REG_DX,
+	
+	I_REG_BP,
+	I_REG_SP,
+	I_REG_IP,
+
+	I_REG_I1,
+	I_REG_I2,
+	I_REG_I3,
+	I_REG_I4,
+	I_REG_MAX
 };
 
 enum {
@@ -121,6 +152,20 @@ static const struct instruction ISA[] = {
 	[I_POP_INSTRUCTION] = DEFINE_INSTRUCTION("POP", ONE_ARGUMENT),
 	[I_DB_INSTRUCTION] = DEFINE_INSTRUCTION("DB", N_ARGUMENTS),
 	[I_DS_INSTRUCTION] = DEFINE_INSTRUCTION("DS", N_ARGUMENTS)
+};
+
+static const char* REGISTERS[] {
+	[I_REG_AX] = "AX",
+	[I_REG_BX] = "BX",
+	[I_REG_CX] = "CX",
+	[I_REG_DX] = "DX",
+	[I_REG_BP] = "BP",
+	[I_REG_SP] = "SP",
+	[I_REG_IP] = "IP",
+	[I_REG_I1] = "I1",
+	[I_REG_I2] = "I2",
+	[I_REG_I3] = "I3",
+	[I_REG_I4] = "I4",
 };
 
 #endif

@@ -74,8 +74,8 @@ Syntax:
 
 Registers (32 bit):
 	AX -+ General purpose registers
-	BX	| Mostly used for specifying arguments for interrupts
-	CX	|
+	BX  | Mostly used for specifying arguments for interrupts
+	CX  |
 	DX -+
 
 	BP - Stack's base pointer in RAM
@@ -85,8 +85,8 @@ Registers (32 bit):
 	IP - Current instruction pointer in RAM
 
 	I1 -+ General purpose registers
-	I2	| Mostly used for pointers and such, not used by interrupts
-	I3	|
+	I2  | Mostly used for pointers and such, not used by interrupts
+	I3  |
 	I4 -+
 
 Memory: (this is not the final map (currently based on 1 GB of memory))

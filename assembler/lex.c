@@ -1,8 +1,5 @@
 #include <lex.h>
 
-#define IS_VISUAL(c) (c >= 0x21 && c <= 0x7E)
-#define IS_DIGIT(c) (c >= 0x30 && c <= 0x39)
-
 char read_char(){
 	char c = fgetc(_in_file);
 
@@ -39,12 +36,12 @@ char next(){
 	return skip();
 }
 
-char* get_str(char c){
+char* get_str(char c, bool(*function)(char c)){
 	char buffer[1024];
 	memset(buffer, 0, 1024);
 
 	int i = 0;
-	while (IS_VISUAL(c) && !_eof_reached){
+	while ((*function)(c) && !_eof_reached){
 		buffer[i++] = c;
 		c = read_char();
 	}
@@ -59,11 +56,11 @@ char* get_str(char c){
 }
 
 int get_number(char c){
-	return strtol(strdup(get_str(c)), NULL, 10);
+	return strtol(strdup(get_str(c, IS_VISUAL)), NULL, 10);
 }
 
 int find_operation(char c){
-	char* name = strdup(get_str(c));
+	char* name = strdup(get_str(c, IS_VISUAL));
 	uppercaseString(name);
 
 	for (int i = 0; i < I_INSTRUCTION_MAX; i++)
@@ -71,6 +68,31 @@ int find_operation(char c){
 			return i;
 	
 	// No valid instruction found
+	return -1;
+}
+
+int find_size(char c){
+	char* size = strdup(get_str(c, IS_ALPHA));
+	uppercaseString(size);
+
+	if (strcmp(size, "BYTE") == 0){
+		return SZ_BYTE;
+	} else if (strcmp(size, "WORD") == 0){
+		return SZ_WORD;
+	} else if (strcmp(size, "DWORD") == 0){
+		return SZ_DWORD;
+	}
+
+	return -1;
+}
+
+int find_register(char c){
+	char* reg = strdup(get_str(c, IS_ALPHANUMERIC));
+
+	for (int i = 0; i < I_REG_MAX; i++)
+		if (strcmp(REGISTERS[i], reg) == 0)
+			return i;
+
 	return -1;
 }
 
@@ -123,6 +145,26 @@ int lex(struct token* t){
 
 		return 1;
 
+	case '[':
+		t->type = T_LSQR_BRACKET;
+
+		return 1;
+
+	case ']':
+		t->type = T_RSQR_BRACKET;
+
+		return 1;
+
+	case '(':
+		t->type = T_LPARAN;
+
+		return 1;
+
+	case ')':
+		t->type = T_RPARAN;
+
+		return 1;
+
 	default:
 		if (IS_DIGIT(c)){
 			t->type = T_INT;
@@ -133,10 +175,30 @@ int lex(struct token* t){
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
 				t->value = instruction_found;
-			} else {
-				// Regular string of characters found
-				// Possibly label, local label follow up, or directive specifier
 			}
+
+			int size = find_size(c);
+
+			if (size != -1){
+				t->type = T_SIZE;
+				t->value = size;
+			}
+
+			int reg = find_register(c);
+
+			if (reg != -1){
+				t->type = T_REGISTER;
+				t->value = reg;
+			}
+
+			char* string = strdup(get_str(c, IS_ALPHA));
+
+			t->type = T_STRING;
+			t->extra_bytes = malloc(strlen(string));
+			strcpy(t->extra_bytes, string);
+
+			// Regular string of characters found
+			// Possibly label, local label follow up, or directive specifier
 		}
 
 
