@@ -53,9 +53,9 @@ int main(int argc, char** argv){
 	
 	init_instructions();
 
-	bool stop = false;
+	bool run = true;
 
-	while (true){
+	while (run){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
 
@@ -63,8 +63,7 @@ int main(int argc, char** argv){
 		int token_count = 1; // There is at least 1 token
 
 		// Get current token series
-		while (_line == current_line){
-			lex(current);
+		while (_line == current_line && lex(current)){
 			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
@@ -73,11 +72,6 @@ int main(int argc, char** argv){
 			current->next = n;
 
 			current = n;
-
-			if (_eof_reached){
-				stop = true;
-				break;
-			}
 		}
 
 		// Assembling
@@ -93,7 +87,7 @@ int main(int argc, char** argv){
 			current = current->next;	
 		}
 
-		if (stop)
+		if (_eof_reached)
 			break;
 	}
 

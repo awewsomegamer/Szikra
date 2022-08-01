@@ -36,23 +36,25 @@ void assert_comma(struct token t, int* index){
 void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	int index = 1;					  // Current token index
 
-	int size_1 = get_size(tokens, &index); 		  // Check current token for size
+	// int size_1 = get_size(tokens, &index); 		  // Check current token for size
 	// int arg_info_1 = 0;				  // Info parsed from arg
 	// int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
 
-	assert_comma(tokens[index], &index);
+	// assert_comma(tokens[index], &index);
 
 	// int size_2 = get_size(tokens, &index); 		  // Check current token for size
 	// int arg_info_2 = 0;				  // Info parsed from arg
 	// int arg_2 = get_arg(tokens, &index, &arg_info_1); // Get argument 2
 
-	printf("size 1: %d (@%d)\n", size_1, index);
-
 	// Write
 }
 
 void ONE_ARG_INSTRUCTION(struct token tokens[]){
+	int index = 1;
 
+	int size = get_size(tokens, &index);
+	int arg_info = 0;
+	int arg = get_arg(tokens, &index, &arg_info);
 }
 
 void ZERO_ARG_INSTRUCTION(struct token tokens[]){

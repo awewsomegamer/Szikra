@@ -17,13 +17,14 @@ enum {
 	T_COMMA, 	// ,
 	T_DOT, 		// .
 	T_COLON,	// :
+	T_COMMENT,	// ;
 	T_DIRECTIVE,	// !
 	T_LSQR_BRACKET, // [
 	T_RSQR_BRACKET, // ]
 	T_LPARAN,	// (
 	T_RPARAN,	// )
 
-	// Complex construct
+	// Complex constructs
 	T_INT,
 	T_STRING,
 	T_INSTRUCTION,
@@ -40,6 +41,7 @@ static const char* TOKEN_NAMES[] = {
 	[T_COMMA] 		= ",",
 	[T_DOT] 		= ".",
 	[T_COLON] 		= ":",
+	[T_COMMENT] 		= ";",
 	[T_DIRECTIVE] 		= "!",
 	[T_LSQR_BRACKET] 	= "[",
 	[T_RSQR_BRACKET] 	= "]",

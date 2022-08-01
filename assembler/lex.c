@@ -61,8 +61,7 @@ int get_number(char c){
 }
 
 int find_operation(char* str){
-	char* filtered = strdup(str);
-	filter_characters(filtered, IS_ALPHA);
+	char* filtered = filter_characters(str, IS_ALPHA);
 
 	for (int i = 0; i < I_INSTRUCTION_MAX; i++)
 		if (strcmp(ISA[i].name, filtered) == 0)
@@ -73,8 +72,7 @@ int find_operation(char* str){
 }
 
 int find_size(char* str){
-	char* filtered = strdup(str);
-	filter_characters(filtered, IS_ALPHA);
+	char* filtered = filter_characters(str, IS_ALPHA);
 
 	if (strcmp(filtered, "BYTE") == 0){
 		return SZ_BYTE;
@@ -88,8 +86,7 @@ int find_size(char* str){
 }
 
 int find_register(char* str){
-	char* filtered = strdup(str);
-	filter_characters(filtered, IS_ALPHANUMERIC);
+	char* filtered = filter_characters(str, IS_ALPHANUMERIC);
 
 	for (int i = 0; i < I_REG_MAX; i++)
 		if (strcmp(REGISTERS[i], filtered) == 0)
@@ -105,7 +102,7 @@ int lex(struct token* t){
 	case EOF:
 		t->type = T_EOF;
 	
-		return 1;
+		return 0;
 
 	case '+':
 		t->type = T_ADD;
@@ -167,6 +164,11 @@ int lex(struct token* t){
 
 		return 1;
 
+	case ';':
+		t->type = T_COMMENT;
+
+		return 0;
+
 	default:
 		if (IS_DIGIT(c)){
 			t->type = T_INT;
@@ -174,8 +176,9 @@ int lex(struct token* t){
 
 			return 1;
 		} else if (IS_VISUAL(c)){
-			char* str = strdup(get_str(c, IS_ALPHANUMERIC));
-			char* upper = strdup(str);
+			char* str = strdup(get_str(c, IS_VISUAL));
+			char* filtered = filter_characters(str, IS_ALPHANUMERIC);
+			char* upper = strdup(filtered);
 			uppercaseString(upper);
 
 			int instruction_found = find_operation(upper);
