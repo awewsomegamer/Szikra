@@ -12,7 +12,7 @@
 
 #include <definitions.h>
 
-#include <error_handler.h>
+#include <message_handler.h>
 
 extern uint32_t 	_line;
 extern uint32_t		_label_count;
@@ -20,6 +20,7 @@ extern char* 		_file_format;
 extern char		_putback;
 extern bool		_error_detected;
 extern bool		_eof_reached;
+extern bool		_debug;
 
 extern FILE* 		_in_file;
 extern FILE* 		_out_file;

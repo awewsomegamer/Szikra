@@ -29,28 +29,51 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 	
 	switch (tokens[*index].type){
 	case T_REGISTER:
+		debug("FOUND REGISTER");
+		
 		*arg_info = CODE_RREG;
-		return tokens[*index].value;
+		return tokens[(*index)++].value;
 
 	case T_LSQR_BRACKET:
+		debug("FOUND REFERENCE TO ADDRESS");
+
 		int index_ = *index + 1;
 		int value = get_arg(tokens, &index_, arg_info);
 		*arg_info = *arg_info == CODE_RREG ? CODE_PREG : CODE_PVALUE;
+
+		*index += 2; // Jump over closing ], revise later to check for ] and to check for :
+
 		return value;
 
 	case T_INT:
+		debug("FOUND INTEGER LITERAL");
+
 		*arg_info = CODE_RVALUE;
-		return tokens[*index].value;
+		return tokens[(*index)++].value;
+	
+	case T_STRING: // Label
+		debug("FOUND LABEL REFERENCE");
+
+		*arg_info = CODE_RVALUE;
+
+
+		// Find global label
+		// If found
+		// 	Check for local label reference (repeat this until no more labels are found)
+		// 	Return labels address (if local label return global label's address + local label's address)
+		// If not found
+		//	Note the current file location
+		// 	Return -1 for label not found, and caller can interpret it as 32-bit 0
+
+		break;
 	}
 
-
-
-	return 0;
+	return -1;
 }
 
 void assert_comma(struct token t, int* index){
 	if (t.type != T_COMMA){
-		fatal_error("Expected comma, line %d", _line);
+		fatal_error("Expected comma");
 		return;
 	}
 
@@ -61,15 +84,19 @@ void assert_comma(struct token t, int* index){
 void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	int index = 1;					  // Current token index
 
-	// int size_1 = get_size(tokens, &index); 		  // Check current token for size
-	// int arg_info_1 = 0;				  // Info parsed from arg
-	// int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
+	int size_1 = get_size(tokens, &index); 		  // Check current token for size
+	int arg_info_1 = 0;				  // Info parsed from arg
+	int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
 
-	// assert_comma(tokens[index], &index);
+	debug("size_1: %d, arg_info_1: %d, arg_1: %d", size_1, arg_info_1, arg_1);
 
-	// int size_2 = get_size(tokens, &index); 		  // Check current token for size
-	// int arg_info_2 = 0;				  // Info parsed from arg
-	// int arg_2 = get_arg(tokens, &index, &arg_info_1); // Get argument 2
+	assert_comma(tokens[index], &index);		  // 
+
+	int size_2 = get_size(tokens, &index); 		  // Check current token for size
+	int arg_info_2 = 0;				  // Info parsed from arg
+	int arg_2 = get_arg(tokens, &index, &arg_info_2); // Get argument 2
+	
+	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
 	// Write
 }
@@ -80,13 +107,15 @@ void ONE_ARG_INSTRUCTION(struct token tokens[]){
 	int arg_info = 0;
 	int arg = get_arg(tokens, &index, &arg_info);
 
-	printf("size: %d, arg_info: %d, arg: %d\n", size, arg_info, arg);
+	debug("size: %d, arg_info: %d, arg: %d", size, arg_info, arg);
+
+	// Write
 }
 
 void ZERO_ARG_INSTRUCTION(struct token tokens[]){
-
+	// Write
 }
 
 void N_ARG_INSTRUCTION(struct token tokens[]){
-
+	
 }

@@ -47,7 +47,7 @@ char* get_str(char c, bool(*function)(char c)){
 	}
 
 	putback(c);
-	printf("PUTBACK: %c, BUFFER: %s\n", c, buffer);
+	debug("PUTBACK: %d, BUFFER: %s\n", c, buffer);
 
 	char* str = malloc(i + 1);
 	memset(str, 0, i + 1);
@@ -57,7 +57,7 @@ char* get_str(char c, bool(*function)(char c)){
 }
 
 int get_number(char c){
-	return strtol(strdup(get_str(c, IS_VISUAL)), NULL, 10);
+	return strtol(strdup(get_str(c, IS_ALPHANUMERIC)), NULL, 10);
 }
 
 int find_operation(char* str){
@@ -168,6 +168,16 @@ int lex(struct token* t){
 		t->type = T_COMMENT;
 
 		return 0;
+
+	case '#':
+		t->type = T_HASH;
+
+		return 1;
+
+	case '%':
+		t->type = T_PERCENT;
+
+		return 1;
 
 	default:
 		if (IS_DIGIT(c)){

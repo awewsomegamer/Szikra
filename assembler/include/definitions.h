@@ -23,6 +23,8 @@ enum {
 	T_RSQR_BRACKET, // ]
 	T_LPARAN,	// (
 	T_RPARAN,	// )
+	T_HASH,		// #
+	T_PERCENT,	// %
 
 	// Complex constructs
 	T_INT,
@@ -47,6 +49,8 @@ static const char* TOKEN_NAMES[] = {
 	[T_RSQR_BRACKET] 	= "]",
 	[T_LPARAN] 		= "(",
 	[T_RPARAN] 		= ")",
+	[T_HASH]		= "#",
+	[T_PERCENT]		= "%",
 	[T_INT] 		= "INT",
 	[T_STRING] 		= "STRING",
 	[T_INSTRUCTION] 	= "INSTRUCTION",

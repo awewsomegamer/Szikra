@@ -8,16 +8,18 @@ void assemble(struct token* list, int count){
 	
 	struct token tokens[count];
 	
+	debug("-------");
 
+	debug("ASSEMBLING:");
 	int i = 0;
 	while (current != NULL){
 		tokens[i++] = *current;
-		printf("%s ", TOKEN_NAMES[current->type]);
+		debug("%s", TOKEN_NAMES[current->type]);
 
 		current = current->next;
 	}
 	
-	printf("\n");
+	debug("-------");
 
 	// Format instructions	   : instrucion <...>
 	// Format directives       : !DIRECTIVE <...>
@@ -41,7 +43,7 @@ void assemble(struct token* list, int count){
 		if (count > 2 && tokens[1].type == T_STRING && tokens[count - 1].type == T_COLON){
 			// Local Label
 		} else {
-			error("Could not define local label on line %d", _line);	
+			error("Could not define local label");	
 		}
 
 		break;	
@@ -50,7 +52,7 @@ void assemble(struct token* list, int count){
 		if (count > 1 && tokens[count - 1].type == T_COLON){
 			// Label
 		} else {
-			error("Could not define label on line %d", _line);
+			error("Could not define label");
 		}
 
 		break;

@@ -9,6 +9,7 @@ char* _file_format = NULL;
 char _putback = 0;
 bool _error_detected = false;
 bool _eof_reached = false;
+bool _debug = false;
 
 FILE* _in_file = NULL;
 FILE* _out_file = NULL;
@@ -31,6 +32,8 @@ int main(int argc, char** argv){
 		} else if (strcmp(argv[i], "-format") == 0){
 			out_file_format = strdup(argv[++i]);
 			continue;
+		} else if (strcmp(argv[i], "-debug") == 0){
+			_debug = true;
 		}
 	}
 
@@ -53,9 +56,7 @@ int main(int argc, char** argv){
 	
 	init_instructions();
 
-	bool run = true;
-
-	while (run){
+	while (!_eof_reached){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
 
@@ -63,7 +64,7 @@ int main(int argc, char** argv){
 		int token_count = 1; // There is at least 1 token
 
 		// Get current token series
-		while (_line == current_line && lex(current)){
+		while (lex(current) && _line == current_line){
 			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
@@ -86,9 +87,6 @@ int main(int argc, char** argv){
 
 			current = current->next;	
 		}
-
-		if (_eof_reached)
-			break;
 	}
 
 	printf("\n");

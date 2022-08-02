@@ -64,11 +64,11 @@ Instruction:
 Syntax:
 	[] 	-> Reference a memory address
 	:  	-> Define a label (label:)
-	.:  -> Define a local label (.label:)
+	.:  	-> Define a local label (.label:)
 	!	-> Define different properties assembly (!AT 0x0, !DATA, !TEXT)
 
 	(Might make macros, if so #macro <name> <argc> and #macro_end)
-	include(#: binary, $: code) <path/to/file>
+	(#: binary, $: code)include "<path/to/file>"
 
 	Operation <<Size (byte, word, default: dword)> <Value>> ...
 

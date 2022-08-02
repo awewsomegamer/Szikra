@@ -1,4 +1,4 @@
-#include <error_handler.h>
+#include <message_handler.h>
 #include <global.h>
 
 void fatal_error(char* format, ...){
@@ -9,7 +9,7 @@ void fatal_error(char* format, ...){
 
 	vprintf(format, args);
 
-	printf("\n");
+	printf(" [LINE: %d]\n", _line);
 
 	exit(1);
 }
@@ -24,7 +24,7 @@ void error(char* format, ...){
 
 	vprintf(format, args);
 
-	printf("\n");
+	printf(" [LINE: %d]\n", _line);
 }
 
 void warn(char* format, ...){
@@ -35,5 +35,19 @@ void warn(char* format, ...){
 
 	vprintf(format, args);
 
-	printf("\n");
+	printf(" [LINE: %d]\n", _line);
+}
+
+void debug(char* format, ...){
+	if (_debug){
+		printf("[DEBUG]: ");
+		
+		va_list args;
+		va_start(args, format);
+
+		vprintf(format, args);
+
+		printf(" [LINE: %d]\n", _line);
+	}
+
 }
