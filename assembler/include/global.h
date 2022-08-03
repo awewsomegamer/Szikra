@@ -1,6 +1,10 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define AT_DIRECTIVE_HASH   0x5972FA
+#define TEXT_DIRECTIVE_HASH 0x7C8C508A
+#define DATA_DIRECTIVE_HASH 0x7C832600
+
 #include <stdio.h>
 #include <stdlib.h>
 

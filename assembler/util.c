@@ -52,3 +52,14 @@ int size_in_bytes(int argument){
 
 	return i;
 }
+
+// DJB2
+uint64_t hash_string(char* string){
+	uint64_t hash = 5381;
+	int c;
+
+	while (c = *string++)
+		hash = ((hash << 5) + hash) + c;
+
+	return hash;
+}

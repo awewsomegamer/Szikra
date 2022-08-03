@@ -53,7 +53,7 @@ int main(int argc, char** argv){
 	
 	_labels = (struct label*)malloc(sizeof(struct label));
 	_current_label = _labels;
-	
+
 	init_instructions();
 
 	while (!_eof_reached){
@@ -88,6 +88,9 @@ int main(int argc, char** argv){
 			current = current->next;	
 		}
 	}
+
+	fclose(_in_file);
+	fclose(_out_file);
 
 	printf("\n");
 }

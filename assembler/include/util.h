@@ -24,4 +24,8 @@ char* filter_characters(char* string, bool(*function)(char c));
 
 int size_in_bytes(int argument);
 
+uint64_t hash_string(char* string);
+
+
+
 #endif

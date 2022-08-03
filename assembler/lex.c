@@ -50,7 +50,7 @@ char* get_str(char c, bool(*function)(char c)){
 	}
 
 	putback(c);
-	debug("PUTBACK: %d, BUFFER: %s\n", c, buffer);
+	debug("[LEX]: PUTBACK: %d, BUFFER: %s\n", c, buffer);
 
 	char* str = malloc(i + 1);
 	memset(str, 0, i + 1);
@@ -101,6 +101,8 @@ int find_register(char* str){
 int lex(struct token* t){
 	char c = next();
 	
+	debug("[LEX]: NEXT: %c", c);
+
 	switch (c) {
 	case EOF:
 		t->type = T_EOF;
@@ -222,14 +224,14 @@ int lex(struct token* t){
 			
 			// Label
 			t->type = T_STRING;
-			t->extra_bytes = str;
+			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
+
 			return 1;
 		} else if (IS_VISUAL(c)){
 			// Dump string into a string token
 			char* str = get_str(c, IS_VISUAL);
 			t->type = T_STRING;
-			t->extra_bytes = malloc(strlen(str));
-			strcpy(t->extra_bytes, str);
+			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 		}
 
 

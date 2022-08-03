@@ -53,7 +53,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		*index = index_; // Jump over closing ], revise later to check for ] and to check for :
 
 		int offset_info = 0;
-		int offset = get_offset(tokens, &index, &offset_info);
+		int offset = get_offset(tokens, index, &offset_info);
 
 		return value;
 
@@ -100,8 +100,6 @@ uint8_t to_information_byte(int argument, int argument_type, int cast){
 	// `------------- Argument type
 
 	uint8_t byte = 0;
-
-	printf("%d\n", argument_type & 0b11);
 
 	byte |= (argument_type & 0b11) << 6;
 	byte |= ((size_in_bytes(argument)) & 0b11) << 4;
@@ -152,7 +150,7 @@ void ONE_ARG_INSTRUCTION(struct token tokens[]){
 	write_byte(tokens[0].value);
 
 	// Write argument
-	write_byte(to_information_byte(arg, arg, size));
+	write_byte(to_information_byte(arg, arg_info, size));
 	write_byte(arg);
 }
 
