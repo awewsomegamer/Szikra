@@ -3,11 +3,14 @@
 char read_char(){
 	char c = fgetc(_in_file);
 
-	if (c == EOF)
+	switch (c){
+	case EOF:
 		_eof_reached = true;
-	
-	if (c == '\n')
+		break;
+	case '\n':
 		_line++;
+		break;
+	}
 
 	return c;
 }
@@ -18,10 +21,10 @@ void putback(char c) {
 
 char skip(){
 	char c = read_char();
-
+	
 	while (!IS_VISUAL(c) && !_eof_reached)
 		c = read_char();
-		
+
 	return c;
 }
 
@@ -167,7 +170,7 @@ int lex(struct token* t){
 	case ';':
 		t->type = T_COMMENT;
 
-		return 0;
+		return 1;
 
 	case '#':
 		t->type = T_HASH;

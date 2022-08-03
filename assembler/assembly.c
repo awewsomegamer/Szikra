@@ -12,7 +12,7 @@ void assemble(struct token* list, int count){
 
 	debug("ASSEMBLING:");
 	int i = 0;
-	while (current != NULL){
+	while (current != NULL && current->type != T_COMMENT){
 		tokens[i++] = *current;
 		debug("%s", TOKEN_NAMES[current->type]);
 

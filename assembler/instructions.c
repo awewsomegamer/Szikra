@@ -1,4 +1,5 @@
 #include <instructions.h>
+#include <writer.h>
 
 void(*instruction_list[ARGUMENTS_MAX])(struct token[]);
 
@@ -98,7 +99,9 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	
 	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
-	// Write
+	write_byte(tokens[0].value); // Write instruction code
+	write_byte(arg_1);
+	write_byte(arg_2);
 }
 
 void ONE_ARG_INSTRUCTION(struct token tokens[]){
@@ -109,7 +112,8 @@ void ONE_ARG_INSTRUCTION(struct token tokens[]){
 
 	debug("size: %d, arg_info: %d, arg: %d", size, arg_info, arg);
 
-	// Write
+	write_byte(tokens[0].value); // Write instruction code
+	write_byte(arg);
 }
 
 void ZERO_ARG_INSTRUCTION(struct token tokens[]){

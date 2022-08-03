@@ -59,7 +59,7 @@ int main(int argc, char** argv){
 	while (!_eof_reached){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
-
+		
 		int current_line = _line;
 		int token_count = 1; // There is at least 1 token
 
