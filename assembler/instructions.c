@@ -18,11 +18,19 @@ int get_size(struct token tokens[], int* index){
 	return 0;
 }
 
-// Check for:
+int get_offset(struct token tokens[], int* index, int* offset_info){
+
+	return 0;
+}
+
+// Checks for:
 // Register - ax (T_REGISTER)
 // Register ptr - [ax] (T_LSQR, T_REGISTER, T_RSQR)
 // Value - 123, 0x55, 0b11 (T_INT)
 // Value ptr - [123], [0x55], [0b11] (T_LSQR, T_INT, T_RSQR)
+// Should also check for:
+// Offsets - 
+
 
 int get_arg(struct token tokens[], int* index, int* arg_info){
 	int type_arg = 0;
@@ -42,7 +50,10 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		int value = get_arg(tokens, &index_, arg_info);
 		*arg_info = *arg_info == CODE_RREG ? CODE_PREG : CODE_PVALUE;
 
-		*index += 2; // Jump over closing ], revise later to check for ] and to check for :
+		*index = index_; // Jump over closing ], revise later to check for ] and to check for :
+
+		int offset_info = 0;
+		int offset = get_offset(tokens, &index, &offset_info);
 
 		return value;
 
@@ -81,6 +92,24 @@ void assert_comma(struct token t, int* index){
 	(*index)++;
 }
 
+uint8_t to_information_byte(int argument, int argument_type, int cast){
+	// 00 00 00 00
+	// |  |  |  `---- Offset descriptor
+	// |  |  `------- Argument size cast
+	// |  `---------- Argument size
+	// `------------- Argument type
+
+	uint8_t byte = 0;
+
+	printf("%d\n", argument_type & 0b11);
+
+	byte |= (argument_type & 0b11) << 6;
+	byte |= ((size_in_bytes(argument)) & 0b11) << 4;
+	byte |= (cast & 0b11) << 2;
+
+	return byte;
+}
+
 // mov <size> <ax> <,> <size> <bx>
 void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	int index = 1;					  // Current token index
@@ -91,7 +120,7 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 
 	debug("size_1: %d, arg_info_1: %d, arg_1: %d", size_1, arg_info_1, arg_1);
 
-	assert_comma(tokens[index], &index);		  // 
+	assert_comma(tokens[index], &index);		  // Assert comma
 
 	int size_2 = get_size(tokens, &index); 		  // Check current token for size
 	int arg_info_2 = 0;				  // Info parsed from arg
@@ -99,8 +128,15 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	
 	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
-	write_byte(tokens[0].value); // Write instruction code
+	// Write opcode
+	write_byte(tokens[0].value);
+
+	// Argument 1
+	write_byte(to_information_byte(arg_1, arg_info_1, size_1));
 	write_byte(arg_1);
+
+	// Argument 2
+	write_byte(to_information_byte(arg_2, arg_info_2, size_2));
 	write_byte(arg_2);
 }
 
@@ -112,14 +148,18 @@ void ONE_ARG_INSTRUCTION(struct token tokens[]){
 
 	debug("size: %d, arg_info: %d, arg: %d", size, arg_info, arg);
 
-	write_byte(tokens[0].value); // Write instruction code
+	// Write instruction code
+	write_byte(tokens[0].value);
+
+	// Write argument
+	write_byte(to_information_byte(arg, arg, size));
 	write_byte(arg);
 }
 
 void ZERO_ARG_INSTRUCTION(struct token tokens[]){
-	// Write
+	write_byte(tokens[0].value);
 }
 
 void N_ARG_INSTRUCTION(struct token tokens[]){
-	
+
 }

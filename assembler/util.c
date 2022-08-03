@@ -41,3 +41,14 @@ char* filter_characters(char* string, bool(*function)(char c)){
 
 	return str;
 }
+
+int size_in_bytes(int argument){
+	int i = 0;
+
+	while (argument != 0){
+		argument >>= 8;
+		if (argument != 0) i++;
+	}
+
+	return i;
+}
