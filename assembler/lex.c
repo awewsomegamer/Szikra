@@ -16,6 +16,7 @@ char read_char(){
 }
 
 void putback(char c) {
+	printf("PUTTING BACK: %c\n", c);
 	_putback = c;
 }
 
@@ -24,6 +25,8 @@ char skip(){
 	
 	while (!IS_VISUAL(c) && !_eof_reached)
 		c = read_char();
+
+	printf("SKIPPED TO: %c\n", c);
 
 	return c;
 }
@@ -100,8 +103,6 @@ int find_register(char* str){
 
 int lex(struct token* t){
 	char c = next();
-	
-	debug("[LEX]: NEXT: %c", c);
 
 	switch (c) {
 	case EOF:
