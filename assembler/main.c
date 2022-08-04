@@ -62,62 +62,15 @@ int main(int argc, char** argv){
 
 	init_instructions();
 
-	struct token* carry_over = malloc(sizeof(struct token));
-	bool should_carry_over = false;
-
 	while (!_eof_reached){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
 
-		// One extra token was read in last call, set it as the first token
-		if (should_carry_over){
-			should_carry_over = false;
-
-			current->type = carry_over->type;
-			current->value = carry_over->value;
-
-			if (carry_over->extra_bytes != NULL){
-				current->extra_bytes = malloc(sizeof(carry_over->extra_bytes));
-				memcpy(current->extra_bytes, carry_over->extra_bytes, sizeof(carry_over->extra_bytes));
-			}
-
-			// Reset carry over
-			free(carry_over);
-			carry_over = malloc(sizeof(struct token));
-
-			struct token* n = malloc(sizeof(struct token));
-			n->next = NULL;
-
-			current->next = n;
-
-			current = n;
-		}
-
 		int token_count = 1; // There is at least 1 token
-		int current_line = -1;
+		// int current_line = -1;
 
 		// Get current token series
-		while (lex(carry_over)){ //(lex(current) && (current_line != -1 && _line == current_line)) || (current_line == -1)
-			// printf("%s (%d) %d\n", TOKEN_NAMES[current->type], current->type, _line);
-
-			if (current_line != -1 && current_line != _line){
-				should_carry_over = true;
-				break;
-			}
-
-			// Copy carry over data to current data
-			current->type = carry_over->type;
-			current->value = carry_over->value;
-
-			if (carry_over->extra_bytes != NULL){
-				current->extra_bytes = malloc(sizeof(carry_over->extra_bytes));
-				memcpy(current->extra_bytes, carry_over->extra_bytes, sizeof(carry_over->extra_bytes));
-			}
-
-			// Reset carry over
-			free(carry_over);
-			carry_over = malloc(sizeof(struct token));
-			
+		while (lex(current)){
 			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
@@ -126,11 +79,22 @@ int main(int argc, char** argv){
 			current->next = n;
 
 			current = n;
+			
+			// Check if token is final token
+			if (_putback == '\n' || _putback == '\r' || _putback == '\t')
+				break;
 
-			// if (current_line != -1 && _line == current_line)
+			// long cur_position = ftell(_in_file);
+			// printf("CUR: %d\n", cur_position);
+
+			// if (fgetc(_in_file) == '\n'){
+			// 	printf("NEW LINE\n");
+			// 	_line++;
+				
 			// 	break;
+			// }
 
-			current_line = _line;
+			// fseek(_in_file, cur_position, SEEK_SET);
 		}
 
 		// Assembling
