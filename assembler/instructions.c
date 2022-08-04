@@ -67,8 +67,10 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		debug("FOUND LABEL REFERENCE");
 
 		*arg_info = CODE_RVALUE;
-		
+
 		printf("%s\n", tokens[*index].extra_bytes);
+
+		return 0;
 
 		// Find global label
 		// If found
@@ -120,7 +122,7 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	debug("size_1: %d, arg_info_1: %d, arg_1: %d", size_1, arg_info_1, arg_1);
 
 	assert_comma(tokens[index], &index);		  // Assert comma
-
+	
 	int size_2 = get_size(tokens, &index); 		  // Check current token for size
 	int arg_info_2 = 0;				  // Info parsed from arg
 	int arg_2 = get_arg(tokens, &index, &arg_info_2); // Get argument 2

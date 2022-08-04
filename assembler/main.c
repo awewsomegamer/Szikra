@@ -73,7 +73,13 @@ int main(int argc, char** argv){
 		if (should_carry_over){
 			should_carry_over = false;
 
-			memcpy(current, carry_over, sizeof(carry_over));
+			current->type = carry_over->type;
+			current->value = carry_over->value;
+
+			if (carry_over->extra_bytes != NULL){
+				current->extra_bytes = malloc(sizeof(carry_over->extra_bytes));
+				memcpy(current->extra_bytes, carry_over->extra_bytes, sizeof(carry_over->extra_bytes));
+			}
 
 			// Reset carry over
 			free(carry_over);
@@ -100,7 +106,13 @@ int main(int argc, char** argv){
 			}
 
 			// Copy carry over data to current data
-			memcpy(current, carry_over, sizeof(carry_over));
+			current->type = carry_over->type;
+			current->value = carry_over->value;
+
+			if (carry_over->extra_bytes != NULL){
+				current->extra_bytes = malloc(sizeof(carry_over->extra_bytes));
+				memcpy(current->extra_bytes, carry_over->extra_bytes, sizeof(carry_over->extra_bytes));
+			}
 
 			// Reset carry over
 			free(carry_over);
