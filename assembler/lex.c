@@ -1,5 +1,7 @@
 #include <lex.h>
 
+bool is_comment = false;
+
 char read_char(){
 	char c = fgetc(_in_file);
 
@@ -10,6 +12,9 @@ char read_char(){
 	case '\n':
 		_line++;
 		break;
+	case ';':
+		is_comment = !is_comment;
+		return 0;
 	}
 
 	return c;
@@ -17,7 +22,7 @@ char read_char(){
 
 void putback(char c) {
 	debug("PUTTING BACK: %d\n", c);
-	
+
 	if (c == '\n')
 		_line--;
 
@@ -27,10 +32,10 @@ void putback(char c) {
 char skip(){
 	char c = read_char();
 	
-	while (!IS_VISUAL(c) && !_eof_reached)
+	while (!IS_VISUAL(c) && !_eof_reached || is_comment)
 		c = read_char();
 
-	debug("SKIPPED TO: %d", c);
+	debug("SKIPPED TO: %c", c);
 
 	return c;
 }
@@ -189,12 +194,6 @@ int lex(struct token* t){
 	case ')':
 		debug(")");
 		t->type = T_RPARAN;
-
-		return 1;
-
-	case ';':
-		debug(";");
-		t->type = T_COMMENT;
 
 		return 1;
 

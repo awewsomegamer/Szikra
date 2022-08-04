@@ -1,3 +1,5 @@
 !AT 10
 LABEL:
-	mov ax, LABEL
+	mov ax, ASDA
+
+; comment test ;

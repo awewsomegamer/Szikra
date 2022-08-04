@@ -62,55 +62,29 @@ int main(int argc, char** argv){
 
 	init_instructions();
 
-	while (!_eof_reached){
-		struct token* head = malloc(sizeof(struct token));
-		struct token* current = head;
+	struct token* head = malloc(sizeof(struct token));
+	struct token* current = head;
 
-		int token_count = 1; // There is at least 1 token
-		// int current_line = -1;
+	int token_count = 1; // There is at least 1 token
+	// int current_line = -1;
 
-		// Get current token series
-		while (lex(current)){
-			token_count++;
+	// Get current token series
+	while (lex(current)){
+		token_count++;
 
-			struct token* n = malloc(sizeof(struct token));
-			n->next = NULL;
+		struct token* n = malloc(sizeof(struct token));
+		n->next = NULL;
 
-			current->next = n;
+		current->next = n;
 
-			current = n;
-			
-			// Check if token is final token
-			if (_putback == '\n' || _putback == '\r' || _putback == '\t')
-				break;
-
-			// long cur_position = ftell(_in_file);
-			// printf("CUR: %d\n", cur_position);
-
-			// if (fgetc(_in_file) == '\n'){
-			// 	printf("NEW LINE\n");
-			// 	_line++;
-				
-			// 	break;
-			// }
-
-			// fseek(_in_file, cur_position, SEEK_SET);
-		}
-
-		// Assembling
-		if (head->type != T_EOF)
-			assemble(head, token_count);
-
-		// Clean up
-		current = head;
-
-		while (current != NULL){
-			free(current);
-
-			current = current->next;	
-		}
+		current = n;
 	}
 
+	// Assembling
+	if (head->type != T_EOF)
+		assemble(head, token_count);
+
+	// Stitch main out file and data file
 	// Fill in references
 
 	fclose(_in_file);

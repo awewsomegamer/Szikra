@@ -1,7 +1,7 @@
 #include <instructions.h>
 #include <writer.h>
 
-void(*instruction_list[ARGUMENTS_MAX])(struct token[]);
+void(*instruction_list[ARGUMENTS_MAX])(struct token[], int*);
 
 void init_instructions(){
 	instruction_list[TWO_ARGUMENTS] = TWO_ARG_INSTRUCTION;
@@ -112,9 +112,9 @@ uint8_t to_information_byte(int argument, int argument_type, int cast){
 }
 
 // mov <size> <ax> <,> <size> <bx>
-void TWO_ARG_INSTRUCTION(struct token tokens[]){
-	int index = 1;					  // Current token index
-
+void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
+	int index = *i + 1;				  // Current token index
+	
 	int size_1 = get_size(tokens, &index); 		  // Check current token for size
 	int arg_info_1 = 0;				  // Info parsed from arg
 	int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
@@ -130,7 +130,7 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
 	// Write opcode
-	write_byte(tokens[0].value);
+	write_byte(tokens[*i].value);
 
 	// Argument 1
 	write_byte(to_information_byte(arg_1, arg_info_1, size_1));
@@ -139,10 +139,14 @@ void TWO_ARG_INSTRUCTION(struct token tokens[]){
 	// Argument 2
 	write_byte(to_information_byte(arg_2, arg_info_2, size_2));
 	write_byte(arg_2);
+	
+	printf("INDEX: %d\n", index);
+
+	*i = index;
 }
 
-void ONE_ARG_INSTRUCTION(struct token tokens[]){
-	int index = 1;
+void ONE_ARG_INSTRUCTION(struct token tokens[], int* i){
+	int index = *i + 1;
 	int size = get_size(tokens, &index);
 	int arg_info = 0;
 	int arg = get_arg(tokens, &index, &arg_info);
@@ -150,17 +154,22 @@ void ONE_ARG_INSTRUCTION(struct token tokens[]){
 	debug("size: %d, arg_info: %d, arg: %d", size, arg_info, arg);
 
 	// Write instruction code
-	write_byte(tokens[0].value);
+	write_byte(tokens[*i].value);
 
 	// Write argument
 	write_byte(to_information_byte(arg, arg_info, size));
 	write_byte(arg);
+
+	printf("INDEX: %d\n", index);
+
+	*i = index;
 }
 
-void ZERO_ARG_INSTRUCTION(struct token tokens[]){
+void ZERO_ARG_INSTRUCTION(struct token tokens[], int* i){
 	write_byte(tokens[0].value);
+	*i++;
 }
 
-void N_ARG_INSTRUCTION(struct token tokens[]){
+void N_ARG_INSTRUCTION(struct token tokens[], int* i){
 
 }
