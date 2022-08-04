@@ -42,7 +42,7 @@ void assemble(struct token* list, int count){
 	int i = 0;
 	while (current != NULL && current->type != T_COMMENT){
 		tokens[i++] = *current;
-		printf("%s (%d) ", TOKEN_NAMES[current->type], current->type);
+		debug("%s (%d)", TOKEN_NAMES[current->type], current->type);
 
 		current = current->next;
 	}

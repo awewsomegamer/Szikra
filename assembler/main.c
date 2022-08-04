@@ -65,7 +65,6 @@ int main(int argc, char** argv){
 
 		// Get current token series
 		while ((lex(current) && (current_line != -1 && _line == current_line)) || (current_line == -1)){
-			// printf("LEX: %d LINE: %d CURRENT_LINE: %d\n", lex(current), _line, current_line);
 			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
@@ -77,10 +76,6 @@ int main(int argc, char** argv){
 
 			current_line = _line;
 		}
-
-		// printf("TOKENS: %d LINE: %d _LINE: %d\n", token_count, current_line, _line);
-
-		// printf("TOKEN COUNT: %d LR: %d LC: %d LINE: %d\n", token_count, lr, lc, _line);
 
 		// Assembling
 		if (head->type != T_EOF)
