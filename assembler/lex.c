@@ -16,7 +16,7 @@ char read_char(){
 }
 
 void putback(char c) {
-	printf("PUTTING BACK: %c\n", c);
+	printf("PUTTING BACK: %d\n", c);
 	_putback = c;
 }
 
@@ -26,7 +26,7 @@ char skip(){
 	while (!IS_VISUAL(c) && !_eof_reached)
 		c = read_char();
 
-	printf("SKIPPED TO: %c\n", c);
+	printf("SKIPPED TO: %d\n", c);
 
 	return c;
 }
@@ -104,88 +104,107 @@ int find_register(char* str){
 int lex(struct token* t){
 	char c = next();
 
+	printf("CURRENT CHARACTER: %d\n", c);
+
 	switch (c) {
 	case EOF:
+		printf("EOF\n");
 		t->type = T_EOF;
 	
 		return 0;
 
 	case '+':
+		printf("+\n");
 		t->type = T_ADD;
 
 		return 1;
 
 	case '-':
+		printf("-\n");
 		t->type = T_SUB;
 
 		return 1;
 
 	case '*':
+		printf("*\n");
 		t->type = T_MUL;
 
 		return 1;
 
 	case '/':
+		printf("/\n");
 		t->type = T_DIV;
 
 		return 1;
 
 	case ',':
+		printf(",\n");
 		t->type = T_COMMA;
 
 		return 1;
 
 	case '.':
+		printf(".\n");
 		t->type = T_DOT;
 
 		return 1;
 
 	case ':':
+		printf(":\n");
 		t->type = T_COLON;
 
 		return 1;
 
 	case '!':
+		printf("!\n");
 		t->type = T_DIRECTIVE;
 
 		return 1;
 
 	case '[':
+		printf("[\n");
 		t->type = T_LSQR_BRACKET;
 
 		return 1;
 
 	case ']':
+		printf("]\n");
 		t->type = T_RSQR_BRACKET;
 
 		return 1;
 
 	case '(':
+		printf("(\n");
 		t->type = T_LPARAN;
 
 		return 1;
 
 	case ')':
+		printf(")\n");
 		t->type = T_RPARAN;
 
 		return 1;
 
 	case ';':
+		printf(";\n");
 		t->type = T_COMMENT;
 
 		return 1;
 
 	case '#':
+		printf("#\n");
 		t->type = T_HASH;
 
 		return 1;
 
 	case '%':
+		printf("%\n");
 		t->type = T_PERCENT;
 
 		return 1;
 
 	default:
+		printf("DEFAULT\n");
 		if (IS_DIGIT(c)){
 			t->type = T_INT;
 			t->value = get_number(c);
@@ -196,12 +215,14 @@ int lex(struct token* t){
 			char* upper = strdup(str);
 			uppercaseString(upper);
 
+			printf("\"%s\" -> \"%s\"\n", str, upper);
+
 			// Check for an instruction
 			int instruction_found = find_operation(upper);
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
 				t->value = instruction_found;
-				
+				printf("INSTRUCTION FOUND\n");
 				return 1;
 			}
 
@@ -210,6 +231,7 @@ int lex(struct token* t){
 			if (size != -1){
 				t->type = T_SIZE;
 				t->value = size;
+				printf("SIZE FOUND\n");
 
 				return 1;
 			}
@@ -219,6 +241,7 @@ int lex(struct token* t){
 			if (reg != -1){
 				t->type = T_REGISTER;
 				t->value = reg;
+				printf("REG FOUND\n");
 
 				return 1;
 			}
@@ -231,6 +254,7 @@ int lex(struct token* t){
 		} else if (IS_VISUAL(c)){
 			// Dump string into a string token
 			char* str = get_str(c, IS_VISUAL);
+			printf("Returning string \"%s\"\n", str);
 			t->type = T_STRING;
 			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 		}
