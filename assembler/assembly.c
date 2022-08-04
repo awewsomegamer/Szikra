@@ -42,11 +42,13 @@ void assemble(struct token* list, int count){
 	int i = 0;
 	while (current != NULL && current->type != T_COMMENT){
 		tokens[i++] = *current;
-		debug("%s (%d)", TOKEN_NAMES[current->type], current->type);
+		printf("%s (%d) ", TOKEN_NAMES[current->type], current->type);
 
 		current = current->next;
 	}
 	
+	printf("\n");
+
 	debug("-------");
 
 	// Format instructions	   : instrucion <...>
@@ -83,7 +85,7 @@ void assemble(struct token* list, int count){
 		if (count > 1 && tokens[count - 1].type == T_COLON){
 			// Label
 		} else {
-			error("Could not define label %s", tokens[0].extra_bytes);
+			// error("Could not define label %s", tokens[0].extra_bytes);
 		}
 
 		break;

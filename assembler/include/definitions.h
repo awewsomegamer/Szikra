@@ -71,6 +71,13 @@ struct label {
 	struct label* next;
 };
 
+struct reference {
+	char* name;
+	uint32_t where;
+
+	struct reference* next;
+};
+
 struct token {
 	int type;
 	int value;

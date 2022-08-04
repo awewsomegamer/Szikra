@@ -1,0 +1,2 @@
+LABEL:
+	mov ax, LABEL

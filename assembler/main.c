@@ -17,6 +17,9 @@ FILE* _out_file = NULL;
 struct label* _labels = NULL;
 struct label* _current_label = NULL;
 
+struct reference* _references = NULL;
+struct reference* _current_reference = NULL;
+
 int main(int argc, char** argv){
 	char* in_file_name = NULL;
 	char* out_file_name = NULL;
@@ -54,17 +57,55 @@ int main(int argc, char** argv){
 	_labels = (struct label*)malloc(sizeof(struct label));
 	_current_label = _labels;
 
+	_references = (struct reference*)malloc(sizeof(struct reference));
+	_current_reference = _references;
+
 	init_instructions();
+
+	struct token* carry_over = malloc(sizeof(struct token));
+	bool should_carry_over = false;
 
 	while (!_eof_reached){
 		struct token* head = malloc(sizeof(struct token));
 		struct token* current = head;
-	
+
+		// One extra token was read in last call, set it as the first token
+		if (should_carry_over){
+			should_carry_over = false;
+
+			memcpy(current, carry_over, sizeof(carry_over));
+
+			// Reset carry over
+			free(carry_over);
+			carry_over = malloc(sizeof(struct token));
+
+			struct token* n = malloc(sizeof(struct token));
+			n->next = NULL;
+
+			current->next = n;
+
+			current = n;
+		}
+
 		int token_count = 1; // There is at least 1 token
 		int current_line = -1;
 
 		// Get current token series
-		while ((lex(current) && (current_line != -1 && _line == current_line)) || (current_line == -1)){
+		while (lex(carry_over)){ //(lex(current) && (current_line != -1 && _line == current_line)) || (current_line == -1)
+			// printf("%s (%d) %d\n", TOKEN_NAMES[current->type], current->type, _line);
+
+			if (current_line != -1 && current_line != _line){
+				should_carry_over = true;
+				break;
+			}
+
+			// Copy carry over data to current data
+			memcpy(current, carry_over, sizeof(carry_over));
+
+			// Reset carry over
+			free(carry_over);
+			carry_over = malloc(sizeof(struct token));
+			
 			token_count++;
 
 			struct token* n = malloc(sizeof(struct token));
@@ -73,6 +114,9 @@ int main(int argc, char** argv){
 			current->next = n;
 
 			current = n;
+
+			// if (current_line != -1 && _line == current_line)
+			// 	break;
 
 			current_line = _line;
 		}
@@ -90,6 +134,8 @@ int main(int argc, char** argv){
 			current = current->next;	
 		}
 	}
+
+	// Fill in references
 
 	fclose(_in_file);
 	fclose(_out_file);

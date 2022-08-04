@@ -16,7 +16,7 @@ char read_char(){
 }
 
 void putback(char c) {
-	debug("PTING BACK: %d\n", c);
+	debug("PUTTING BACK: %d\n", c);
 	_putback = c;
 }
 
@@ -26,11 +26,10 @@ char skip(){
 	while (!IS_VISUAL(c) && !_eof_reached)
 		c = read_char();
 
-	debug("SPPED TO: %d\n", c);
+	debug("SKIPPED TO: %d", c);
 
 	return c;
 }
-
 
 char next(){
 	if (_putback != 0 && IS_VISUAL(_putback)){
@@ -53,7 +52,7 @@ char* get_str(char c, bool(*function)(char c)){
 	}
 
 	putback(c);
-	debug("[LEX]: PUTBACK: %d, BUFFER: %s\n", c, buffer);
+	debug("[LEX]: PUTBACK: %d, BUFFER: %s", c, buffer);
 
 	char* str = malloc(i + 1);
 	memset(str, 0, i + 1);
@@ -108,7 +107,7 @@ int lex(struct token* t){
 
 	switch (c) {
 	case EOF:
-		debug("E\n");
+		debug("EOF");
 		t->type = T_EOF;
 	
 		return 0;
@@ -150,7 +149,7 @@ int lex(struct token* t){
 		return 1;
 
 	case ':':
-		debug(":");
+		printf(":\n");
 		t->type = T_COLON;
 
 		return 1;
@@ -204,7 +203,7 @@ int lex(struct token* t){
 		return 1;
 
 	default:
-		debug("DAULT\n");
+		debug("DEFAULT");
 		if (IS_DIGIT(c)){
 			t->type = T_INT;
 			t->value = get_number(c);
@@ -215,7 +214,7 @@ int lex(struct token* t){
 			char* upper = strdup(str);
 			uppercaseString(upper);
 
-			debug("\"%s\" -> \"%s\"", str, upper);
+			printf("\"%s\" -> \"%s\"\n", str, upper);
 
 			// Check for an instruction
 			int instruction_found = find_operation(upper);
@@ -254,7 +253,7 @@ int lex(struct token* t){
 		} else if (IS_VISUAL(c)){
 			// Dump string into a string token
 			char* str = get_str(c, IS_VISUAL);
-			debug("Putting string \"%s\"", str);
+			printf("Putting string \"%s\"\n", str);
 			t->type = T_STRING;
 			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 		}

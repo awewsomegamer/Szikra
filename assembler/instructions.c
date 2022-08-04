@@ -67,7 +67,8 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		debug("FOUND LABEL REFERENCE");
 
 		*arg_info = CODE_RVALUE;
-
+		
+		printf("%s\n", tokens[*index].extra_bytes);
 
 		// Find global label
 		// If found
