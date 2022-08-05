@@ -31,8 +31,10 @@ extern FILE* 		 _out_file;
 
 extern struct label* 	 _labels;
 extern struct label* 	 _current_label;
+extern struct label* 	 _tmp_label;
 
 extern struct reference* _references;
 extern struct reference* _current_reference;
+extern struct reference* _tmp_reference;
 
 #endif

@@ -67,6 +67,7 @@ struct label {
 	char* name;
 	uint32_t address;
 	struct label* local_labels;
+	int line;
 
 	struct label* next;
 };
@@ -74,6 +75,7 @@ struct label {
 struct reference {
 	char* name;
 	uint32_t where;
+	int line;
 
 	struct reference* next;
 };
@@ -82,6 +84,7 @@ struct token {
 	int type;
 	int value;
 	uint8_t* extra_bytes;
+	int line;
 
 	struct token* next;
 };

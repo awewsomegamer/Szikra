@@ -29,21 +29,21 @@ int get_offset(struct token tokens[], int* index, int* offset_info){
 // Value - 123, 0x55, 0b11 (T_INT)
 // Value ptr - [123], [0x55], [0b11] (T_LSQR, T_INT, T_RSQR)
 // Should also check for:
-// Offsets - 
-
+// Offsets -
 
 int get_arg(struct token tokens[], int* index, int* arg_info){
 	int type_arg = 0;
 	int offset_value = 0;
 	
 	switch (tokens[*index].type){
-	case T_REGISTER:
+	case T_REGISTER: {
 		debug("FOUND REGISTER");
 		
 		*arg_info = CODE_RREG;
 		return tokens[(*index)++].value;
+	}
 
-	case T_LSQR_BRACKET:
+	case T_LSQR_BRACKET: {
 		debug("FOUND REFERENCE TO ADDRESS");
 
 		int index_ = *index + 1;
@@ -56,21 +56,41 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		int offset = get_offset(tokens, index, &offset_info);
 
 		return value;
+	}
 
-	case T_INT:
+	case T_INT: {
 		debug("FOUND INTEGER LITERAL");
 
 		*arg_info = CODE_RVALUE;
 		return tokens[(*index)++].value;
+	}
 	
-	case T_STRING: // Label
+	case T_DOT: {
+		// If it starts with a .
+		// it is a local label
+		// therefore parse the current label's
+		// label and check if a dot is follows the string
+		// if so repeat the dot proccess until it is found
+		
+		
+
+		break;
+	}
+
+	case T_STRING: { // Label
+		// A global label is found
+		// Save the current label
+		// Move the index forwards by 1
+		// Recursively call get_arg();
+		// Until a final address can be written
+
 		debug("FOUND LABEL REFERENCE");
 
 		*arg_info = CODE_RVALUE;
 
 		printf("%s\n", tokens[*index].extra_bytes);
 
-		return 0;
+		
 
 		// Find global label
 		// If found
@@ -81,6 +101,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		// 	Return -1 for label not found, and caller can interpret it as 32-bit 0
 
 		break;
+	}
 	}
 
 	return -1;
@@ -139,8 +160,6 @@ void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
 	// Argument 2
 	write_byte(to_information_byte(arg_2, arg_info_2, size_2));
 	write_byte(arg_2);
-	
-	printf("INDEX: %d\n", index);
 
 	*i = index;
 }
@@ -159,8 +178,6 @@ void ONE_ARG_INSTRUCTION(struct token tokens[], int* i){
 	// Write argument
 	write_byte(to_information_byte(arg, arg_info, size));
 	write_byte(arg);
-
-	printf("INDEX: %d\n", index);
 
 	*i = index;
 }

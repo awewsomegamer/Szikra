@@ -16,9 +16,11 @@ FILE* _out_file = NULL;
 
 struct label* _labels = NULL;
 struct label* _current_label = NULL;
+struct label* _tmp_label = NULL;
 
 struct reference* _references = NULL;
 struct reference* _current_reference = NULL;
+struct reference* _tmp_reference = NULL;
 
 int main(int argc, char** argv){
 	char* in_file_name = NULL;

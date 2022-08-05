@@ -11,10 +11,6 @@
 void uppercaseString(char* string);
 void lowercaseString(char* string);
 
-// (c >= 0x21 && c <= 0x7E)
-// ((c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A))
-// (c >= 0x30 && c <= 0x39)
-
 bool IS_VISUAL(char c);
 bool IS_ALPHA(char c);
 bool IS_DIGIT(char c);
@@ -26,6 +22,8 @@ int size_in_bytes(int argument);
 
 uint64_t hash_string(char* string);
 
+int find_label_from_series(struct token series[], int i, struct label* result);
+struct label* find_label_from_name(char* name, struct label* head, bool is_linked, int length);
 
 
 #endif

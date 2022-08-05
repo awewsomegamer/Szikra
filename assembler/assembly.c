@@ -23,12 +23,40 @@ void do_directive(struct token tokens[], int* i){
 
 	case TEXT_DIRECTIVE_HASH:
 		debug("FOUND TEXT DIRECTIVE");
+
+
 		break;
 
 	case DATA_DIRECTIVE_HASH:
 		debug("FOUND DATA DIRECTIVE");
+
+		
 		break;
 	}
+}
+
+void create_label_node(char* name, int address){
+	// Check if label exists
+	struct label* current = _labels;
+	while (current != NULL){
+		if (strcmp(current->name, name) == 0){
+			error("Label %s is already declared on line %d", current->line);
+			return;
+		}
+
+		current = current->next;
+	}
+
+	// Label has not been declared so declare it
+	_current_label->address = address;
+	_current_label->name = strdup(name);
+	_current_label->line = _line;
+	
+	struct label* next = malloc(sizeof(struct label));
+
+	_current_label->next = next;
+
+	_current_label = next;
 }
 
 // Take given tokens and assemble them into values
@@ -76,8 +104,6 @@ void assemble(struct token* list, int count){
 	i = 0;
 
 	while (i < count - 1){
-		// printf("I %d COUNT %d\n", i, count);
-
 		switch (tokens[i].type){
 		case T_INSTRUCTION:
 			// Generate instruction
@@ -97,6 +123,7 @@ void assemble(struct token* list, int count){
 		case T_DOT:
 			// Local label
 			if (tokens[i + 1].type == T_STRING && tokens[i + 2].type == T_COLON){
+				
 
 				i += 3;
 			} else {
@@ -108,6 +135,7 @@ void assemble(struct token* list, int count){
 			// Possible label
 			if (tokens[i + 1].type == T_COLON){
 				// Label
+				create_label_node(tokens[i].extra_bytes, get_write_position());
 
 				i += 2;
 			} else {
