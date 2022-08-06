@@ -1,0 +1,130 @@
+Complex:
+
+IDENTIFIER -> Series of characters ("i", "my_func")
+	   -> Alphanumerical or _
+
+FUNCTION   -> Character series "function"
+
+DECLARE    -> Character series "declare"
+
+INT        -> Character series ("512354")
+	   -> Numerical
+
+STRING	   -> Character series surrounded with " ("My String", "My \"String\"")
+	   -> Visual characters
+
+FOR	   -> Character series "for"
+
+WHILE	   -> Character series "while"
+
+IF	   -> Character series "if"
+
+GOTO	   -> Character series "goto"
+
+Simple:
+
+;
+:
+,
+=
+>
+<
+>=
+<=
+||
+&&
+|
+&
+(
+)
+{
+}
++
+-
+*
+/
+++
+--
++=
+-=
+
+Structure:
+
+FILE: 
+	| functions
+	| variables
+
+functions:
+	function
+	functions // check for another function
+
+function:
+	FUNCTION IDENTIFIER ( iden_args ) block
+
+
+iden_args:
+	| IDENTIFIER ,
+	| IDENTIFIER
+	| iden_args // check for another identifier argument
+
+int_args:
+	| INT ,
+	| INT
+	| int_args // check for another integer argument
+
+string_args:
+	| STRING ,
+	| STRING
+	| string_args // check for another string argument
+
+block:
+	{
+		| variable
+		| while
+		| if
+		| for
+		| goto
+		| function_call
+		| expression ;
+		| block
+	}
+
+variable:
+	| DECLARE IDENTIFIER ;
+	| DECLARE IDENTIFIER = expression ;
+
+while:
+	WHILE ( expression ) block
+
+if:
+	IF ( expression ) block
+
+for:
+	FOR ( expression ) block
+
+goto:
+	| GOTO IDENTIFIER ;
+	| GOTO INT ;
+
+function_call:
+	IDENTIFIER ( function_call_args ) ;
+
+function_call_args:
+	| iden_args
+	| int_args
+	| string_args
+
+expression:
+	| IDENTIFIER ++
+	| IDENTIFIER --
+	| (IDENTIFIER | INT > IDENTIFIER | INT)
+	| (IDENTIFIER | INT < IDENTIFIER | INT)
+	| (IDENTIFIER | INT >= IDENTIFIER | INT)
+	| (IDENTIFIER | INT <= IDENTIFIER | INT)
+	| (IDENTIFIER += INT | IDENTIFIER)
+	| (IDENTIFIER -= INT | IDENTIFIER)
+	| IDENTIFIER
+	| 
+
+
+
