@@ -67,15 +67,33 @@ uint64_t hash_string(char* string){
 // series: a series of tokens that are valid to a label
 // i: should be 0, used for recursion
 // result: a pointer to where the result should be placed
-int find_label_from_series(struct token series[], int i, struct label* result){
+int find_label_from_series(struct token* series, int i, struct label* result){
 	switch (series[i].type){
 	case T_DOT:
 		if (result != NULL){
 			// Result is not NULL, thus this is a local label of a global label that has been specified
+			result = find_label_from_name(series[i + 1].extra_bytes, result->local_labels, false);
+
+			if (result == NULL)
+				return 0;
+
+			int r = 0;
+			if (series[i + 1].type == T_DOT)
+				r = find_label_from_series(series, i + 1, result);
+
+			return r;
 		} else {
 			// Result is NULL, thus this is a local label of the current label
-			
+			result = find_label_from_name(series[i + 1].extra_bytes, _current_label->local_labels, false);
 
+			if (result == NULL)
+				return 0;
+
+			int r = 0;
+			if (series[i + 1].type == T_DOT)
+				r = find_label_from_series(series, i + 1, result);
+
+			return r;
 		}
 
 		break;
@@ -87,24 +105,25 @@ int find_label_from_series(struct token series[], int i, struct label* result){
 		struct label* found = NULL;
 
 		// Label was not found, return NULL
-		if ((found = find_label_from_name(series[i].extra_bytes, _labels, false, 0)) == NULL)
+		if ((found = find_label_from_name(series[i].extra_bytes, _labels, false)) == NULL)
 			return 0;
 
 		result = found;
 
 		// Recurse to find local label
+		int r = 0;
 		if (series[i + 1].type == T_DOT)
-			find_label_from_series(series, i + 1, result);
+			r = find_label_from_series(series, i + 1, result);
 
 		// Label successfully found, is in given variable result
-		return 1;
+		return r;
 	}
 
 	// Did not manage to enter series
 	return -1;
 }
 
-struct label* find_label_from_name(char* name, struct label* head, bool is_linked, int length){
+struct label* find_label_from_name(char* name, struct label* head, bool is_linked){
 	if (is_linked){
 		struct label* current = head;
 
@@ -115,13 +134,22 @@ struct label* find_label_from_name(char* name, struct label* head, bool is_linke
 			current = current->next;
 		}
 	} else {
-		for (int i = 0; i < length; i++){
-			struct label current = *(head + i);
+		struct label current = *head;
+
+		for (int i = 0;; i++){
+			if (current.name == NULL)
+				return NULL;
 
 			if (strcmp(current.name, name) == 0)
 				return (head + i);
+
+			current = *(head + i);
 		}
 	}
 
 	return NULL;
+}
+
+void insert_reference(int position){
+	
 }

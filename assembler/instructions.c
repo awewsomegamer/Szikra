@@ -31,7 +31,7 @@ int get_offset(struct token tokens[], int* index, int* offset_info){
 // Should also check for:
 // Offsets -
 
-int get_arg(struct token tokens[], int* index, int* arg_info){
+int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override){
 	int type_arg = 0;
 	int offset_value = 0;
 	
@@ -47,7 +47,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 		debug("FOUND REFERENCE TO ADDRESS");
 
 		int index_ = *index + 1;
-		int value = get_arg(tokens, &index_, arg_info);
+		int value = get_arg(tokens, &index_, arg_info, size_override);
 		*arg_info = *arg_info == CODE_RREG ? CODE_PREG : CODE_PVALUE;
 
 		*index = index_; // Jump over closing ], revise later to check for ] and to check for :
@@ -66,15 +66,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 	}
 	
 	case T_DOT: {
-		// If it starts with a .
-		// it is a local label
-		// therefore parse the current label's
-		// label and check if a dot is follows the string
-		// if so repeat the dot proccess until it is found
-		
-		
 
-		break;
 	}
 
 	case T_STRING: { // Label
@@ -88,9 +80,29 @@ int get_arg(struct token tokens[], int* index, int* arg_info){
 
 		*arg_info = CODE_RVALUE;
 
-		printf("%s\n", tokens[*index].extra_bytes);
+		struct label* found = find_label_from_name(tokens[*index].extra_bytes, _labels, true);
 
+		if (found == NULL){
+			// Not found
+			*size_override = 4;
+			return 0;	
+		}
+
+		// Was global label and immediately found
+		(*index)++;
+
+		return found->address;
+
+		// printf("%s\n", tokens[*index].extra_bytes);
 		
+		// struct label* result = NULL;
+		// find_label_from_series(tokens, *index, result);
+
+		// if (result == NULL){
+		// 	// Label not found, add missing reference
+		// } else {
+		// 	return result->address;
+		// }
 
 		// Find global label
 		// If found
@@ -138,7 +150,7 @@ void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
 	
 	int size_1 = get_size(tokens, &index); 		  // Check current token for size
 	int arg_info_1 = 0;				  // Info parsed from arg
-	int arg_1 = get_arg(tokens, &index, &arg_info_1); // Get argument 1
+	int arg_1 = get_arg(tokens, &index, &arg_info_1, &size_1); // Get argument 1
 
 	debug("size_1: %d, arg_info_1: %d, arg_1: %d", size_1, arg_info_1, arg_1);
 
@@ -146,7 +158,7 @@ void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
 	
 	int size_2 = get_size(tokens, &index); 		  // Check current token for size
 	int arg_info_2 = 0;				  // Info parsed from arg
-	int arg_2 = get_arg(tokens, &index, &arg_info_2); // Get argument 2
+	int arg_2 = get_arg(tokens, &index, &arg_info_2, &size_2); // Get argument 2
 	
 	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
@@ -168,7 +180,7 @@ void ONE_ARG_INSTRUCTION(struct token tokens[], int* i){
 	int index = *i + 1;
 	int size = get_size(tokens, &index);
 	int arg_info = 0;
-	int arg = get_arg(tokens, &index, &arg_info);
+	int arg = get_arg(tokens, &index, &arg_info, &size);
 
 	debug("size: %d, arg_info: %d, arg: %d", size, arg_info, arg);
 

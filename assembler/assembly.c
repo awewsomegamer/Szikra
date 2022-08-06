@@ -39,13 +39,16 @@ void create_label_node(char* name, int address){
 	// Check if label exists
 	struct label* current = _labels;
 	while (current != NULL){
-		if (strcmp(current->name, name) == 0){
+		
+		if (current->name != NULL && strcmp(current->name, name) == 0){
 			error("Label %s is already declared on line %d", current->line);
 			return;
 		}
-
+		
 		current = current->next;
 	}
+
+	printf("Creating label with name %s and address %d\n", name, address);
 
 	// Label has not been declared so declare it
 	_current_label->address = address;

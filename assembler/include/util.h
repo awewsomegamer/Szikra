@@ -22,8 +22,7 @@ int size_in_bytes(int argument);
 
 uint64_t hash_string(char* string);
 
-int find_label_from_series(struct token series[], int i, struct label* result);
-struct label* find_label_from_name(char* name, struct label* head, bool is_linked, int length);
-
+int find_label_from_series(struct token* series, int i, struct label* result);
+struct label* find_label_from_name(char* name, struct label* head, bool is_linked);
 
 #endif
