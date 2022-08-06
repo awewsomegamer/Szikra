@@ -84,7 +84,8 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 
 		if (found == NULL){
 			// Not found
-			*size_override = 4;
+			*size_override = 3;
+
 			return 0;	
 		}
 
@@ -167,11 +168,11 @@ void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
 
 	// Argument 1
 	write_byte(to_information_byte(arg_1, arg_info_1, size_1));
-	write_byte(arg_1);
+	write(arg_1, size_1);
 
 	// Argument 2
 	write_byte(to_information_byte(arg_2, arg_info_2, size_2));
-	write_byte(arg_2);
+	write(arg_2, size_2);
 
 	*i = index;
 }
@@ -189,7 +190,7 @@ void ONE_ARG_INSTRUCTION(struct token tokens[], int* i){
 
 	// Write argument
 	write_byte(to_information_byte(arg, arg_info, size));
-	write_byte(arg);
+	write(arg, size);
 
 	*i = index;
 }

@@ -26,6 +26,16 @@ void write_dwords(uint32_t* dword, size_t length){
 	fwrite(dword, 4, length, _out_file);
 }
 
+// Size: in bytes - 1
+void write(int what, int size){
+	fwrite(&what, size + 1, 1, _out_file);
+}
+
+// Size: in bytes - 1
+void write_array(int* what, int size, size_t count){
+	fwrite(what, size + 1, count, _out_file);
+}
+
 void set_write_position(int where){
 	fseek(_out_file, where, SEEK_SET);
 }
