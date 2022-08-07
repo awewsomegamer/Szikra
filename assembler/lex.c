@@ -23,8 +23,8 @@ char read_char(){
 void putback(char c) {
 	debug("PUTTING BACK: %d\n", c);
 
-	if (c == '\n')
-		_line--;
+	// if (c == '\n')
+	// 	_line--;
 
 	_putback = c;
 }
@@ -44,8 +44,8 @@ char next(){
 	if (_putback != 0 && IS_VISUAL(_putback)){
 		char c = _putback;
 
-		if (c == '\n')
-			_line++;
+		// if (c == '\n')
+		// 	_line++;
 
 		_putback = 0;
 		return c;

@@ -129,8 +129,6 @@ void assemble(struct token* list, int count){
 		case T_DOT:
 			// Local label
 			if (tokens[i + 1].type == T_STRING && tokens[i + 2].type == T_COLON){
-				
-
 				i += 3;
 			} else {
 				error("Could not define local label %s", tokens[i].extra_bytes);	
