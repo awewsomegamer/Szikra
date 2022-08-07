@@ -73,7 +73,7 @@ struct label {
 };
 
 struct reference {
-	char* name;
+	struct token* series;
 	uint32_t where;
 	int line;
 

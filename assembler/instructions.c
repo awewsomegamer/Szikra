@@ -76,7 +76,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 		// Recursively call get_arg();
 		// Until a final address can be written
 
-		debug("FOUND LABEL REFERENCE");
+		debug("FOUND LABEL REFERENCE TO %s", tokens[*index].extra_bytes);
 
 		*arg_info = CODE_RVALUE;
 
@@ -85,8 +85,11 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 		if (found == NULL){
 			// Not found
 			*size_override = 3;
+			(*index)++;
+			
+			insert_reference(&tokens[*index], get_write_position() + 1);
 
-			return 0;	
+			return 0;
 		}
 
 		// Was global label and immediately found
@@ -147,30 +150,30 @@ uint8_t to_information_byte(int argument, int argument_type, int cast){
 
 // mov <size> <ax> <,> <size> <bx>
 void TWO_ARG_INSTRUCTION(struct token tokens[], int* i){
-	int index = *i + 1;				  // Current token index
+	// Write opcode
+	write_byte(tokens[*i].value);
+
+	int index = *i + 1;				  	   // Current token index
 	
-	int size_1 = get_size(tokens, &index); 		  // Check current token for size
-	int arg_info_1 = 0;				  // Info parsed from arg
+	// Argument 1
+	int size_1 = get_size(tokens, &index); 		  	   // Check current token for size
+	int arg_info_1 = 0;				  	   // Info parsed from arg
 	int arg_1 = get_arg(tokens, &index, &arg_info_1, &size_1); // Get argument 1
 
 	debug("size_1: %d, arg_info_1: %d, arg_1: %d", size_1, arg_info_1, arg_1);
-
-	assert_comma(tokens[index], &index);		  // Assert comma
 	
-	int size_2 = get_size(tokens, &index); 		  // Check current token for size
-	int arg_info_2 = 0;				  // Info parsed from arg
+	write_byte(to_information_byte(arg_1, arg_info_1, size_1));
+	write(arg_1, size_1);
+
+	assert_comma(tokens[index], &index);		  	   // Assert comma
+		
+	// Argument 2
+	int size_2 = get_size(tokens, &index); 		  	   // Check current token for size
+	int arg_info_2 = 0;				  	   // Info parsed from arg
 	int arg_2 = get_arg(tokens, &index, &arg_info_2, &size_2); // Get argument 2
 	
 	debug("size_2: %d, arg_info_2: %d, arg_2: %d", size_2, arg_info_2, arg_2);
 
-	// Write opcode
-	write_byte(tokens[*i].value);
-
-	// Argument 1
-	write_byte(to_information_byte(arg_1, arg_info_1, size_1));
-	write(arg_1, size_1);
-
-	// Argument 2
 	write_byte(to_information_byte(arg_2, arg_info_2, size_2));
 	write(arg_2, size_2);
 

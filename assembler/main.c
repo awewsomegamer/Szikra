@@ -2,6 +2,7 @@
 #include <lex.h>
 #include <assembly.h>
 #include <instructions.h>
+#include <writer.h>
 
 uint32_t _line = 1;
 uint32_t _label_count = 0;
@@ -87,6 +88,21 @@ int main(int argc, char** argv){
 		assemble(head, token_count);
 
 	// Stitch main out file and data file
+
+	_current_reference = _references;
+
+	while (_current_reference != NULL){
+		if (_current_reference->series != NULL){
+			// Assume only global labels (LABEL)
+			set_write_position(_current_reference->where);
+
+			int address = find_label_from_name(_current_reference->series->extra_bytes, _labels, true)->address;
+			write(address, size_in_bytes(address));
+		}
+
+		_current_reference = _current_reference->next;
+	}
+
 	// Fill in references
 
 	fclose(_in_file);

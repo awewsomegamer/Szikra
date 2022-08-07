@@ -56,6 +56,7 @@ void create_label_node(char* name, int address){
 	_current_label->line = _line;
 	
 	struct label* next = malloc(sizeof(struct label));
+	next->name = NULL;
 
 	_current_label->next = next;
 
@@ -143,6 +144,7 @@ void assemble(struct token* list, int count){
 				i += 2;
 			} else {
 				error("Could not define label %s", tokens[i].extra_bytes);
+				i += 2;
 			}
 
 			break;
