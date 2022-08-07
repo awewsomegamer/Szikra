@@ -115,8 +115,10 @@ int find_register(char* str){
 
 int lex(struct token* t){
 	char c = next();
-
-	debug("CRENT CHARACTER: %d\n", c);
+	
+	t->line = _line;
+	
+	debug("CURRENT CHARACTER: %d\n", c);
 
 	switch (c) {
 	case EOF:
@@ -162,7 +164,7 @@ int lex(struct token* t){
 		return 1;
 
 	case ':':
-		printf(":\n");
+		debug(":");
 		t->type = T_COLON;
 
 		return 1;
@@ -221,7 +223,7 @@ int lex(struct token* t){
 			char* upper = strdup(str);
 			uppercaseString(upper);
 
-			printf("\"%s\" -> \"%s\"\n", str, upper);
+			debug("\"%s\" -> \"%s\"\n", str, upper);
 
 			// Check for an instruction
 			int instruction_found = find_operation(upper);
@@ -260,7 +262,9 @@ int lex(struct token* t){
 		} else if (IS_VISUAL(c)){
 			// Dump string into a string token
 			char* str = get_str(c, IS_VISUAL);
-			printf("Putting string \"%s\"\n", str);
+			
+			debug("Putting string \"%s\"\n", str);
+
 			t->type = T_STRING;
 			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 		}

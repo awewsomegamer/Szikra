@@ -131,8 +131,6 @@ struct label* find_label_from_name(char* name, struct label* head, bool is_linke
 			if (current->name == NULL)
 				return NULL;
 
-			printf("%d\n", *current->name);
-
 			if (strcmp(name, current->name) == 0)
 				return current;
 

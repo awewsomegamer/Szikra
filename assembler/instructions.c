@@ -86,7 +86,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 			// Not found
 			*size_override = 3;
 			(*index)++;
-			
+
 			insert_reference(&tokens[*index], get_write_position() + 1);
 
 			return 0;
@@ -95,6 +95,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 		// Was global label and immediately found
 		(*index)++;
 
+		*size_override = size_in_bytes(found->address);
 		return found->address;
 
 		// printf("%s\n", tokens[*index].extra_bytes);

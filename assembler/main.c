@@ -96,8 +96,14 @@ int main(int argc, char** argv){
 			// Assume only global labels (LABEL)
 			set_write_position(_current_reference->where);
 
-			int address = find_label_from_name(_current_reference->series->extra_bytes, _labels, true)->address;
-			write(address, size_in_bytes(address));
+			struct label* found = find_label_from_name(_current_reference->series->extra_bytes, _labels, true);
+
+			if (found == NULL) {
+				error("Failed to fill reference %s", _current_reference->series->extra_bytes);
+				continue;
+			}
+
+			write(found->address, size_in_bytes(found->address));
 		}
 
 		_current_reference = _current_reference->next;

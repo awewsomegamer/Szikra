@@ -39,7 +39,6 @@ void create_label_node(char* name, int address){
 	// Check if label exists
 	struct label* current = _labels;
 	while (current != NULL){
-		
 		if (current->name != NULL && strcmp(current->name, name) == 0){
 			error("Label %s is already declared on line %d", current->line);
 			return;
@@ -48,7 +47,7 @@ void create_label_node(char* name, int address){
 		current = current->next;
 	}
 
-	printf("Creating label with name %s and address %d\n", name, address);
+	debug("Creating label with name %s and address %d", name, address);
 
 	// Label has not been declared so declare it
 	_current_label->address = address;
@@ -82,6 +81,7 @@ void assemble(struct token* list, int count){
 		
 		tokens[i].type = current->type;
 		tokens[i].value = current->value;
+		tokens[i].line = current->line;
 
 		if (current->extra_bytes != NULL){
 			tokens[i].extra_bytes = malloc(sizeof(current->extra_bytes));
@@ -108,6 +108,8 @@ void assemble(struct token* list, int count){
 	i = 0;
 
 	while (i < count - 1){
+		_line = tokens[i].line;
+
 		switch (tokens[i].type){
 		case T_INSTRUCTION:
 			// Generate instruction
