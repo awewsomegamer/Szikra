@@ -10,7 +10,6 @@ With this new system I hope to be able to add more instruction arguments as
 well as directives local labels, and many more things to make the assembler
 better.
 
-
 ## Architecture
 
 ### Instructions
@@ -63,6 +62,22 @@ POP		V1 	   	  : Pop the last element on the stack into V1
 DB		... <, ...> 	  : Define (a) value(s)
 DS		"..." <, "...">   : Define (a) string(s) of ASCII characters
 </pre>
+
+### Registers
+<pre>
+AX	+- General purpose registers
+BX	|  Are used for interrupt operands
+CX	|
+DX	+-
+I1	+- General purpose integer registers
+I2	|  Used for arithmetic instructions
+I3	|
+I4	+-
+BP	- Stack base pointer register
+SP	- Stack pointer register
+IP	- Instruction pointer register
+</pre>
+
 ### Instruction encoding
 <pre>
 + 1 byte opcode
@@ -86,11 +101,16 @@ DS		"..." <, "...">   : Define (a) string(s) of ASCII characters
 `%include "<path/to/file">` Include code here <br>
 
 ### Directives
-`AT V1` Move writer to V1 <br>
-`TEXT` Everything after this point is code <br>
-`DATA` Everything after this point is data (relocated to the end of the file by default) <br>
+`!AT V1` Move writer to V1 <br>
+`!TEXT` Everything after this point is code <br>
+`!DATA` Everything after this point is data (relocated to the end of the file by default) <br>
 
 ### Memory map
+`0x0 -> 0x1FF` Boot sector (marked by last twpo bytes being 0xAABB)
 ### IO Device Map
+`0x0 -> 0x4` Keyboard (INFO(0x00) DATA(0x00 0x00 0x00))
 ### Interrupt Map
-
+Interrupt 0: Clock interrupt
+Interrupt 1: Screen functions
+Interrupt 2: Disk functions
+Interrupt 3: Keyboard interrupt
