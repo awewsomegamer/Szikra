@@ -1,11 +1,8 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <emulator.h>
+#include <screen.h>
 #include <message_handler.h>
 
 FILE* input_file = NULL;
-uint8_t memory[UINT16_MAX];
-
 
 int main(int argc, char** argv) {
 	for (int i = 1; i < argc; i++) {
@@ -26,11 +23,20 @@ int main(int argc, char** argv) {
 	}
 	
 	fseek(input_file, 0, SEEK_END);
-	fread(memory, 1, ftell(input_file), input_file);
+	long file_size = ftell(input_file);
 	fseek(input_file, 0, SEEK_SET);
+	fread(memory, 1, file_size, input_file);
 
-	
+	init_screen();
 
+	pthread_create(&process_thread, NULL, proccess_cycle, NULL);
+
+	while (emulator_running) {
+		update();
+		render();
+	}
+
+	pthread_join(process_thread, NULL);
 
 	return 0;
 }

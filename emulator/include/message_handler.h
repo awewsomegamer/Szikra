@@ -1,8 +1,8 @@
 #ifndef MESSAGE_HANDLER
 #define MESSAGE_HANDLER
 
+#include <emulator.h>
 #include <stdarg.h>
-#include <stdio.h>
 
 void error(char* form, ...);
 void fatal_error(char* form, ...);
