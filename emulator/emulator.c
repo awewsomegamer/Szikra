@@ -4,7 +4,8 @@ uint8_t memory[UINT16_MAX];
 uint8_t emulator_running = 1;
 pthread_t process_thread;
 
-uint32_t registers[I_REG_MAX]; 
+uint32_t registers[I_REG_MAX];
+struct flags cflags;
 
 void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
 
@@ -179,6 +180,17 @@ void IRET_INSTRUCTION(struct argument* arguments) {
 void CMP_INSTRUCTION(struct argument* arguments) {
 	uint32_t a = evaluate_argument(arguments[0]);
 	uint32_t b = evaluate_argument(arguments[0]);
+
+	if (a > b) {
+		cflags.carry = 1;
+		cflags.zero = 0;
+	} else if (a == b) {
+		cflags.carry = 0;
+		cflags.zero = 0;
+	} else if (a < b) {
+		cflags.carry = 0;
+		cflags.zero = 1;
+	}
 }
 
 void JMP_INSTRUCTION(struct argument* arguments) {
@@ -195,43 +207,43 @@ void RET_INSTRUCTION(struct argument* arguments) {
 }
 
 void JE_INSTRUCTION(struct argument* arguments) {
-	
+	if (!cflags.carry && !cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JNE_INSTRUCTION(struct argument* arguments) {
-	
+	if (cflags.carry || cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JG_INSTRUCTION(struct argument* arguments) {
-	
+	if (cflags.carry && !cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JGE_INSTRUCTION(struct argument* arguments) {
-	
+	if ((!cflags.carry && !cflags.zero) || (cflags.carry && !cflags.zero)) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JL_INSTRUCTION(struct argument* arguments) {
-	
+	if (!cflags.carry && cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JLE_INSTRUCTION(struct argument* arguments) {
-	
+	if ((!cflags.carry && !cflags.zero) || (!cflags.carry && cflags.zero)) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JC_INSTRUCTION(struct argument* arguments) {
-	
+	if (cflags.carry) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JNC_INSTRUCTION(struct argument* arguments) {
-	
+	if (!cflags.carry) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JZ_INSTRUCTION(struct argument* arguments) {
-	
+	if (cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void JNZ_INSTRUCTION(struct argument* arguments) {
-	
+	if (!cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void PUSH_INSTRUCTION(struct argument* arguments) {
@@ -271,26 +283,26 @@ void* proccess_cycle(void* arg) {
 }
 
 void init_emulator() {
-	evaluated_instructions[I_NOP_INSTRUCTION] =   NOP_INSTRUCTION;
-	evaluated_instructions[I_NOT_INSTRUCTION] =   NOT_INSTRUCTION;
-	evaluated_instructions[I_INT_INSTRUCTION] =   INT_INSTRUCTION;
+	evaluated_instructions[I_NOP_INSTRUCTION]   = NOP_INSTRUCTION;
+	evaluated_instructions[I_NOT_INSTRUCTION]   = NOT_INSTRUCTION;
+	evaluated_instructions[I_INT_INSTRUCTION]   = INT_INSTRUCTION;
 	evaluated_instructions[I_SIVTE_INSTRUCTION] = SIVTE_INSTRUCTION;
 	evaluated_instructions[I_RIVTE_INSTRUCTION] = RIVTE_INSTRUCTION;
-	evaluated_instructions[I_IRET_INSTRUCTION] =  IRET_INSTRUCTION;
-	evaluated_instructions[I_CMP_INSTRUCTION] =   CMP_INSTRUCTION;
-	evaluated_instructions[I_JMP_INSTRUCTION] =   JMP_INSTRUCTION;
-	evaluated_instructions[I_CALL_INSTRUCTION] =  CALL_INSTRUCTION;
-	evaluated_instructions[I_RET_INSTRUCTION] =   RET_INSTRUCTION;
-	evaluated_instructions[I_JE_INSTRUCTION] =    JE_INSTRUCTION;
-	evaluated_instructions[I_JNE_INSTRUCTION] =   JNE_INSTRUCTION;
-	evaluated_instructions[I_JG_INSTRUCTION] =    JG_INSTRUCTION;
-	evaluated_instructions[I_JGE_INSTRUCTION] =   JGE_INSTRUCTION;
-	evaluated_instructions[I_JL_INSTRUCTION] =    JL_INSTRUCTION;
-	evaluated_instructions[I_JLE_INSTRUCTION] =   JLE_INSTRUCTION;
-	evaluated_instructions[I_JC_INSTRUCTION] =    JC_INSTRUCTION;
-	evaluated_instructions[I_JNC_INSTRUCTION] =   JNC_INSTRUCTION;
-	evaluated_instructions[I_JZ_INSTRUCTION] =    JZ_INSTRUCTION;
-	evaluated_instructions[I_JNZ_INSTRUCTION] =   JNZ_INSTRUCTION;
-	evaluated_instructions[I_PUSH_INSTRUCTION] =  PUSH_INSTRUCTION;
-	evaluated_instructions[I_POP_INSTRUCTION] =   POP_INSTRUCTION;
+	evaluated_instructions[I_IRET_INSTRUCTION]  = IRET_INSTRUCTION;
+	evaluated_instructions[I_CMP_INSTRUCTION]   = CMP_INSTRUCTION;
+	evaluated_instructions[I_JMP_INSTRUCTION]   = JMP_INSTRUCTION;
+	evaluated_instructions[I_CALL_INSTRUCTION]  = CALL_INSTRUCTION;
+	evaluated_instructions[I_RET_INSTRUCTION]   = RET_INSTRUCTION;
+	evaluated_instructions[I_JE_INSTRUCTION]    = JE_INSTRUCTION;
+	evaluated_instructions[I_JNE_INSTRUCTION]   = JNE_INSTRUCTION;
+	evaluated_instructions[I_JG_INSTRUCTION]    = JG_INSTRUCTION;
+	evaluated_instructions[I_JGE_INSTRUCTION]   = JGE_INSTRUCTION;
+	evaluated_instructions[I_JL_INSTRUCTION]    = JL_INSTRUCTION;
+	evaluated_instructions[I_JLE_INSTRUCTION]   = JLE_INSTRUCTION;
+	evaluated_instructions[I_JC_INSTRUCTION]    = JC_INSTRUCTION;
+	evaluated_instructions[I_JNC_INSTRUCTION]   = JNC_INSTRUCTION;
+	evaluated_instructions[I_JZ_INSTRUCTION]    = JZ_INSTRUCTION;
+	evaluated_instructions[I_JNZ_INSTRUCTION]   = JNZ_INSTRUCTION;
+	evaluated_instructions[I_PUSH_INSTRUCTION]  = PUSH_INSTRUCTION;
+	evaluated_instructions[I_POP_INSTRUCTION]   = POP_INSTRUCTION;
 }

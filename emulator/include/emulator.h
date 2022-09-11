@@ -30,6 +30,12 @@ struct argument {
 	uint32_t value;
 };
 
+struct flags {
+	uint8_t zero : 1;
+	uint8_t carry : 1;
+	uint8_t overflow : 1;
+};
+
 enum {
 	ZERO_ARGUMENTS,
 	ONE_ARGUMENT,
