@@ -3,4 +3,4 @@ mov ax, bx
 jmp ax
 
 !AT 0
-mov bx, 0
+mov bx, 1
