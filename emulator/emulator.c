@@ -8,7 +8,7 @@ uint32_t registers[I_REG_MAX];
 
 void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
 
-#define EXPRESSION_DEPENDANT_BACKEND(instruction, value1, value2) \
+#define EXPRESSION_DEPENDENT_BACKEND(instruction, value1, value2) \
 		        if (instruction == I_MOV_INSTRUCTION) value1 =   value2; \ 
 		   else if (instruction == I_ADD_INSTRUCTION) value1 +=  value2; \ 
 		   else if (instruction == I_SUB_INSTRUCTION) value1 -=  value2; \ 
@@ -45,9 +45,9 @@ void load_arguments(int instruction, struct argument* argument_list) {
 
 // Instructions such as MOV need the full context of each argument
 // to be fully able to preform its task.
-// For this purpose there are two categories of instructions: expression dependant, and evaluated
-// Where expression dependant are things like MOV, and evaluated are things like CMP
-void do_expression_dependant_instruction(int instruction, struct argument* arguments) {
+// For this purpose there are two categories of instructions: expression dependent, and evaluated
+// Where expression dependent are things like MOV, and evaluated are things like CMP
+void do_expression_dependent_instruction(int instruction, struct argument* arguments) {
 	uint8_t t1 = arguments[0].type;
 	uint8_t t2 = arguments[1].type;
 
@@ -57,11 +57,11 @@ void do_expression_dependant_instruction(int instruction, struct argument* argum
 	// A B, C
 	if ((t1 == CODE_RVALUE && t2 == CODE_RVALUE) || (t1 == CODE_PVALUE && t2 == CODE_RVALUE)) {
 		if ((t1 == CODE_RVALUE && t2 == CODE_PVALUE) || (t1 == CODE_PVALUE && t2 == CODE_PVALUE)) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, memory[arguments[0].value], memory[arguments[1].value]);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[arguments[1].value]);
 			return;
 		}
 
-		EXPRESSION_DEPENDANT_BACKEND(instruction, memory[arguments[0].value], arguments[1].value);
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], arguments[1].value);
 		return;
 	}
 
@@ -71,26 +71,26 @@ void do_expression_dependant_instruction(int instruction, struct argument* argum
 	// A AX, BX
 	if ((t1 == CODE_RREG && t2 == CODE_RREG) || (t1 == CODE_PREG && t2 == CODE_RREG)) {
 		if ((t1 == CODE_RREG && t2 == CODE_PREG) || (t1 == CODE_PREG && t2 == CODE_PREG)) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, memory[registers[arguments[0].value]], memory[registers[arguments[1].value]]);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], memory[registers[arguments[1].value]]);
 			return;
 		}
 
-		EXPRESSION_DEPENDANT_BACKEND(instruction, memory[registers[arguments[0].value]], registers[arguments[1].value]);
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], registers[arguments[1].value]);
 		return;
 	}
 
 	// A AX, C
 	if ((t1 == CODE_RREG && t2 == CODE_RVALUE)) {
-		EXPRESSION_DEPENDANT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+		EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
 	}
 
 	// A [AX], C
 	// A [AX], [C]
 	if (t1 == CODE_PREG) {
 		if (t2 == CODE_RVALUE) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
 		} else if (t2 == CODE_PVALUE) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
 		}
 	}
 
@@ -99,9 +99,9 @@ void do_expression_dependant_instruction(int instruction, struct argument* argum
 	// A [C], [AX]
 	if (t1 == CODE_RVALUE || t1 == CODE_PVALUE) {
 		if (t2 == CODE_RREG) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, memory[arguments[0].value], registers[arguments[1].value]);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], registers[arguments[1].value]);
 		} else if (t2 == CODE_PREG) {
-			EXPRESSION_DEPENDANT_BACKEND(instruction, memory[arguments[0].value], memory[registers[arguments[1].value]]);
+			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[registers[arguments[1].value]]);
 		}
 	}
 
@@ -255,7 +255,7 @@ void POP_INSTRUCTION(struct argument* arguments) {
 
 void process_instruction(int instruction, struct argument* arguments) {
 	if (ISA[instruction].argc == 2 && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
-		do_expression_dependant_instruction(instruction, arguments);
+		do_expression_dependent_instruction(instruction, arguments);
 	else
 		(*evaluated_instructions[instruction])(arguments);
 }
