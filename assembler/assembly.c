@@ -88,7 +88,7 @@ void assemble(struct token* list, int count){
 			memcpy(tokens[i].extra_bytes, current->extra_bytes, sizeof(current->extra_bytes));
 		}
 
-		printf("%s (%d) %d ", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].value);
+		printf("[ %s (%d) %d ] ", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].value);
 
 		i++;
 		
@@ -109,6 +109,7 @@ void assemble(struct token* list, int count){
 
 	while (i < count - 1){
 		_line = tokens[i].line;
+		// printf("_LINE: %d %s\n", _line, TOKEN_NAMES[tokens[i].type]);
 
 		switch (tokens[i].type){
 		case T_INSTRUCTION:

@@ -12,8 +12,12 @@
 #define DEFINE_INSTRUCTION(name, args) {name, args}
 
 extern FILE* input_file;
-extern uint8_t memory[UINT16_MAX];
+extern uint8_t memory[];
 extern uint8_t emulator_running;
+
+extern uint32_t registers[];
+extern struct flags cflags;
+
 extern pthread_t process_thread;
 
 struct instruction {

@@ -50,7 +50,7 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 		int value = get_arg(tokens, &index_, arg_info, size_override);
 		*arg_info = *arg_info == CODE_RREG ? CODE_PREG : CODE_PVALUE;
 
-		*index = index_; // Jump over closing ], revise later to check for ] and to check for :
+		*index = index_ + 1; // Jump over closing ], revise later to check for ] and to check for :
 
 		int offset_info = 0;
 		int offset = get_offset(tokens, index, &offset_info);

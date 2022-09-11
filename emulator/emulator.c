@@ -1,4 +1,5 @@
 #include <emulator.h>
+#include <interrupts.h>
 
 uint8_t memory[UINT16_MAX];
 uint8_t emulator_running = 1;
@@ -167,6 +168,7 @@ void NOT_INSTRUCTION(struct argument* arguments) {
 
 void INT_INSTRUCTION(struct argument* arguments) {
 	// Call interrupt wrapper
+	call_interrupt(evaluate_argument(arguments[0]));
 }
 
 void SIVTE_INSTRUCTION(struct argument* arguments) {
@@ -288,6 +290,8 @@ void* proccess_cycle(void* arg) {
 }
 
 void init_emulator() {
+	init_interrupts();
+
 	evaluated_instructions[I_NOP_INSTRUCTION]   = NOP_INSTRUCTION;
 	evaluated_instructions[I_NOT_INSTRUCTION]   = NOT_INSTRUCTION;
 	evaluated_instructions[I_INT_INSTRUCTION]   = INT_INSTRUCTION;

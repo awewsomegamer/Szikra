@@ -74,8 +74,8 @@ char* get_str(char c, bool(*function)(char c)){
 	return str;
 }
 
-int get_number(char c){
-	return strtol(strdup(get_str(c, IS_ALPHANUMERIC)), NULL, 10);
+int get_number(char c, int base){
+	return strtol(strdup(get_str(c, IS_ALPHANUMERIC)), NULL, base);
 }
 
 int find_operation(char* str){
@@ -213,10 +213,27 @@ int lex(struct token* t){
 
 	default:
 		debug("DEFAULT");
-		if (IS_DIGIT(c)){
+		// Accepts 0x0, x can be anything, and 'A'
+		if (IS_DIGIT(c) || c == '\'') {
 			t->type = T_INT;
-			t->value = get_number(c);
 
+			if (c == '\'') { // '
+				t->value = read_char(); // A
+				read_char(); // ' (this will be skipped over in next lex call)
+				return 1;
+			}
+
+			// C = 0
+			char next_char = read_char(); // x
+			switch (next_char) {
+			case 'x': // x
+				t->value = get_number(next(), 16); // B
+				return 1; 
+			default:
+				putback(next_char);
+			}
+
+			t->value = get_number(c, 10);
 			return 1;
 		} else if (IS_ALPHANUMERIC(c)){
 			char* str = get_str(c, IS_ALPHANUMERIC);
