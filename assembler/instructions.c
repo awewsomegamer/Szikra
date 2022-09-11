@@ -207,13 +207,21 @@ void ZERO_ARG_INSTRUCTION(struct token tokens[], int* i){
 void N_ARG_INSTRUCTION(struct token tokens[], int* i){
 	switch (tokens[*i].value) {
 	case I_DS_INSTRUCTION:
-		printf("%s\n", tokens[*(i + 1)].extra_bytes);
-
-		for (;;);
+		*i = *i + 1;
+		
+		do {
+			write_bytes(tokens[*i].extra_bytes, strlen(tokens[*i].extra_bytes));
+			*i = *i + 1;
+		} while (tokens[*i].type == T_COMMA);
 
 		break;
 	case I_DB_INSTRUCTION:
-		*i++;
+		*i = *i + 1;
+		
+		do {
+			write(tokens[*i].value, size_in_bytes(tokens[*i].value));
+			*i = *i + 1;
+		} while (tokens[*i].type == T_COMMA);
 
 		break;
 	}
