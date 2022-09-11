@@ -85,9 +85,10 @@ int get_arg(struct token tokens[], int* index, int* arg_info, int* size_override
 		if (found == NULL){
 			// Not found
 			*size_override = 3;
-			(*index)++;
 
 			insert_reference(&tokens[*index], get_write_position() + 1);
+
+			(*index)++;			
 
 			return 0;
 		}
@@ -207,20 +208,20 @@ void ZERO_ARG_INSTRUCTION(struct token tokens[], int* i){
 void N_ARG_INSTRUCTION(struct token tokens[], int* i){
 	switch (tokens[*i].value) {
 	case I_DS_INSTRUCTION:
-		*i = *i + 1;
+		(*i)++;
 		
 		do {
 			write_bytes(tokens[*i].extra_bytes, strlen(tokens[*i].extra_bytes));
-			*i = *i + 1;
+			(*i)++;
 		} while (tokens[*i].type == T_COMMA);
 
 		break;
 	case I_DB_INSTRUCTION:
-		*i = *i + 1;
+		(*i)++;
 		
 		do {
 			write(tokens[*i].value, size_in_bytes(tokens[*i].value));
-			*i = *i + 1;
+			(*i)++;
 		} while (tokens[*i].type == T_COMMA);
 
 		break;

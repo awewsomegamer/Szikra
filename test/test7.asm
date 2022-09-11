@@ -1,5 +1,3 @@
-;!AT 0
-
 mov bx, STRING
 
 LOOP:
@@ -18,10 +16,11 @@ END:
 
 STRING:
 	ds "Hello World"
-	db 0x0 ;
+	db 0x0
 
-mov ax, 65
+
+;mov ax, 65
 int 1
 
 LOOP:
-	jmp LOOP
+	jmp LOOP;

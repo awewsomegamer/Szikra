@@ -97,7 +97,7 @@ int main(int argc, char** argv){
 			set_write_position(_current_reference->where);
 
 			struct label* found = find_label_from_name(_current_reference->series->extra_bytes, _labels, true);
-
+			
 			if (found == NULL) {
 				error("Failed to fill reference %s", _current_reference->series->extra_bytes);
 				continue;
