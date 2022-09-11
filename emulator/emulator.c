@@ -83,6 +83,7 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 	// A AX, C
 	if ((t1 == CODE_RREG && t2 == CODE_RVALUE)) {
 		EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+		return;
 	}
 
 	// A [AX], C
@@ -90,8 +91,10 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 	if (t1 == CODE_PREG) {
 		if (t2 == CODE_RVALUE) {
 			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+			return;
 		} else if (t2 == CODE_PVALUE) {
 			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
+			return;
 		}
 	}
 
@@ -101,8 +104,10 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 	if (t1 == CODE_RVALUE || t1 == CODE_PVALUE) {
 		if (t2 == CODE_RREG) {
 			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], registers[arguments[1].value]);
+			return;
 		} else if (t2 == CODE_PREG) {
 			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[registers[arguments[1].value]]);
+			return;
 		}
 	}
 
