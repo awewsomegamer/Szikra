@@ -106,7 +106,7 @@ IP	- Instruction pointer register
 `!DATA` Everything after this point is data (relocated to the end of the file by default) <br>
 
 ### Memory map
-`0x0 -> 0x1FF` Boot sector (marked by last twpo bytes being 0xAABB)
+`0x0 -> 0x1FF` Boot sector (marked by last two bytes being 0xAABB)
 ### IO Device Map
 `0x0 -> 0x4` Keyboard (INFO(0x00) DATA(0x00 0x00 0x00))
 ### Interrupt Map
