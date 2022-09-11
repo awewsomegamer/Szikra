@@ -83,11 +83,9 @@ void assemble(struct token* list, int count){
 		tokens[i].value = current->value;
 		tokens[i].line = current->line;
 
-		if (current->extra_bytes != NULL){
-			tokens[i].extra_bytes = malloc(sizeof(current->extra_bytes));
-			memcpy(tokens[i].extra_bytes, current->extra_bytes, sizeof(current->extra_bytes));
-		}
-
+		if (current->extra_bytes != NULL)
+			tokens[i].extra_bytes = strdup(current->extra_bytes);
+	
 		printf("[ %s (%d) %d ] ", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].value);
 
 		i++;

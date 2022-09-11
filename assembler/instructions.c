@@ -205,5 +205,16 @@ void ZERO_ARG_INSTRUCTION(struct token tokens[], int* i){
 }
 
 void N_ARG_INSTRUCTION(struct token tokens[], int* i){
+	switch (tokens[*i].value) {
+	case I_DS_INSTRUCTION:
+		printf("%s\n", tokens[*(i + 1)].extra_bytes);
 
+		for (;;);
+
+		break;
+	case I_DB_INSTRUCTION:
+		*i++;
+
+		break;
+	}
 }

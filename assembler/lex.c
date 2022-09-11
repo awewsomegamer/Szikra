@@ -217,22 +217,26 @@ int lex(struct token* t){
 		if (IS_DIGIT(c) || c == '\'') {
 			t->type = T_INT;
 
-			if (c == '\'') { // '
-				t->value = read_char(); // A
-				read_char(); // ' (this will be skipped over in next lex call)
+			// Check for ASCII character
+			if (c == '\'') {
+				t->value = read_char();
+				read_char();
 				return 1;
 			}
 
-			// C = 0
-			char next_char = read_char(); // x
+			// Check for different number bases
+			char next_char = read_char();
 			switch (next_char) {
-			case 'x': // x
-				t->value = get_number(next(), 16); // B
+			case 'x':
+				t->value = get_number(next(), 16);
 				return 1; 
-			default:
-				putback(next_char);
+			case 'b':
+				t->value = get_number(next(), 8);
+				return 1; 
 			}
 
+			// Assume base 10
+			putback(next_char);
 			t->value = get_number(c, 10);
 			return 1;
 		} else if (IS_ALPHANUMERIC(c)){
@@ -247,7 +251,7 @@ int lex(struct token* t){
 			if (instruction_found != -1){
 				t->type = T_INSTRUCTION;
 				t->value = instruction_found;
-				debug("ITRUCTION FOUND\n");
+				debug("INSTRUCTION FOUND\n");
 				return 1;
 			}
 
@@ -256,7 +260,7 @@ int lex(struct token* t){
 			if (size != -1){
 				t->type = T_SIZE;
 				t->value = size;
-				debug("SE FOUND\n");
+				debug("SIZE FOUND\n");
 
 				return 1;
 			}
@@ -266,7 +270,7 @@ int lex(struct token* t){
 			if (reg != -1){
 				t->type = T_REGISTER;
 				t->value = reg;
-				debug("R FOUND\n");
+				debug("REGISTER FOUND\n");
 
 				return 1;
 			}
@@ -276,14 +280,36 @@ int lex(struct token* t){
 			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 
 			return 1;
-		} else if (IS_VISUAL(c)){
-			// Dump string into a string token
-			char* str = get_str(c, IS_VISUAL);
-			
-			debug("Putting string \"%s\"\n", str);
+		} else if (c == '\"'){
+			char* string = malloc(1);
+			int char_count = 1;
+			char c_last = 0;
 
+			do {
+				c_last = c;
+				c = read_char();
+
+				if ((c_last == '\\' && c == '\"') || c != '\"') {
+					*(string + char_count - 1) = c;
+					char_count++;
+					string = realloc(string, char_count);
+				}
+			} while (c != '\"');
+
+			printf("GOT STRING LITERAL \"%s\"\n", string);
+
+			t->extra_bytes = string;
 			t->type = T_STRING;
-			t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
+
+			return 1;
+
+			// // Dump string into a string token
+			// char* str = get_str(c, IS_VISUAL);
+			
+			// debug("Putting string \"%s\"\n", str);
+
+			// t->type = T_STRING;
+			// t->extra_bytes = str; // If a token's extra_bytes result in (null) when printed, change this to use strdup to give a copy of the string to the token
 		}
 
 
