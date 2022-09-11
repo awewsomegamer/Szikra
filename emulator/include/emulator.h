@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+
 #include <pthread.h>
 
 #define PROCCESSOR_SPEED_HZ 10000
@@ -156,5 +158,6 @@ static const char* REGISTERS[] = {
 };
 
 void* proccess_cycle(void* arg);
+void init_emulator();
 
 #endif

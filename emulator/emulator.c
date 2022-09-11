@@ -6,6 +6,8 @@ pthread_t process_thread;
 
 uint32_t registers[I_REG_MAX]; 
 
+void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
+
 #define EXPRESSION_DEPENDANT_BACKEND(instruction, value1, value2) \
 		        if (instruction == I_MOV_INSTRUCTION) value1 =   value2; \ 
 		   else if (instruction == I_ADD_INSTRUCTION) value1 +=  value2; \ 
@@ -13,10 +15,11 @@ uint32_t registers[I_REG_MAX];
 		   else if (instruction == I_MUL_INSTRUCTION) value1 *=  value2; \ 
 		   else if (instruction == I_DIV_INSTRUCTION) value1 /=  value2; \ 
 		   else if (instruction == I_AND_INSTRUCTION) value1 &=  value2; \ 
-		   else if (instruction == I_OR_INSTRUCTION) value1  |=  value2; \ 
+		   else if (instruction == I_OR_INSTRUCTION)  value1 |=  value2; \ 
 		   else if (instruction == I_XOR_INSTRUCTION) value1 ^=  value2; \ 
 		   else if (instruction == I_SHR_INSTRUCTION) value1 >>= value2; \ 
 		   else if (instruction == I_SHL_INSTRUCTION) value1 <<= value2;
+
 
 // Ensure instruction is valid, if so return the opcode and increment IP
 int fetch_instruction() {
@@ -40,7 +43,11 @@ void load_arguments(int instruction, struct argument* argument_list) {
 	}
 }
 
-void expression_dependant_instruction_evaluator(int instruction, struct argument* arguments) {
+// Instructions such as MOV need the full context of each argument
+// to be fully able to preform its task.
+// For this purpose there are two categories of instructions: expression dependant, and evaluated
+// Where expression dependant are things like MOV, and evaluated are things like CMP
+void do_expression_dependant_instruction(int instruction, struct argument* arguments) {
 	uint8_t t1 = arguments[0].type;
 	uint8_t t2 = arguments[1].type;
 
@@ -87,7 +94,6 @@ void expression_dependant_instruction_evaluator(int instruction, struct argument
 		}
 	}
 
-
 	// A C, AX
 	// A [C], AX
 	// A [C], [AX]
@@ -101,17 +107,190 @@ void expression_dependant_instruction_evaluator(int instruction, struct argument
 
 }
 
+int evaluate_argument(struct argument arg) {
+	switch (arg.type) {
+	case CODE_RVALUE:
+		return arg.value;
+	case CODE_PVALUE:
+		return memory[arg.value];
+	case CODE_RREG:
+		return registers[arg.value];
+	case CODE_PREG:
+		return memory[registers[arg.value]];
+	}
+}
+
+void stack_push(uint32_t v) {
+	memory[registers[I_REG_SP]++] = v	 & 0xFF;
+	memory[registers[I_REG_SP]++] = v >> 8   & 0xFF;
+	memory[registers[I_REG_SP]++] = v >> 16  & 0xFF;
+	memory[registers[I_REG_SP]++] = v >> 24  & 0xFF;
+}
+
+uint32_t stack_pop() {
+	registers[I_REG_SP] -= 4;
+
+	uint32_t result = memory[registers[I_REG_SP]] | memory[registers[I_REG_SP] + 1] << 8 | memory[registers[I_REG_SP] + 2] << 16 |memory[registers[I_REG_SP] + 3] << 24;
+
+	memory[registers[I_REG_SP]] = 0;
+	memory[registers[I_REG_SP] + 1] = 0;
+	memory[registers[I_REG_SP] + 2] = 0;
+	memory[registers[I_REG_SP] + 3] = 0;
+
+	return result;
+}
+
+void NOP_INSTRUCTION(struct argument* arguments) { }
+
+void NOT_INSTRUCTION(struct argument* arguments) {
+	switch (arguments[0].type) {
+	case CODE_RVALUE:
+	case CODE_PVALUE:
+		memory[arguments[0].value] = ~memory[arguments[0].value];
+		break;
+
+	case CODE_RREG:
+		registers[arguments[0].value] = ~registers[arguments[0].value];
+		break;
+
+	case CODE_PREG:
+		memory[registers[arguments[0].value]] = ~memory[registers[arguments[0].value]];
+		break;
+	}
+}
+
+void INT_INSTRUCTION(struct argument* arguments) {
+	// Call interrupt wrapper
+}
+
+void SIVTE_INSTRUCTION(struct argument* arguments) {
+	// Call interrupt set instruction
+}
+
+void RIVTE_INSTRUCTION(struct argument* arguments) {
+	// Call interupt reset instruction
+}
+
+void IRET_INSTRUCTION(struct argument* arguments) {
+	// RET with a few extra steps, depends on what is done before
+	// interrupt wrapper is called in INT_INSTRUCTION
+}
+
+void CMP_INSTRUCTION(struct argument* arguments) {
+	uint32_t a = evaluate_argument(arguments[0]);
+	uint32_t b = evaluate_argument(arguments[0]);
+}
+
+void JMP_INSTRUCTION(struct argument* arguments) {
+	registers[I_REG_IP] = evaluate_argument(arguments[0]);
+}
+
+void CALL_INSTRUCTION(struct argument* arguments) {
+	stack_push(registers[I_REG_IP]);
+	registers[I_REG_IP] = evaluate_argument(arguments[0]);
+}
+
+void RET_INSTRUCTION(struct argument* arguments) {
+	registers[I_REG_IP] = stack_pop();
+}
+
+void JE_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JNE_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JG_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JGE_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JL_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JLE_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JC_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JNC_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JZ_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void JNZ_INSTRUCTION(struct argument* arguments) {
+	
+}
+
+void PUSH_INSTRUCTION(struct argument* arguments) {
+	stack_push(evaluate_argument(arguments[0]));
+}
+
+void POP_INSTRUCTION(struct argument* arguments) {
+	switch (arguments[0].type) {
+	case CODE_RVALUE:
+	case CODE_PVALUE:
+		memory[arguments[0].value] = stack_pop();
+		break;
+	case CODE_RREG:
+		registers[arguments[0].value] = stack_pop();
+		break;
+	case CODE_PREG:
+		memory[registers[arguments[0].value]] = stack_pop();
+		break;
+	}
+}
+
 void process_instruction(int instruction, struct argument* arguments) {
-	expression_dependant_instruction_evaluator(instruction, arguments);
+	if (ISA[instruction].argc == 2 && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
+		do_expression_dependant_instruction(instruction, arguments);
+	else
+		(*evaluated_instructions[instruction])(arguments);
 }
 
 void* proccess_cycle(void* arg) {
-	int instruction = fetch_instruction();
-	struct argument arguments[256];
-	load_arguments(instruction, arguments);
+	while (emulator_running) {
+		struct argument arguments[256];
+		int instruction = fetch_instruction();
+		load_arguments(instruction, arguments);
 
-	process_instruction(instruction, arguments);
+		process_instruction(instruction, arguments);
+	}
+}
 
-	printf("%s %X %X (IP: %X)\n", ISA[instruction].name, arguments[0].value, arguments[1].value, registers[I_REG_IP]);
-	printf("%X\n", registers[I_REG_BX]);
+void init_emulator() {
+	evaluated_instructions[I_NOP_INSTRUCTION] =   NOP_INSTRUCTION;
+	evaluated_instructions[I_NOT_INSTRUCTION] =   NOT_INSTRUCTION;
+	evaluated_instructions[I_INT_INSTRUCTION] =   INT_INSTRUCTION;
+	evaluated_instructions[I_SIVTE_INSTRUCTION] = SIVTE_INSTRUCTION;
+	evaluated_instructions[I_RIVTE_INSTRUCTION] = RIVTE_INSTRUCTION;
+	evaluated_instructions[I_IRET_INSTRUCTION] =  IRET_INSTRUCTION;
+	evaluated_instructions[I_CMP_INSTRUCTION] =   CMP_INSTRUCTION;
+	evaluated_instructions[I_JMP_INSTRUCTION] =   JMP_INSTRUCTION;
+	evaluated_instructions[I_CALL_INSTRUCTION] =  CALL_INSTRUCTION;
+	evaluated_instructions[I_RET_INSTRUCTION] =   RET_INSTRUCTION;
+	evaluated_instructions[I_JE_INSTRUCTION] =    JE_INSTRUCTION;
+	evaluated_instructions[I_JNE_INSTRUCTION] =   JNE_INSTRUCTION;
+	evaluated_instructions[I_JG_INSTRUCTION] =    JG_INSTRUCTION;
+	evaluated_instructions[I_JGE_INSTRUCTION] =   JGE_INSTRUCTION;
+	evaluated_instructions[I_JL_INSTRUCTION] =    JL_INSTRUCTION;
+	evaluated_instructions[I_JLE_INSTRUCTION] =   JLE_INSTRUCTION;
+	evaluated_instructions[I_JC_INSTRUCTION] =    JC_INSTRUCTION;
+	evaluated_instructions[I_JNC_INSTRUCTION] =   JNC_INSTRUCTION;
+	evaluated_instructions[I_JZ_INSTRUCTION] =    JZ_INSTRUCTION;
+	evaluated_instructions[I_JNZ_INSTRUCTION] =   JNZ_INSTRUCTION;
+	evaluated_instructions[I_PUSH_INSTRUCTION] =  PUSH_INSTRUCTION;
+	evaluated_instructions[I_POP_INSTRUCTION] =   POP_INSTRUCTION;
 }

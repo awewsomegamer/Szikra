@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 	fseek(input_file, 0, SEEK_SET);
 	fread(memory, 1, file_size, input_file);
 
+	init_emulator();
 	init_screen();
 
 	pthread_create(&process_thread, NULL, proccess_cycle, NULL);
