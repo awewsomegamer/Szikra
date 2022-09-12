@@ -55,63 +55,72 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 
 	// A [B], [C]
 	// A B, [C]
+	if ((t1 == CODE_PVALUE && t2 == CODE_RVALUE) || (t1 == CODE_PVALUE && t2 == CODE_PVALUE)) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[arguments[1].value]);
+		return;
+	}
+
 	// A [B], C
 	// A B, C
 	if ((t1 == CODE_RVALUE && t2 == CODE_RVALUE) || (t1 == CODE_PVALUE && t2 == CODE_RVALUE)) {
-		if ((t1 == CODE_RVALUE && t2 == CODE_PVALUE) || (t1 == CODE_PVALUE && t2 == CODE_PVALUE)) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[arguments[1].value]);
-			return;
-		}
-
 		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], arguments[1].value);
 		return;
 	}
 
-	// A [AX], [BX]
-	// A AX, [BX]
 	// A [AX], BX
-	// A AX, BX
-	if ((t1 == CODE_RREG && t2 == CODE_RREG) || (t1 == CODE_PREG && t2 == CODE_RREG)) {
-		if ((t1 == CODE_RREG && t2 == CODE_PREG) || (t1 == CODE_PREG && t2 == CODE_PREG)) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], memory[registers[arguments[1].value]]);
-			return;
-		}
-
+	if (t1 == CODE_PREG && t2 == CODE_RREG) {
 		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], registers[arguments[1].value]);
 		return;
 	}
 
+	// A AX, BX
+	if (t1 == CODE_RREG && t2 == CODE_RREG) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], registers[arguments[1].value]);
+		return;
+	}
+
+	// A [AX], [BX]
+	if (t1 == CODE_PREG && t2 == CODE_PREG) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], memory[registers[arguments[1].value]]);
+		return;
+	}
+
+	// A AX, [BX]
+	if (t1 == CODE_RREG && t2 == CODE_PREG) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], memory[registers[arguments[1].value]]);
+		return;
+	}
+
 	// A AX, C
-	if ((t1 == CODE_RREG && t2 == CODE_RVALUE)) {
+	if (t1 == CODE_RREG && t2 == CODE_RVALUE) {
 		EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
 		return;
 	}
 
 	// A [AX], C
+	if (t1 == CODE_PREG && t2 == CODE_RVALUE) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], arguments[1].value);
+		return;
+	}
+
 	// A [AX], [C]
-	if (t1 == CODE_PREG) {
-		if (t2 == CODE_RVALUE) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
-			return;
-		} else if (t2 == CODE_PVALUE) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, registers[arguments[0].value], arguments[1].value);
-			return;
-		}
+	if (t1 == CODE_PREG && t2 == CODE_PVALUE) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[registers[arguments[0].value]], memory[arguments[1].value]);
+		return;
+	}
+
+	// A [C], [AX]
+	if (t1 == CODE_PVALUE && t2 == CODE_RREG) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[registers[arguments[1].value]]);
+		return;
 	}
 
 	// A C, AX
 	// A [C], AX
-	// A [C], [AX]
-	if (t1 == CODE_RVALUE || t1 == CODE_PVALUE) {
-		if (t2 == CODE_RREG) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], registers[arguments[1].value]);
-			return;
-		} else if (t2 == CODE_PREG) {
-			EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], memory[registers[arguments[1].value]]);
-			return;
-		}
+	if ((t1 == CODE_RVALUE && t2 == CODE_RREG) || (t1 == CODE_PVALUE && t2 == CODE_RREG)) {
+		EXPRESSION_DEPENDENT_BACKEND(instruction, memory[arguments[0].value], registers[arguments[1].value]);
+		return;
 	}
-
 }
 
 int evaluate_argument(struct argument arg) {

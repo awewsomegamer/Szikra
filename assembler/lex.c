@@ -215,11 +215,13 @@ int lex(struct token* t){
 		debug("DEFAULT");
 		// Accepts 0x0, x can be anything, and 'A'
 		if (IS_DIGIT(c) || c == '\'') {
+			debug("NUMBER");
 			t->type = T_INT;
 
 			// Check for ASCII character
 			if (c == '\'') {
 				t->value = read_char();
+				debug("ASCII %d", t->value);
 				read_char();
 				return 1;
 			}
@@ -229,17 +231,22 @@ int lex(struct token* t){
 			switch (next_char) {
 			case 'x':
 				t->value = get_number(next(), 16);
+				debug("HEX %X", t->value);
 				return 1; 
 			case 'b':
-				t->value = get_number(next(), 8);
+				t->value = get_number(next(), 2);
+				debug("BINARY %d", t->value);
 				return 1; 
 			}
 
 			// Assume base 10
-			putback(next_char);
+			// putback(next_char);
 			t->value = get_number(c, 10);
+			debug("BASE10 %d", t->value);
 			return 1;
 		} else if (IS_ALPHANUMERIC(c)){
+			debug("ALPHANUMERIC");
+
 			char* str = get_str(c, IS_ALPHANUMERIC);
 			char* upper = strdup(str);
 			uppercaseString(upper);
@@ -281,6 +288,8 @@ int lex(struct token* t){
 
 			return 1;
 		} else if (c == '\"'){
+			debug("STRING LITERAL");
+
 			char* string = malloc(1);
 			int char_count = 1;
 			char c_last = 0;

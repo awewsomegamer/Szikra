@@ -107,11 +107,13 @@ void assemble(struct token* list, int count){
 
 	while (i < count - 1){
 		_line = tokens[i].line;
-		// printf("_LINE: %d %s\n", _line, TOKEN_NAMES[tokens[i].type]);
+		// printf("_LINE: %d %s\n", _line, TOKEN_NAMES[tokens[i + 1].type]);
+		printf("%d\n", i);
 
 		switch (tokens[i].type){
 		case T_INSTRUCTION:
 			// Generate instruction
+			debug("DOING INSTRUCTION %s", ISA[tokens[i].value].name);
 			(*instruction_list[ISA[tokens[i].value].argc])(tokens, &i);
 
 			break;
