@@ -2,12 +2,15 @@
 
 uint32_t _line = 1;
 char putback = 0;
+uint8_t _eof_reached = 0;
 
 char read_char() {
 	char c = fgetc(_input_file);
 
 	if (c == '\n')
 		_line++;
+	else if (c == EOF)
+		_eof_reached = 1;
 
 	return c;
 }
@@ -36,7 +39,7 @@ char* get_string(char c, uint8_t(*function)(char c)) {
 	memset(buffer, 0, 1024);
 
 	int i = 0;
-	while ((*function)(c)) {
+	while ((*function)(c) && !_eof_reached) {
 		buffer[i++] = c;
 		c = read_char();
 	}

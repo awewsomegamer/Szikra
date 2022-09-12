@@ -1,5 +1,6 @@
 #include <global.h>
 #include <message_handler.h>
+#include <lex.h>
 
 FILE* _input_file = NULL;
 FILE* _output_file = NULL;
@@ -28,8 +29,12 @@ int main(int argc, char** argv) {
 		_output_file_name = fopen(_output_file_name, "w");
 	}
 
-	// struct token tokens[1024];
-
-	
+	struct token tokens[1024];
+	int i = 0;
+	while (!_eof_reached) {
+		while (lex(&tokens[i]) && tokens[i].type != T_NEWLINE) i++;
+		assemble(tokens, i + 1);
+		memset(tokens, 0, 1024 * sizeof(struct token));
+	}
 
 }

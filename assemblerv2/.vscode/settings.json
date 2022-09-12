@@ -1,6 +1,16 @@
 {
 	"files.associations": {
 		"global.h": "c",
-		"message_handler.h": "c"
-	}
+		"stdlib.h": "c",
+		"stdint.h": "c",
+		"stdio.h": "c",
+		"lex.h": "c",
+		"message_handler.h": "c",
+		"stdarg.h": "c",
+		"ctype.h": "c",
+		"strings.h": "c",
+		"definitions.h": "c"
+	},
+
+	"C_Cpp.default.cStandard": "c99"
 }

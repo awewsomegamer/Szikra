@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <definitions.h>
+
 extern FILE* _input_file;
 extern FILE* _output_file;
 extern char* _input_file_name;

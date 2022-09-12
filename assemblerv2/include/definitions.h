@@ -17,6 +17,15 @@ struct instruction {
 	int argc;
 };
 
+struct argument {
+	uint32_t value;
+	uint8_t type : 2;
+	uint8_t length : 2;
+	uint8_t cast : 2;
+	uint8_t offset : 1;
+	uint8_t sign : 1;
+};
+
 struct label {
 	char* name;
 	uint32_t address;
