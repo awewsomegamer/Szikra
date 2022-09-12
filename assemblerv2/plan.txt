@@ -1,0 +1,18 @@
+The assembler will start reading until it reaches a new line
+in which case it will stop reading and send the generated series
+of tokens to the processor. The processor will then put them
+together and evaluate them regularly and write them to the 
+out file. If an error is encountered during the evaluation
+process, the evaluator will return, and print an error message,
+and the assembler will continue working on the rest of the file
+reporting errors. When an error is encountered, the error flag
+will be set, and the assembler will stop outputting to the
+output file.
+
+
+struct label {
+	uint32_t address; // The address of the label, 0 based
+	char* name; /// Label name
+	uint32_t* references; // A list of addresses which correspond to un fill addresses in the output file that this label owns
+	uint32_t line; // Line number label was found on
+};
