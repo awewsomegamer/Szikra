@@ -1,6 +1,7 @@
 #include <global.h>
 #include <message_handler.h>
 #include <lex.h>
+#include <assembly.h>
 
 FILE* _input_file = NULL;
 FILE* _output_file = NULL;
@@ -26,15 +27,16 @@ int main(int argc, char** argv) {
 		_output_file_name = malloc(sizeof(_input_file_name) + 4);
 		sprintf(_output_file_name, "%s.out", _input_file_name);
 		warn("No output file give, defaulting to %s", _output_file_name);
-		_output_file_name = fopen(_output_file_name, "w");
+		_output_file = fopen(_output_file_name, "w");
 	}
 
 	struct token tokens[1024];
 	int i = 0;
 	while (!_eof_reached) {
-		while (lex(&tokens[i]) && tokens[i].type != T_NEWLINE) i++;
+		while (next_token(&tokens[i]) && tokens[i].type != T_NEWLINE) i++;
 		assemble(tokens, i + 1);
 		memset(tokens, 0, 1024 * sizeof(struct token));
+		i = 0;
 	}
 
 }

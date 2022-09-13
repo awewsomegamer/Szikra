@@ -3,6 +3,6 @@
 
 #include <global.h>
 
-void assemble(struct token* tokens);
+void assemble(struct token* tokens, int size);
 
 #endif

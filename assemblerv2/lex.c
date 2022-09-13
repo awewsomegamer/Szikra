@@ -163,6 +163,7 @@ int next_token(struct token* t) {
 		// Check if this is a string literal
 
 		if (isdigit(c) || c == '\'') {
+
 			t->type = T_INT;
 
 			if (c == '\'') {
@@ -183,7 +184,7 @@ int next_token(struct token* t) {
 				t->value = read_number(read_char(), 8);
 				return 1;
 			default:
-				t->value = read_number(read_char(), 10);
+				t->value = read_number(c, 10);
 				return 1;
 			}
 

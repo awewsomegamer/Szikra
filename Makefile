@@ -1,3 +1,3 @@
 all:
-	make -C ./assembler
+	make -C ./assemblerv2
 	make -C ./emulator
