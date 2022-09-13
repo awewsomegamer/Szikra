@@ -86,15 +86,49 @@ void build_instruction(struct token* tokens, int size) {
 	}
 }
 
+uint64_t hash_string(char* string){
+	uint64_t hash = 5381;
+	int c;
+
+	while (c = *string++)
+		hash = ((hash << 5) + hash) + c;
+
+	return hash;
+}
+
+void do_directive(struct token* tokens, int size) {
+	switch (hash_string(tokens[1].extra_bytes)) {
+	case AT_DIRECTIVE_HASH:
+		if (tokens[2].type == T_INT)
+			set_writer_position(tokens[2].value);
+		else
+			error("Improper directive on line %d", _line);
+		
+		break;
+	case DATA_DIRECTIVE_HASH:
+		break;
+	case TEXT_DIRECTIVE_HASH:
+		break;
+	}
+}
+
 void assemble(struct token* tokens, int size) {
+	printf("ASSEMBLING TOKENS (%d): \n", _line);
+	for (int i = 0; i < size + 1; i++)
+		printf("%s (%d) ", TOKEN_NAMES[tokens[i].type], tokens[i].type);
+	printf("\n\n");
+
 	switch (tokens[0].type) {
 	case T_INSTRUCTION:
 		build_instruction(tokens, size);
 
 		break;
+
 	case T_DIRECTIVE:
+		do_directive(tokens, size + 1);
 
 		break;
+
 	case T_STRING:
 		// Find label
 		// If label is found but address is -1, change its address to the writer position

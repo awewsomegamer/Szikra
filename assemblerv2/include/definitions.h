@@ -5,6 +5,10 @@
 
 #define DEFINE_INSTRUCTION(name, args) {name, args}
 
+#define AT_DIRECTIVE_HASH   0x5972FA
+#define TEXT_DIRECTIVE_HASH 0x7C8C508A
+#define DATA_DIRECTIVE_HASH 0x7C832600
+
 struct token {
 	int value;
 	int type;
@@ -69,17 +73,18 @@ static const char* TOKEN_NAMES[] = {
 	[T_SUB] 		= "SUB",
 	[T_MUL] 		= "MUL",
 	[T_DIV] 		= "DIV",
-	[T_COMMA] 		= ",",
-	[T_DOT] 		= ".",
-	[T_COLON] 		= ":",
-	[T_COMMENT] 		= ";",
-	[T_DIRECTIVE] 		= "!",
-	[T_LSQR_BRACKET] 	= "[",
-	[T_RSQR_BRACKET] 	= "]",
-	[T_LPARAN] 		= "(",
-	[T_RPARAN] 		= ")",
-	[T_HASH]		= "#",
-	[T_PERCENT]		= "%",
+	[T_COMMA] 		= "','",
+	[T_DOT] 		= "'.'",
+	[T_COLON] 		= "':'",
+	[T_COMMENT] 		= "';'",
+	[T_DIRECTIVE] 		= "'!'",
+	[T_LSQR_BRACKET] 	= "'['",
+	[T_RSQR_BRACKET] 	= "']'",
+	[T_LPARAN] 		= "'('",
+	[T_RPARAN] 		= "')'",
+	[T_HASH]		= "'#'",
+	[T_PERCENT]		= "'%'",
+	[T_NEWLINE] 		= "'\\n'",
 	[T_INT] 		= "INT",
 	[T_STRING] 		= "STRING",
 	[T_INSTRUCTION] 	= "INSTRUCTION",

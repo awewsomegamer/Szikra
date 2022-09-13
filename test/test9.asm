@@ -1,3 +1,5 @@
+!AT 10
+
 mov ax, 0x40
 add ax, 1
 

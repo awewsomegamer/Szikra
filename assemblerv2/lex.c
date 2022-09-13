@@ -39,9 +39,9 @@ char* get_string(char c, uint8_t(*function)(char c)) {
 	memset(buffer, 0, 1024);
 
 	int i = 0;
-	while ((*function)(c) && !_eof_reached) {
+	while ((*function)(c)) {
 		buffer[i++] = c;
-		c = read_char();
+		c = get_next();
 	}
 
 	putback = c;
@@ -59,6 +59,7 @@ int read_number(char c, int base) {
 
 int next_token(struct token* t) {
 	char c = next_char();
+	// printf("RECIEVED %c\n", c);
 
 	switch (c) {
 	case EOF:
@@ -163,7 +164,6 @@ int next_token(struct token* t) {
 		// Check if this is a string literal
 
 		if (isdigit(c) || c == '\'') {
-
 			t->type = T_INT;
 
 			if (c == '\'') {
@@ -172,7 +172,7 @@ int next_token(struct token* t) {
 				return 1;
 			}
 
-			char identifier = read_char();
+			char identifier = get_next();
 			switch (identifier) {
 			case 'x':
 				t->value = read_number(read_char(), 16);
@@ -184,6 +184,7 @@ int next_token(struct token* t) {
 				t->value = read_number(read_char(), 8);
 				return 1;
 			default:
+				putback = identifier;
 				t->value = read_number(c, 10);
 				return 1;
 			}
@@ -222,6 +223,8 @@ int next_token(struct token* t) {
 			// It is a label
 			t->type = T_STRING;
 			t->extra_bytes = keyword;
+
+			return 1;
 		} else if (c == '\"') {
 			char* string = malloc(1);
 			int string_size = 1;
@@ -239,6 +242,8 @@ int next_token(struct token* t) {
 
 			t->type = T_STRING;
 			t->extra_bytes = string;
+
+			return 1;
 		}
 
 		return 0;
