@@ -73,8 +73,6 @@ void build_instruction(struct token* tokens, int size) {
 	while (i < size) {
 		struct argument arg = get_arg(tokens, &i);
 		
-		printf("%d ARG(%d) VALUE\n", arg.value, arg.type);
-
 		if (tokens[i].type != T_COMMA && i != size - 1 && ISA[tokens[0].value].argc > ONE_ARGUMENT)
 			error("Expected comma line %d", _line);
 		
