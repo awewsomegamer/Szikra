@@ -7,7 +7,7 @@ void write_byte(uint8_t byte) {
 }
 
 void set_writer_position(uint64_t where) {
-	fseek(_output_file, where, SEEK_CUR);
+	fseek(_output_file, where, SEEK_SET);
 }
 
 uint64_t get_writer_position() {

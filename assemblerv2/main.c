@@ -44,16 +44,17 @@ int main(int argc, char** argv) {
 		i = 0;
 	}
 
-	// for (int i = 0; i < _label_count; i++) {
-	// 	if (!_labels[i].defined)
-	// 		fatal_error("Label %s was never defined", _labels[i].name);
+	for (int i = 0; i < _label_count; i++) {
+		if (!_labels[i].defined)
+			fatal_error("Label %s was never defined", _labels[i].name);
 		
-	// 	if (_labels[i].reference_count > 0) {
-	// 		for (int j = 0; j < _labels[i].reference_count; j++) {
-	// 			set_writer_position(_labels[i].references[j]);
-	// 			fwrite(&_labels[i].address, size_in_bytes(_labels[i].address), 1, _output_file);
-	// 		}
-	// 	}
-	// }
+		if (_labels[i].reference_count > 0) {
+			for (int j = 0; j < _labels[i].reference_count; j++) {
+				debug("Filling value at %X with %X", _labels[i].references[j], _labels[i].address);
+				set_writer_position(_labels[i].references[j]);
+				fwrite(&_labels[i].address, size_in_bytes(_labels[i].address) + 1, 1, _output_file);
+			}
+		}
+	}
 
 }

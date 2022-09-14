@@ -5,6 +5,8 @@ add ax, 1
 
 int 1
 
+mov ax, LABEL
+
 ; COMMENT
 
 LABEL:  mov ax, 0 jmp 0x41 ; COMMENT

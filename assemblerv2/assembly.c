@@ -34,12 +34,6 @@ struct argument get_arg(struct token* tokens, int* i) {
 		return ret;
 
 	case T_STRING: // Is reference
-		ret.type = 0;
-		
-		// Find label
-		// If found process as integer but with .address
-		// If not found insert a new label with name, and add writer position to its references pointer
-
 		struct label* label = find_label(tokens[*i].extra_bytes);
 
 		if (label == NULL) {
@@ -51,12 +45,12 @@ struct argument get_arg(struct token* tokens, int* i) {
 			// Insert reference
 			label->reference_count = 1;
 			label->references = realloc(label->references, label->reference_count);
-			label->references[0] = get_writer_position();
+			label->references[0] = get_writer_position() + 1;
 			
 			// Return 32 bit 0
 			ret.value = 0;
-			ret.type = CODE_RREG;
-			ret.length = SZ_DWORD;
+			ret.type = CODE_RVALUE;
+			ret.length = 3;
 
 			(*i)++;
 
@@ -64,11 +58,11 @@ struct argument get_arg(struct token* tokens, int* i) {
 		} else if (!label->defined) {
 			label->reference_count++;
 			label->references = realloc(label->references, label->reference_count);
-			label->references[label->reference_count - 1] = get_writer_position();
+			label->references[label->reference_count - 1] = get_writer_position() + 1;
 
 			ret.value = 0;
-			ret.type = CODE_RREG;
-			ret.length = SZ_DWORD;
+			ret.type = CODE_RVALUE;
+			ret.length = 3;
 
 			(*i)++;
 
@@ -128,10 +122,13 @@ void build_instruction(struct token* tokens, int size) {
 void do_directive(struct token* tokens, int size) {
 	switch (hash_string(tokens[1].extra_bytes)) {
 	case AT_DIRECTIVE_HASH:
-		if (tokens[2].type == T_INT)
+		if (tokens[2].type == T_INT) {
 			set_writer_position(tokens[2].value);
-		else
+		} else if (tokens[2].type == T_STRING) {
+			// struct label* label = find_label(tokens[2].extra_bytes);
+		} else {
 			error("Improper directive on line %d", _line);
+		}
 		
 		break;
 	case DATA_DIRECTIVE_HASH:
