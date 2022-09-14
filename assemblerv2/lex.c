@@ -3,6 +3,7 @@
 uint32_t _line = 1;
 char putback = 0;
 uint8_t _eof_reached = 0;
+uint8_t _comment_togle = 0;
 
 char read_char() {
 	char c = fgetc(_input_file);
@@ -155,6 +156,11 @@ int next_token(struct token* t) {
 	case '\n':
 		debug("NEW LINE");
 		t->type = T_NEWLINE;
+		
+		return 1;
+
+	case ';':
+		// _comment_togle = !_comment_togle;
 		
 		return 1;
 

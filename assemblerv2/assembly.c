@@ -1,17 +1,7 @@
 #include <assembly.h>
 #include <writer.h>
 #include <message_handler.h>
-
-int size_in_bytes(int argument){
-	int i = 0;
-
-	while (argument != 0){
-		argument >>= 8;
-		if (argument != 0) i++;
-	}
-
-	return i;
-}
+#include <util.h>
 
 struct argument get_arg(struct token* tokens, int* i) {
 	struct argument ret;
@@ -50,6 +40,45 @@ struct argument get_arg(struct token* tokens, int* i) {
 		// If found process as integer but with .address
 		// If not found insert a new label with name, and add writer position to its references pointer
 
+		struct label* label = find_label(tokens[*i].extra_bytes);
+
+		if (label == NULL) {
+			// Create new label
+			create_label(tokens[*i].extra_bytes, 0, 0);
+
+			label = &_labels[_label_count - 1];
+
+			// Insert reference
+			label->reference_count = 1;
+			label->references = realloc(label->references, label->reference_count);
+			label->references[0] = get_writer_position();
+			
+			// Return 32 bit 0
+			ret.value = 0;
+			ret.type = CODE_RREG;
+			ret.length = SZ_DWORD;
+
+			(*i)++;
+
+			return ret;
+		} else if (!label->defined) {
+			label->reference_count++;
+			label->references = realloc(label->references, label->reference_count);
+			label->references[label->reference_count - 1] = get_writer_position();
+
+			ret.value = 0;
+			ret.type = CODE_RREG;
+			ret.length = SZ_DWORD;
+
+			(*i)++;
+
+			return ret;
+		}
+
+		ret.value = label->address;
+		ret.length = size_in_bytes(label->address);
+		ret.type = CODE_RREG;
+
 		(*i)++;
 
 		return ret;
@@ -62,38 +91,38 @@ struct argument get_arg(struct token* tokens, int* i) {
 		(*i)++;
 
 		return ret;
+	
+	case T_COMMA:
+		int i2 = *i + 1;
+		ret = get_arg(tokens, &i2);
+		*i = i2;
+
+		return ret;
 	}
 }
 
+// General instruction for building most instructions
 void build_instruction(struct token* tokens, int size) {
-	write_byte(tokens[0].value); // Write OPCODE
+	// Write opcode
+	write_byte(tokens[0].value);
 
 	int i = 1;
 	
-	while (i < size) {
+	// While there are more arguments, write them
+	do {
 		struct argument arg = get_arg(tokens, &i);
-		
-		if (tokens[i].type != T_COMMA && i != size - 1 && ISA[tokens[0].value].argc > ONE_ARGUMENT)
-			error("Expected comma line %d", _line);
 		
 		uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
 		write_byte(info_byte);
 
-		for (int j = 0; j < size_in_bytes(arg.value) + 1; j++)
-			write_byte((arg.value >> (j * 8)) & 0xFF);	
+		for (int j = 0; j < arg.length + 1; j++)
+			write_byte((arg.value >> (j * 8)) & 0xFF);
 
-		i++;
-	}
-}
+	} while (tokens[i].type == T_COMMA);
 
-uint64_t hash_string(char* string){
-	uint64_t hash = 5381;
-	int c;
-
-	while (c = *string++)
-		hash = ((hash << 5) + hash) + c;
-
-	return hash;
+	// If tokens are still left, call assemble function
+	if (i < size)
+		assemble(tokens + i, size - i);
 }
 
 void do_directive(struct token* tokens, int size) {
@@ -113,10 +142,9 @@ void do_directive(struct token* tokens, int size) {
 }
 
 void assemble(struct token* tokens, int size) {
-	printf("ASSEMBLING TOKENS (%d): \n", _line);
-	for (int i = 0; i < size + 1; i++)
-		printf("%s (%d) ", TOKEN_NAMES[tokens[i].type], tokens[i].type);
-	printf("\n\n");
+	debug("ASSEMBLING TOKENS (%d): \n", _line);
+	for (int i = 0; i < size; i++)
+		debug("%s (%d, %s) ", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes);
 
 	switch (tokens[0].type) {
 	case T_INSTRUCTION:
@@ -130,9 +158,30 @@ void assemble(struct token* tokens, int size) {
 		break;
 
 	case T_STRING:
-		// Find label
-		// If label is found but address is -1, change its address to the writer position
-		//				If address is >= 0 then error, most likely a redefinition
+		if (tokens[1].type == T_COLON) {
+			struct label* label = find_label(tokens[0].extra_bytes);
+
+			if (label == NULL) {
+				create_label(tokens[0].extra_bytes, get_writer_position(), 1);
+
+				if (2 < size)
+					assemble(tokens + 2, size);
+
+				break;
+			} else if (!label->defined) {
+				label->address = get_writer_position();
+				label->defined = 1;
+
+				if (2 < size)
+					assemble(tokens + 2, size);
+
+				break;
+			}
+			
+			error("Label %s, originally defined at line %d, redefined at %d", label->name, label->line, _line);
+		} else {
+			error("Unexpected string found on line %d", _line);
+		}
 
 		break;
 	

@@ -34,7 +34,9 @@ struct label {
 	char* name;
 	uint32_t address;
 	uint32_t* references;
+	uint32_t reference_count;
 	int line;
+	uint8_t defined : 1;
 };
 
 enum {
@@ -49,6 +51,7 @@ enum {
 	T_COMMA, 	// ,
 	T_DOT, 		// .
 	T_COLON,	// :
+	T_SEMI, 	// ;
 	T_COMMENT,	// ;
 	T_DIRECTIVE,	// !
 	T_LSQR_BRACKET, // [
@@ -76,6 +79,7 @@ static const char* TOKEN_NAMES[] = {
 	[T_COMMA] 		= "','",
 	[T_DOT] 		= "'.'",
 	[T_COLON] 		= "':'",
+	[T_SEMI]		= "';'",
 	[T_COMMENT] 		= "';'",
 	[T_DIRECTIVE] 		= "'!'",
 	[T_LSQR_BRACKET] 	= "'['",

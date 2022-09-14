@@ -2,11 +2,16 @@
 #include <message_handler.h>
 #include <lex.h>
 #include <assembly.h>
+#include <writer.h>
+#include <util.h>
 
 FILE* _input_file = NULL;
 FILE* _output_file = NULL;
 char* _input_file_name = NULL;
 char* _output_file_name = NULL;
+
+struct label* _labels = NULL;
+uint32_t _label_count = 0;
 
 int main(int argc, char** argv) {
 	for (int i = 1; i < argc; i++) {
@@ -38,5 +43,17 @@ int main(int argc, char** argv) {
 		memset(tokens, 0, 1024 * sizeof(struct token));
 		i = 0;
 	}
+
+	// for (int i = 0; i < _label_count; i++) {
+	// 	if (!_labels[i].defined)
+	// 		fatal_error("Label %s was never defined", _labels[i].name);
+		
+	// 	if (_labels[i].reference_count > 0) {
+	// 		for (int j = 0; j < _labels[i].reference_count; j++) {
+	// 			set_writer_position(_labels[i].references[j]);
+	// 			fwrite(&_labels[i].address, size_in_bytes(_labels[i].address), 1, _output_file);
+	// 		}
+	// 	}
+	// }
 
 }

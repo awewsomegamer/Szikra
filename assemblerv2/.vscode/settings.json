@@ -9,7 +9,9 @@
 		"stdarg.h": "c",
 		"ctype.h": "c",
 		"strings.h": "c",
-		"definitions.h": "c"
+		"definitions.h": "c",
+		"util.h": "c",
+		"string.h": "c"
 	},
 
 	"C_Cpp.default.cStandard": "c99"
