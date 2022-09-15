@@ -12,5 +12,5 @@ mov ax, LABEL
 LABEL:  mov ax, 0 jmp 0x41 ; COMMENT
 
 
-
+!AT LABEL mov ax, 0xAB
 

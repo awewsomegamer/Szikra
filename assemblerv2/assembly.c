@@ -125,10 +125,18 @@ void do_directive(struct token* tokens, int size) {
 		if (tokens[2].type == T_INT) {
 			set_writer_position(tokens[2].value);
 		} else if (tokens[2].type == T_STRING) {
-			// struct label* label = find_label(tokens[2].extra_bytes);
+			struct label* label = find_label(tokens[2].extra_bytes);
+
+			if (label == NULL || label->defined == 0) // Make it so that this will write to a temp file with the label name, then append it to the main out file when done assembling at the given location of the filename when interpreted as a label.
+				fatal_error("Label %s, cannot be used as directive, line %d", label->name, _line);
+			
+			set_writer_position(label->address);
 		} else {
 			error("Improper directive on line %d", _line);
 		}
+
+		if (3 < size)
+			assemble(tokens + 3, size - 3);
 		
 		break;
 	case DATA_DIRECTIVE_HASH:
