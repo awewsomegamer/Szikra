@@ -3,6 +3,9 @@
 #include <message_handler.h>
 #include <util.h>
 
+uint32_t wrh_stack[1024];
+uint32_t wrh_ptr = 0;
+
 struct argument get_arg(struct token* tokens, int* i) {
 	struct argument ret;
 	memset(&ret, 0, sizeof(struct argument));
@@ -120,13 +123,13 @@ void build_instruction(struct token* tokens, int size) {
 }
 
 void do_directive(struct token* tokens, int size) {
-	switch (hash_string(tokens[1].extra_bytes)) {
-	case AT_DIRECTIVE_HASH:
+	switch (tokens[1].value) {
+	case I_DIRECTIVE_AT:
 		if (tokens[2].type == T_INT) {
 			set_writer_position(tokens[2].value);
 		} else if (tokens[2].type == T_STRING) {
 			struct label* label = find_label(tokens[2].extra_bytes);
-
+			
 			if (label == NULL || label->defined == 0) // Make it so that this will write to a temp file with the label name, then append it to the main out file when done assembling at the given location of the filename when interpreted as a label.
 				fatal_error("Label %s, cannot be used as directive, line %d", label->name, _line);
 			
@@ -135,14 +138,33 @@ void do_directive(struct token* tokens, int size) {
 			error("Improper directive on line %d", _line);
 		}
 
-		if (3 < size)
-			assemble(tokens + 3, size - 3);
+		if (3 < size) assemble(tokens + 3, size - 3);
 		
 		break;
-	case DATA_DIRECTIVE_HASH:
+
+	case I_DIRECTIVE_PUSHWRH:
+		printf("PUSHING WRITE HEAD\n");
+		wrh_stack[wrh_ptr++] = get_writer_position();
+		if (2 < size) assemble(tokens + 2, size - 2);
+
 		break;
-	case TEXT_DIRECTIVE_HASH:
+
+	case I_DIRECTIVE_POPWRH:
+		uint32_t wrh_pos = wrh_stack[--wrh_ptr];
+		wrh_stack[wrh_ptr] = 0;
+		set_writer_position(wrh_pos);
+		if (2 < size) assemble(tokens + 2, size - 2);
+
 		break;
+
+	case I_DIRECTIVE_DATA:
+		break;
+	case I_DIRECTIVE_TEXT:
+		break;
+
+	default:
+		printf("%d Is not included in directives list\n", tokens[0].value);
+		// printf("Hash %X (%s) is not defined in directive list\n", hash_string(tokens[1].extra_bytes), tokens[1].extra_bytes);
 	}
 }
 

@@ -21,6 +21,8 @@ int main(int argc, char** argv) {
 		} else if (strcmp(argv[i], "-o") == 0) {
 			_output_file_name = strdup(argv[i + 1]);
 			_output_file = fopen(_output_file_name, "w");
+		} else if (strcmp(argv[i], "-debug") == 0) {
+			_debug = 1;
 		}
 	}
 
@@ -38,7 +40,7 @@ int main(int argc, char** argv) {
 	struct token tokens[1024];
 	int i = 0;
 	while (!_eof_reached) {
-		while (next_token(&tokens[i]) && tokens[i].type != T_NEWLINE) i++;
+		while (next_token(&tokens[i], tokens, i) && tokens[i].type != T_NEWLINE) i++;
 		assemble(tokens, i + 1);
 		memset(tokens, 0, 1024 * sizeof(struct token));
 		i = 0;

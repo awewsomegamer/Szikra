@@ -6,6 +6,6 @@
 extern uint8_t _eof_reached;
 extern uint8_t _comment_togle;
 
-int next_token(struct token* t);
+int next_token(struct token* t, struct token* tokens, int index);
 
 #endif

@@ -42,8 +42,10 @@ char* get_string(char c, uint8_t(*function)(char c)) {
 	int i = 0;
 	while ((*function)(c)) {
 		buffer[i++] = c;
+		printf("%c", c);
 		c = get_next();
 	}
+	printf("\n");
 
 	putback = c;
 
@@ -58,7 +60,7 @@ int read_number(char c, int base) {
 	return strtol(get_string(c, isalnum), NULL, base);
 }
 
-int next_token(struct token* t) {
+int next_token(struct token* t, struct token* tokens, int index) {
 	char c = next_char();
 	// printf("RECIEVED %c\n", c);
 
@@ -200,6 +202,17 @@ int next_token(struct token* t) {
 		} else if (isalnum(c)) {
 			char* keyword = get_string(c, isalnum);
 
+			// Compare to directive
+			if (index > 0 && tokens[index - 1].type == T_DIRECTIVE) {
+				for (int i = 0; i < I_DIRECTIVE_MAX; i++) {
+					if (strcasecmp(keyword, DIRECTIVES[i]) == 0) {
+						t->type = T_INT;
+						t->value = i;
+						return 1;
+					}
+				}
+			}
+
 			// Compare to instruction
 			for (int i = 0; i < I_INSTRUCTION_MAX; i++) {
 				if (strcasecmp(ISA[i].name, keyword) == 0) {
@@ -225,6 +238,7 @@ int next_token(struct token* t) {
 				t->value = SZ_BYTE;
 			else if (strcasecmp(keyword, "byte") == 0)
 				t->value = SZ_BYTE;
+
 
 			// It is a label
 			t->type = T_STRING;
