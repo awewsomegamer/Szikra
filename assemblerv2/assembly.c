@@ -161,10 +161,6 @@ void do_directive(struct token* tokens, int size) {
 		break;
 	case I_DIRECTIVE_TEXT:
 		break;
-
-	default:
-		printf("%d Is not included in directives list\n", tokens[0].value);
-		// printf("Hash %X (%s) is not defined in directive list\n", hash_string(tokens[1].extra_bytes), tokens[1].extra_bytes);
 	}
 }
 
