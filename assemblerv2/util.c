@@ -25,14 +25,15 @@ void create_label(char* name, uint32_t address, uint8_t defined) {
 	_label_count++;
 	_labels = realloc(_labels, sizeof(struct label) * _label_count);
 
-	struct label new_label;
-	new_label.address = address;
-	new_label.name = strdup(name);
-	new_label.references = NULL;
-	new_label.line = _line;
-	new_label.defined = defined;
+	struct label* new_label = malloc(sizeof(struct label));
+	memset(new_label, 0, sizeof(struct label));
+	new_label->address = address;
+	new_label->name = strdup(name);
+	new_label->references = NULL;
+	new_label->line = _line;
+	new_label->defined = defined;
 
-	_labels[_label_count - 1] = new_label;
+	_labels[_label_count - 1] = *new_label;
 }
 
 struct label* find_label(char* name) {

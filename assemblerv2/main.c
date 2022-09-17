@@ -4,6 +4,7 @@
 #include <assembly.h>
 #include <writer.h>
 #include <util.h>
+#include <unistd.h>
 
 FILE* _input_file = NULL;
 FILE* _output_file = NULL;
@@ -44,9 +45,12 @@ int main(int argc, char** argv) {
 		assemble(tokens, i + 1);
 		memset(tokens, 0, 1024 * sizeof(struct token));
 		i = 0;
+
+		sleep(1);
 	}
 
 	for (int i = 0; i < _label_count; i++) {
+		debug("Filling label %s", _labels[i].name);
 		if (!_labels[i].defined)
 			fatal_error("Label %s was never defined", _labels[i].name);
 		

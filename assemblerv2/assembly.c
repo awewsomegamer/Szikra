@@ -100,22 +100,44 @@ struct argument get_arg(struct token* tokens, int* i) {
 
 // General instruction for building most instructions
 void build_instruction(struct token* tokens, int size) {
-	// Write opcode
-	write_byte(tokens[0].value);
-
 	int i = 1;
-	
-	// While there are more arguments, write them
-	do {
-		struct argument arg = get_arg(tokens, &i);
-		
-		uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
-		write_byte(info_byte);
 
-		for (int j = 0; j < arg.length + 1; j++)
-			write_byte((arg.value >> (j * 8)) & 0xFF);
+	switch (tokens[0].value) {
+	case I_DB_INSTRUCTION: {
+		do {
+			if (tokens[i].type == T_STRING) {
+				for (int j = 0; j < strlen(tokens[i].extra_bytes); j++)
+					write_byte(tokens[i].extra_bytes[j]);
+			} else {
+				for (int j = 0; j < size_in_bytes(tokens[i].value); j++)
+					write_byte((tokens[i].value << (j * 8)) & 0xFF);
+			}
+			i++;
 
-	} while (tokens[i].type == T_COMMA);
+		} while (tokens[i++].type == T_COMMA);
+
+		break;
+	}
+
+	default: {
+		// Write opcode
+		write_byte(tokens[0].value);
+
+		// While there are more arguments, write them
+		do {
+			struct argument arg = get_arg(tokens, &i);
+			
+			uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
+			write_byte(info_byte);
+
+			for (int j = 0; j < arg.length + 1; j++)
+				write_byte((arg.value >> (j * 8)) & 0xFF);
+
+		} while (tokens[i].type == T_COMMA);
+
+		break;
+	}
+	}
 
 	// If tokens are still left, call assemble function
 	if (i < size)

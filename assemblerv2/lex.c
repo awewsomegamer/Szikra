@@ -42,10 +42,8 @@ char* get_string(char c, uint8_t(*function)(char c)) {
 	int i = 0;
 	while ((*function)(c)) {
 		buffer[i++] = c;
-		printf("%c", c);
 		c = get_next();
 	}
-	printf("\n");
 
 	putback = c;
 
