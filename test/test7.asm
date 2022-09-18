@@ -15,7 +15,6 @@ LOOP:
 END:
 	int 1
 	jmp END
-
 STRING:
-	db "Hello World", 0x0
+	db "Hello World"
 

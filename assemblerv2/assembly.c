@@ -29,11 +29,13 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.length = size_in_bytes(value.value);
 		ret.value = value.value;
 
-		*i = _i + 1;
+		*i = _i;
 
 		if (tokens[*i].type != T_RSQR_BRACKET)
 			error("Expected right square bracket on line %d", _line);
 		
+		(*i)++;
+
 		return ret;
 
 	case T_STRING: // Is reference
@@ -108,12 +110,12 @@ void build_instruction(struct token* tokens, int size) {
 			if (tokens[i].type == T_STRING) {
 				for (int j = 0; j < strlen(tokens[i].extra_bytes); j++)
 					write_byte(tokens[i].extra_bytes[j]);
-			} else {
+			} else if (tokens[i].type == T_INT){
 				for (int j = 0; j < size_in_bytes(tokens[i].value); j++)
 					write_byte((tokens[i].value << (j * 8)) & 0xFF);
 			}
-			i++;
 
+			i++;
 		} while (tokens[i++].type == T_COMMA);
 
 		break;
