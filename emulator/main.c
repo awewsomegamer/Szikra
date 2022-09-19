@@ -1,6 +1,7 @@
 #include <emulator.h>
 #include <screen.h>
 #include <message_handler.h>
+#include <unistd.h>
 
 FILE* input_file = NULL;
 
@@ -17,6 +18,7 @@ int main(int argc, char** argv) {
 		}
 
 	} 
+
 
 	if (input_file == NULL) {
 		fatal_error("No input file specified");

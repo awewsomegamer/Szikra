@@ -76,7 +76,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 
 		ret.value = label->address;
 		ret.length = size_in_bytes(label->address);
-		ret.type = CODE_RREG;
+		ret.type = CODE_RVALUE;
 
 		(*i)++;
 
@@ -111,7 +111,7 @@ void build_instruction(struct token* tokens, int size) {
 				for (int j = 0; j < strlen(tokens[i].extra_bytes); j++)
 					write_byte(tokens[i].extra_bytes[j]);
 			} else if (tokens[i].type == T_INT){
-				for (int j = 0; j < size_in_bytes(tokens[i].value); j++)
+				for (int j = 0; j < size_in_bytes(tokens[i].value) + 1; j++)
 					write_byte((tokens[i].value << (j * 8)) & 0xFF);
 			}
 
@@ -189,9 +189,9 @@ void do_directive(struct token* tokens, int size) {
 }
 
 void assemble(struct token* tokens, int size) {
-	debug("ASSEMBLING TOKENS (%d): \n", _line);
+	debug("ASSEMBLING TOKENS (%d):", _line);
 	for (int i = 0; i < size; i++)
-		debug("%s (%d, %s) ", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes);
+		debug("%s (%d, %s, %s)", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes, ISA[tokens[i].value].name);
 
 	switch (tokens[0].type) {
 	case T_INSTRUCTION:

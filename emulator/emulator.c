@@ -25,23 +25,25 @@ void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
 
 // Ensure instruction is valid, if so return the opcode and increment IP
 int fetch_instruction() {
-	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX); // Call invalid opcode interrupt
+	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) printf("Invalid opcode at %X\n"); // Call invalid opcode interrupt
 	return memory[registers[I_REG_IP]++];
 }
 
 // Return a list of arguments based on ISA[instruction]
 void load_arguments(int instruction, struct argument* argument_list) {
 	for (int i = 0; i < ISA[instruction].argc; i++) {
-		argument_list[i].type   =  (memory[registers[I_REG_IP]] >> 6) & 0b11;
-		argument_list[i].length = ((memory[registers[I_REG_IP]] >> 4) & 0b11) + 1;
-		argument_list[i].cast   =  (memory[registers[I_REG_IP]] >> 2) & 0b11;
-		argument_list[i].offset =  (memory[registers[I_REG_IP]] >> 1) & 0b1;
-		argument_list[i].sign   =  (memory[registers[I_REG_IP]] >> 0) & 0b1;
+		argument_list[i].type      =  (memory[registers[I_REG_IP]] >> 6) & 0b11;
+		argument_list[i].length    = ((memory[registers[I_REG_IP]] >> 4) & 0b11) + 1;
+		argument_list[i].cast      =  (memory[registers[I_REG_IP]] >> 2) & 0b11;
+		argument_list[i].offset    =  (memory[registers[I_REG_IP]] >> 1) & 0b1;
+		argument_list[i].sign      =  (memory[registers[I_REG_IP]] >> 0) & 0b1;
+		argument_list[i].info_byte =   memory[registers[I_REG_IP]];
 
 		registers[I_REG_IP]++;
 
+		argument_list[i].value = 0;
 		for (int j = 0; j < argument_list[i].length; j++)
-			argument_list[i].value = memory[registers[I_REG_IP]++] << (j * 8);
+			argument_list[i].value |= memory[registers[I_REG_IP]++] << (j * 8);
 	}
 }
 
@@ -195,8 +197,8 @@ void IRET_INSTRUCTION(struct argument* arguments) {
 
 void CMP_INSTRUCTION(struct argument* arguments) {
 	uint32_t a = evaluate_argument(arguments[0]);
-	uint32_t b = evaluate_argument(arguments[0]);
-
+	uint32_t b = evaluate_argument(arguments[1]);
+	
 	if (a > b) {
 		cflags.carry = 1;
 		cflags.zero = 0;
@@ -223,7 +225,9 @@ void RET_INSTRUCTION(struct argument* arguments) {
 }
 
 void JE_INSTRUCTION(struct argument* arguments) {
-	if (!cflags.carry && !cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
+	if (!cflags.carry && !cflags.zero) {
+		registers[I_REG_IP] = evaluate_argument(arguments[0]);
+	}
 }
 
 void JNE_INSTRUCTION(struct argument* arguments) {

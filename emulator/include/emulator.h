@@ -27,10 +27,11 @@ struct instruction {
 
 struct argument {
 	uint8_t type : 2;
-	uint8_t length : 2;
+	uint8_t length : 4;
 	uint8_t cast : 2;
 	uint8_t offset : 1;
 	uint8_t sign : 1;
+	uint8_t info_byte;
 	uint32_t value;
 };
 

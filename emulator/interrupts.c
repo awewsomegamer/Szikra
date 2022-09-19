@@ -15,7 +15,7 @@ void call_interrupt(uint16_t interrupt) {
 void INTERRUPT_NULL() { }
 
 void INTERRUPT_1() {
-	printf("%c\n", registers[I_REG_AX]);
+	printf("%c", registers[I_REG_AX]);
 }
 
 void INTERRUPT_2() {

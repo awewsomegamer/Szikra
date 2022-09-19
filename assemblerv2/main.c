@@ -45,8 +45,6 @@ int main(int argc, char** argv) {
 		assemble(tokens, i + 1);
 		memset(tokens, 0, 1024 * sizeof(struct token));
 		i = 0;
-
-		// sleep(1);
 	}
 
 	for (int i = 0; i < _label_count; i++) {
