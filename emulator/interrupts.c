@@ -1,4 +1,5 @@
 #include <interrupts.h>
+#include <screen.h>
 
 uint8_t set_interrupts[1024];
 void(*interrupt_functions[1024])();
@@ -15,7 +16,7 @@ void call_interrupt(uint16_t interrupt) {
 void INTERRUPT_NULL() { }
 
 void INTERRUPT_1() {
-	printf("%c", registers[I_REG_AX]);
+	scr_putc(registers[I_REG_AX]);
 }
 
 void INTERRUPT_2() {
