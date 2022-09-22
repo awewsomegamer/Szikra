@@ -114,3 +114,51 @@ Interrupt 0: Clock interrupt
 Interrupt 1: Screen functions
 Interrupt 2: Disk functions
 Interrupt 3: Keyboard interrupt
+
+### Microcode
+Figure out:
+
+Register interface
+Memory interface
+Program Counter
+
+
++= Read into registers =+
+| AIN			|
+| BIN			|
+| CIN			|
+| DIN			|
+| SPIN			|
+| BPIN			|
+| IPIN			|
+| I1IN			|
+| I2IN			|
+| I3IN			|
+| I4IN			|
++-----------------------+
+
++= Write out from registers =+
+| AOUT			     |
+| BOUT			     |
+| COUT			     |
+| DOUT			     |
+| SPOUT			     |
+| BPOUT			     |
+| IPOUT			     |
+| I1OUT			     |
+| I2OUT			     |
+| I3OUT			     |
+| I4OUT			     |
++----------------------------+
+
++= Increment Program Counter =+
+PCI
+
++= Read in from memory address =+
+MI
+
++= Write to memory address =+
+WI
+
++= Write address bus =+
+WADR

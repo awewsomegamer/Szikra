@@ -66,7 +66,6 @@ void scr_putc(char c) {
 		return;
 	}
 
-
 	uint8_t* data = &_FONT + c * FONT_HEIGHT;
 
 	int rx = 0;
