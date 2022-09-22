@@ -10,6 +10,17 @@ With this new system I hope to be able to add more instruction arguments as
 well as directives local labels, and many more things to make the assembler
 better.
 
+### Contents
+<pre>
+/assembler/ 	- Discontinued assembler, first version
+/assemblerv2/   - New assembler, worked on, second version
+/compiler/	- Simple compiler designed to compile to the assembly language (not yet worked on)
+/emulator/ 	- Optimized emulator, designed for use on a desktop
+/emulatorv2/    - Realistic emulator, designed for implementation in logic software (logisim, etc...) or in real life (not yet worked on)
+/test/		- Test files 
+/logisim/ 	- Logisim files, plan for real CPU (not yet worked on)
+</pre>
+
 ## Architecture
 
 ### Instructions
