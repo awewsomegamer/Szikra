@@ -126,16 +126,21 @@ void build_instruction(struct token* tokens, int size) {
 		write_byte(tokens[0].value);
 
 		// While there are more arguments, write them
+		struct argument arguments[256];
+		int arg_i = 0;
+
 		do {
-			struct argument arg = get_arg(tokens, &i);
-			
+			arguments[arg_i++] = get_arg(tokens, &i);
+		} while (tokens[i].type == T_COMMA);
+
+		for (int x = arg_i - 1; x >= 0; x--) {
+			struct argument arg = arguments[x];
 			uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
 			write_byte(info_byte);
 
 			for (int j = 0; j < arg.length + 1; j++)
 				write_byte((arg.value >> (j * 8)) & 0xFF);
-
-		} while (tokens[i].type == T_COMMA);
+		}
 
 		break;
 	}

@@ -221,7 +221,7 @@ int next_token(struct token* t, struct token* tokens, int index) {
 			}
 
 			// Comapre to registers
-			for (int i = 0; i < I_REG_MAX; i++) {
+			for (int i = 1; i < I_REG_MAX; i++) {
 				if (strcasecmp(REGISTERS[i], keyword) == 0) {
 					t->type = T_REGISTER;
 					t->value = i;

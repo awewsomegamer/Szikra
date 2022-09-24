@@ -114,7 +114,7 @@ enum {
 };
 
 enum {
-	I_REG_AX,
+	I_REG_AX = 1,
 	I_REG_BX,
 	I_REG_CX,
 	I_REG_DX,
