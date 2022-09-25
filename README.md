@@ -121,10 +121,12 @@ IP	- Instruction pointer register
 ### IO Device Map
 `0x0 -> 0x4` Keyboard (INFO(0x00) DATA(0x00 0x00 0x00))
 ### Interrupt Map
+<pre>
 Interrupt 0: Clock interrupt
 Interrupt 1: Screen functions
 Interrupt 2: Disk functions
 Interrupt 3: Keyboard interrupt
+</pre>
 
 ### Microcode
 <pre>
