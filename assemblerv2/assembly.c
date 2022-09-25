@@ -50,11 +50,10 @@ struct argument get_arg(struct token* tokens, int* i) {
 			// Insert reference
 			label->reference_count = 1;
 			label->references = realloc(label->references, label->reference_count);
-			label->references[0] = get_writer_position() + 1;
 			
 			// Return 32 bit 0
-			ret.value = 0;
-			ret.type = CODE_RVALUE;
+			ret.value = label->index;
+			ret.type = CODE_UREF;
 			ret.length = 3;
 
 			(*i)++;
@@ -63,10 +62,9 @@ struct argument get_arg(struct token* tokens, int* i) {
 		} else if (!label->defined) {
 			label->reference_count++;
 			label->references = realloc(label->references, label->reference_count);
-			label->references[label->reference_count - 1] = get_writer_position() + 1;
 
-			ret.value = 0;
-			ret.type = CODE_RVALUE;
+			ret.value = label->index;
+			ret.type = CODE_UREF;
 			ret.length = 3;
 
 			(*i)++;
@@ -122,9 +120,6 @@ void build_instruction(struct token* tokens, int size) {
 	}
 
 	default: {
-		// Write opcode
-		write_byte(tokens[0].value);
-
 		// While there are more arguments, write them
 		struct argument arguments[256];
 		int arg_i = 0;
@@ -133,10 +128,26 @@ void build_instruction(struct token* tokens, int size) {
 			arguments[arg_i++] = get_arg(tokens, &i);
 		} while (tokens[i].type == T_COMMA);
 
-		for (int x = arg_i - 1; x >= 0; x--) {
+		int offset = 0;
+		if (tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) {
+			write_byte(tokens[0].value + arguments[0].value);
+			offset++;
+		} else {
+			write_byte(tokens[0].value);
+		}
+
+		for (int x = offset; x < arg_i; x++) {
 			struct argument arg = arguments[x];
 			uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
 			write_byte(info_byte);
+
+			if (arg.type == CODE_UREF) {
+				_labels[arg.value].references[_labels[arg.value].reference_count - 1] = get_writer_position();
+				for (int j = 0; j < 4; j++)
+					write_byte(0);
+
+				continue;
+			}
 
 			for (int j = 0; j < arg.length + 1; j++)
 				write_byte((arg.value >> (j * 8)) & 0xFF);

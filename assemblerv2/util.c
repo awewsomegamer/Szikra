@@ -32,6 +32,7 @@ void create_label(char* name, uint32_t address, uint8_t defined) {
 	new_label->references = NULL;
 	new_label->line = _line;
 	new_label->defined = defined;
+	new_label->index = _label_count - 1;
 
 	_labels[_label_count - 1] = *new_label;
 }
