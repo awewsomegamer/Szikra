@@ -127,12 +127,8 @@ Interrupt 2: Disk functions
 Interrupt 3: Keyboard interrupt
 
 ### Microcode
-Figure out:
-
-Register interface
-Memory interface
-Program Counter
-
+<pre>
+* Everything reads in from the bus, and writes out to the bus
 
 += Read into registers =+
 | AIN			|
@@ -165,11 +161,29 @@ Program Counter
 += Increment Program Counter =+
 PCI
 
-+= Read in from memory address =+
++= Write to RAM =+
+MO
+
++= Read in from RAM =+
 MI
 
-+= Write to memory address =+
-WI
++= Write to memory address register =+
+WMR
 
-+= Write address bus =+
-WADR
++= Read from memory address register =+
+RMR
+
++= Write bus =+
+WBUS
+
++= Write bus =+
+RBUS
+
+// The operation will be set using a bus, A OP B = C
++= ALU Registers +=+
+| R1IN		   | // A
+| R2IN		   | // B
+| R3OUT		   | // C
++------------------+
+
+</pre>
