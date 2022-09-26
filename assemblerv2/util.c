@@ -33,6 +33,7 @@ void create_label(char* name, uint32_t address, uint8_t defined) {
 	new_label->line = _line;
 	new_label->defined = defined;
 	new_label->index = _label_count - 1;
+	new_label->reference_count = 0;
 
 	_labels[_label_count - 1] = *new_label;
 }
@@ -47,3 +48,8 @@ struct label* find_label(char* name) {
 	return NULL;
 }
 
+void insert_reference(struct label* label, int value) {
+	label->reference_count++;
+	label->references = realloc(label->references, label->reference_count);
+	label->references[label->reference_count - 1] = value;
+}

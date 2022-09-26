@@ -14,7 +14,6 @@ extern FILE* _input_file;
 extern FILE* _output_file;
 extern char* _input_file_name;
 extern char* _output_file_name;
-
 extern struct label* _labels;
 extern uint32_t _label_count;
 

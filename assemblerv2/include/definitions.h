@@ -112,7 +112,7 @@ enum {
 	CODE_PVALUE,
 	CODE_RREG,
 	CODE_PREG,
-	CODE_UREF	
+	CODE_REF
 };
 
 enum {
