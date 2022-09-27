@@ -114,23 +114,38 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < total_references; i++)
 		printf("%X: %X\n", ref_list[i].where, _labels[ref_list[i].what].address);
 	
+	fclose(_output_file);
+
 	FILE* temp = fopen(_output_file_name, "r");
+	uint8_t* out_temp = malloc(1);
+	long out_temp_size = 1;
+	long out_temp_ptr = 0;
 
 	uint16_t byte = 0x0;
 	set_writer_position(0);
 	error = 0;
+
 	while ((byte = fgetc(temp)) != 0xFFFF) {
 		for (int i = 0; i < total_references; i++)
-			if (get_writer_position() == ref_list[i].where)
-				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
-					write_byte((_labels[ref_list[i].what].address >> (j * 8)) & 0xFF);
+			if (get_writer_position() == ref_list[i].where) {
+				out_temp_size += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+				out_temp = realloc(out_temp, out_temp_size);
 
-		write_byte(byte & 0xFF);
+				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
+					out_temp[out_temp_ptr++] = (_labels[ref_list[i].what].address >> (j * 8)) & 0xFF;
+			}
+
+		out_temp_size++;
+		out_temp = realloc(out_temp, out_temp_size);
+		out_temp[out_temp_ptr++] = byte & 0xFF;
 
 		printf("%X\n", byte);
 	}
 
 	fclose(temp);
+
+	_output_file = fopen(_output_file_name, "w");
+	fwrite(out_temp, 1, out_temp_ptr, _output_file);
 	fclose(_output_file);
 
 	// int error = 0;

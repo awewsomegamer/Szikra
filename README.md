@@ -182,10 +182,13 @@ WBUS
 RBUS
 
 // The operation will be set using a bus, A OP B = C
-+= ALU Registers +=+
-| R1IN		   | // A
-| R2IN		   | // B
-| R3OUT		   | // C
-+------------------+
++= ALU Registers =+
+| R1IN		  | // A
+| R2IN		  | // B
+| R3OUT		  | // C
++-----------------+
+
++= Register Selector =+
+RSIN		    
 
 </pre>

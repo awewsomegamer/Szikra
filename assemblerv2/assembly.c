@@ -116,15 +116,8 @@ void build_instruction(struct token* tokens, int size) {
 
 	default: {
 		// While there are more arguments, write them
-		struct argument arguments[256];
-		int arg_i = 0;
-
 		do {
-			arguments[arg_i++] = get_arg(tokens, &i);
-		} while (tokens[i].type == T_COMMA);
-
-		for (int x = ((tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) ? 1 : 0); x < arg_i; x++) {
-			struct argument arg = arguments[x];
+			struct argument arg = get_arg(tokens, &i);
 			
 			if (arg.type == CODE_REF) {
 				write_byte(1 << 7);
@@ -137,13 +130,9 @@ void build_instruction(struct token* tokens, int size) {
 
 			for (int j = 0; j < arg.length + 1; j++)
 				write_byte((arg.value >> (j * 8)) & 0xFF);
-		}
+		} while (tokens[i].type == T_COMMA);
 
-		if (tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) {
-			write_byte(tokens[0].value + arguments[0].value);
-		} else {
-			write_byte(tokens[0].value);
-		}
+		write_byte(tokens[0].value);
 
 		break;
 	}
