@@ -53,39 +53,85 @@ int main(int argc, char** argv) {
 		i = 0;
 	}
 
-	// // Fill in references
-	// int total_references = 0;
-	// for (int i = 0; i < _label_count; i++)
-	// 	total_references += _labels[i].reference_count;
+	// Fill in references
+	int total_references = 0;
+	for (int i = 0; i < _label_count; i++)
+		total_references += _labels[i].reference_count;
 
-	// struct reference ref_list[total_references];
-	// int reference_i = 0;
+	struct reference ref_list[total_references];
+	int reference_i = 0;
 
 
-	// // Sort all references into a big list in ascending order
-	// for (int i = 0; i < _label_count; i++) {
-	// 	debug("Filling label %s with %d reference(s)", _labels[i].name, _labels[i].reference_count);
+	// Sort all references into a big list in ascending order
+	for (int i = 0; i < _label_count; i++) {
+		debug("Filling label %s with %d reference(s)", _labels[i].name, _labels[i].reference_count);
 	
-	// 	if (!_labels[i].defined)
-	// 		fatal_error("Label %s was never defined", _labels[i].name);
+		if (!_labels[i].defined)
+			fatal_error("Label %s was never defined", _labels[i].name);
 
-	// 	for (int j = 0; j < _labels[i].reference_count; j++) {
-	// 		ref_list[reference_i].where = _labels[i].references[j];
-	// 		ref_list[reference_i].what = _labels[i].address;
-	// 		ref_list[reference_i++].modified = 0;
-	// 	}
-	// }
+		for (int j = 0; j < _labels[i].reference_count; j++) {
+			ref_list[reference_i].where = _labels[i].references[j];
+			ref_list[reference_i].what = _labels[i].index;
+			ref_list[reference_i++].modified = 0;
+		}
+	}
 
-	// struct reference ref_tmp;
-	// for (int i = 0; i < total_references; i++) {
-	// 	for (int j = 1; j < total_references; j++) {
-	// 		if (ref_list[j - 1].where > ref_list[j].where) {
-	// 			ref_tmp = ref_list[j - 1];
-	// 			ref_list[j - 1] = ref_list[j];
-	// 			ref_list[j] = ref_tmp;
-	// 		}
-	// 	}
+	struct reference ref_tmp;
+	for (int i = 0; i < total_references; i++) {
+		for (int j = 1; j < total_references; j++) {
+			if (ref_list[j - 1].where > ref_list[j].where) {
+				ref_tmp = ref_list[j - 1];
+				ref_list[j - 1] = ref_list[j];
+				ref_list[j] = ref_tmp;
+			}
+		}
+	}
+
+	for (int i = 0; i < total_references; i++)
+		printf("%X: %X\n", ref_list[i].where, _labels[ref_list[i].what].address);
+
+	int error = 0;
+	// for (int j = 0; j < 2; j++) {
+		for (int i = 0; i < total_references; i++) {
+			// if (ref_list[i].where < _labels[ref_list[i].what].address) {
+				ref_list[i].where += error;
+				error += size_in_bytes(_labels[ref_list[i].what].address + size_in_bytes(_labels[ref_list[i].what].address) + 1) + 1; // Number of bytes added
+				_labels[ref_list[i].what].address += error;
+
+				// _labels[ref_list[i].what].address;
+
+				// if (j == 0) {
+				// 	_labels[ref_list[i].what].address += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+				// } else if (j == 1) {
+				// 	// ref_list[i].what = _labels[ref_list[i].what].address;
+				// }
+			// }
+		}
 	// }
+	
+	printf("\n");
+
+	for (int i = 0; i < total_references; i++)
+		printf("%X: %X\n", ref_list[i].where, _labels[ref_list[i].what].address);
+	
+	FILE* temp = fopen(_output_file_name, "r");
+
+	uint16_t byte = 0x0;
+	set_writer_position(0);
+	error = 0;
+	while ((byte = fgetc(temp)) != 0xFFFF) {
+		for (int i = 0; i < total_references; i++)
+			if (get_writer_position() == ref_list[i].where)
+				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
+					write_byte((_labels[ref_list[i].what].address >> (j * 8)) & 0xFF);
+
+		write_byte(byte & 0xFF);
+
+		printf("%X\n", byte);
+	}
+
+	fclose(temp);
+	fclose(_output_file);
 
 	// int error = 0;
 	// int previous_error = 0;

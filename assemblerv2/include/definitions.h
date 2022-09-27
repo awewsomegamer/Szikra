@@ -19,11 +19,11 @@ struct instruction {
 
 struct argument {
 	uint32_t value;
+	uint8_t instruction : 1;
 	uint8_t type : 4;
 	uint8_t length : 2;
 	uint8_t cast : 2;
 	uint8_t offset : 1;
-	uint8_t sign : 1;
 };
 
 struct label {
@@ -187,8 +187,10 @@ enum {
 	I_JNZ_INSTRUCTION,
 	I_PUSH_INSTRUCTION,
 	I_POP_INSTRUCTION,
+	
 	I_DB_INSTRUCTION,
 	I_DS_INSTRUCTION,
+	
 	I_INSTRUCTION_MAX
 };
 

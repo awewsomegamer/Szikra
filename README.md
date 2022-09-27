@@ -91,16 +91,16 @@ IP	- Instruction pointer register
 
 ### Instruction encoding
 <pre>
-+ 1 byte opcode
 +------------------------------------ Repeated for each argument --------------------------+
 |+ 1 byte arg descriptor								   |
+|	+ 1 bit  - argument is instruction (1: no, 0: yes)				   |
 |	+ 2 bits - argument type (0: regular, 1: pointer, 2: register, 3: register pointer)|
 |	+ 2 bits - argument length (subtracted by 1)					   |
 |	+ 2 bits - argument cast (0: dword, 1: word, 2: byte, 3: reserved)		   |
-|	+ 1 bit  - argument is offset (0: no, 1: yes)					   |
 |	+ 1 bit  - argument sign (0: positive, 1: negative)				   |
 |+ x byte arg										   |
 +------------------------------------------------------------------------------------------+
++ 1 byte opcode
 </pre>
 
 ### Syntax

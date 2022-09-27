@@ -14,7 +14,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 	case T_INT: // Is integer
 		ret.type = CODE_RVALUE;
 		ret.length = size_in_bytes(tokens[*i].value);
-		ret.sign = tokens[*i].value < 0;
+		ret.instruction = 1;
 		ret.value = tokens[*i].value;
 		
 		(*i)++;
@@ -28,6 +28,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.type = value.type == CODE_RREG ? CODE_PREG : CODE_PVALUE;
 		ret.length = size_in_bytes(value.value);
 		ret.value = value.value;
+		ret.instruction = 1;
 
 		*i = _i;
 
@@ -50,6 +51,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 			// Return 32 bit 0
 			ret.value = label->index;
 			ret.type = CODE_REF;
+			ret.instruction = 1;
 
 			(*i)++;
 
@@ -57,15 +59,16 @@ struct argument get_arg(struct token* tokens, int* i) {
 		} else if (!label->defined) {
 			ret.value = label->index;
 			ret.type = CODE_REF;
+			ret.instruction = 1;
 
 			(*i)++;
 
 			return ret;
 		}
 
-		ret.value = label->address;
-		ret.length = size_in_bytes(label->address);
-		ret.type = CODE_RVALUE;
+		ret.instruction = 1;
+		ret.value = label->index;
+		ret.type = CODE_REF;
 
 		(*i)++;
 
@@ -75,6 +78,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.type = CODE_RREG;
 		ret.length = 0;
 		ret.value = tokens[*i].value;
+		ret.instruction = 1;
 
 		(*i)++;
 
@@ -119,26 +123,26 @@ void build_instruction(struct token* tokens, int size) {
 			arguments[arg_i++] = get_arg(tokens, &i);
 		} while (tokens[i].type == T_COMMA);
 
-		int offset = 0;
-		if (tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) {
-			write_byte(tokens[0].value + arguments[0].value);
-			offset++;
-		} else {
-			write_byte(tokens[0].value);
-		}
-
-		for (int x = offset; x < arg_i; x++) {
+		for (int x = ((tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) ? 1 : 0); x < arg_i; x++) {
 			struct argument arg = arguments[x];
-			uint8_t info_byte = (arg.type << 6) | (arg.length << 4) | (arg.cast << 2) | (arg.offset << 1) | (arg.sign);
-			write_byte(info_byte);
-
+			
 			if (arg.type == CODE_REF) {
+				write_byte(1 << 7);
 				insert_reference(&_labels[arg.value], get_writer_position());
 				continue;
 			}
 
+			uint8_t info_byte = (arg.instruction << 7) | (arg.type << 5) | (arg.length << 3) | (arg.cast << 1) | (arg.offset << 0);
+			write_byte(info_byte);
+
 			for (int j = 0; j < arg.length + 1; j++)
 				write_byte((arg.value >> (j * 8)) & 0xFF);
+		}
+
+		if (tokens[0].value == I_MOV_INSTRUCTION && arguments[0].type == CODE_RREG) {
+			write_byte(tokens[0].value + arguments[0].value);
+		} else {
+			write_byte(tokens[0].value);
 		}
 
 		break;
@@ -220,53 +224,57 @@ void assemble(struct token* tokens, int size) {
 
 				break;
 			} else if (!label->defined) {
-				label->address = get_writer_position() + (label->reference_count * (size_in_bytes(get_writer_position()) + 1));
+				label->address = get_writer_position();// + (label->reference_count * (size_in_bytes(get_writer_position()) + 1));
 				label->defined = 1;
 
-				printf("%s:%X\n", label->name, label->address);
+				// printf("%s:%X\n", label->name, label->address);
 
-				uint8_t* filled = malloc(1);
-				uint32_t filled_size = 1;
-				uint32_t filled_ptr = 0;
+				// uint8_t* filled = malloc(1);
+				// uint32_t filled_size = 1;
+				// uint32_t filled_ptr = 0;
 
-				FILE* redo = fopen(_output_file_name, "r");
+				// FILE* redo = fopen(_output_file_name, "r");
 				
-				uint16_t byte = 0;
-				int error = 0;
+				// uint16_t byte = 0;
+				// int error = 0;
 
-				while ((byte = fgetc(redo)) != 0xFFFF) {
-					long where = ftell(redo);
+				// while ((byte = fgetc(redo)) != 0xFFFF) {
+				// 	long where = ftell(redo);
 
-					printf("%X\n", byte);
+				// 	for (int i = 0; i < label->reference_count; i++) {
+				// 		if (label->references[i] != -1 && where == (label->references[i] + error)) {
+				// 			filled_size += size_in_bytes(label->address) + 1;
+				// 			filled = realloc(filled, filled_size);
 
-					for (int i = 0; i < label->reference_count; i++) {
-						if (label->references[i] != -1 && where == (label->references[i] + error)) {
-							printf("Found reference\n");
+				// 			for (int j = 0; j < size_in_bytes(label->address) + 1; j++)
+				// 				filled[filled_ptr++] = (label->address >> (j * 8)) & 0xFF;
 
-							filled_size += size_in_bytes(label->address) + 1;
-							filled = realloc(filled, filled_size);
+				// 			error += size_in_bytes(label->address) + 1;
 
-							for (int j = 0; j < size_in_bytes(label->address); j++)
-								filled[filled_ptr++] = (label->address >> (j * 8)) & 0xFF;
+				// 			label->references[i] = -1;
+				// 		}
+				// 	}
 
-							error += size_in_bytes(label->address) + 1;
+				// 	filled_size++;
+				// 	filled = realloc(filled, filled_size);
 
-							label->references[i] = -1;
-						}
-					}
+				// 	filled[filled_ptr++] = byte;
+				// }
 
-					filled[filled_ptr++] = byte;
-				}
+				// for (int j = 0; j < filled_size; j++)
+				// 	printf("%02X ", filled[j]);
+				// printf("\n");
 
-				fclose(redo);
 
-				_output_file = fopen(_output_file_name, "w");
+				// fclose(redo);
 
-				fwrite(filled, 1, sizeof(filled), _output_file);
+				// _output_file = fopen(_output_file_name, "w");
 
-				fseek(_output_file, 0, SEEK_END);
-				long end = ftell(_output_file);
-				set_writer_position(end);
+				// fwrite(filled, 1, sizeof(filled), _output_file);
+
+				// fseek(_output_file, 0, SEEK_END);
+				// long end = ftell(_output_file);
+				// set_writer_position(end);
 
 				// int error = 0;
 				// while (1) {
