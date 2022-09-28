@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
 		i = 0;
 	}
 
+
 	// Fill in references
 	int total_references = 0;
 	for (int i = 0; i < _label_count; i++)
@@ -94,9 +95,12 @@ int main(int argc, char** argv) {
 	// for (int j = 0; j < 2; j++) {
 		for (int i = 0; i < total_references; i++) {
 			// if (ref_list[i].where < _labels[ref_list[i].what].address) {
+
 				ref_list[i].where += error;
 				error += size_in_bytes(_labels[ref_list[i].what].address + size_in_bytes(_labels[ref_list[i].what].address) + 1) + 1; // Number of bytes added
-				_labels[ref_list[i].what].address += error;
+				
+				for (int j = i; j < total_references && ref_list[j].where <= _labels[ref_list[i].what].address; j++)
+					_labels[ref_list[i].what].address += size_in_bytes(_labels[ref_list[j].what].address + size_in_bytes(_labels[ref_list[j].what].address) + 1) + 1;
 
 				// _labels[ref_list[i].what].address;
 
@@ -116,6 +120,7 @@ int main(int argc, char** argv) {
 	
 	fclose(_output_file);
 
+	// Filler
 	FILE* temp = fopen(_output_file_name, "r");
 	uint8_t* out_temp = malloc(1);
 	long out_temp_size = 1;
@@ -126,20 +131,19 @@ int main(int argc, char** argv) {
 	error = 0;
 
 	while ((byte = fgetc(temp)) != 0xFFFF) {
-		for (int i = 0; i < total_references; i++)
-			if (get_writer_position() == ref_list[i].where) {
-				out_temp_size += size_in_bytes(_labels[ref_list[i].what].address) + 1;
-				out_temp = realloc(out_temp, out_temp_size);
-
-				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
-					out_temp[out_temp_ptr++] = (_labels[ref_list[i].what].address >> (j * 8)) & 0xFF;
-			}
-
 		out_temp_size++;
 		out_temp = realloc(out_temp, out_temp_size);
 		out_temp[out_temp_ptr++] = byte & 0xFF;
 
-		printf("%X\n", byte);
+		for (int i = 0; i < total_references; i++)
+			if (get_writer_position() == ref_list[i].where - error) {
+				out_temp_size += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+				out_temp = realloc(out_temp, out_temp_size);
+				error += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+
+				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
+					out_temp[out_temp_ptr++] = ((_labels[ref_list[i].what].address) >> (j * 8)) & 0xFF;
+			}
 	}
 
 	fclose(temp);

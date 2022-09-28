@@ -186,9 +186,6 @@ RBUS
 | R1IN		  | // A
 | R2IN		  | // B
 | R3OUT		  | // C
-+-----------------+
-
-+= Register Selector =+
-RSIN		    
++-----------------+    
 
 </pre>

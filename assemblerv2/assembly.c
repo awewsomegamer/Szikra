@@ -116,6 +116,9 @@ void build_instruction(struct token* tokens, int size) {
 
 	default: {
 		// While there are more arguments, write them
+		uint8_t register_offset = 0;
+		int arg_i = 0;
+
 		do {
 			struct argument arg = get_arg(tokens, &i);
 			
@@ -125,14 +128,22 @@ void build_instruction(struct token* tokens, int size) {
 				continue;
 			}
 
+			if (arg.type == CODE_RREG && arg_i == 0) {
+				register_offset = arg.value;
+				arg_i++;
+				continue;
+			}
+
 			uint8_t info_byte = (arg.instruction << 7) | (arg.type << 5) | (arg.length << 3) | (arg.cast << 1) | (arg.offset << 0);
 			write_byte(info_byte);
 
 			for (int j = 0; j < arg.length + 1; j++)
 				write_byte((arg.value >> (j * 8)) & 0xFF);
-		} while (tokens[i].type == T_COMMA);
 
-		write_byte(tokens[0].value);
+			arg_i++;
+		} while (tokens[i].type == T_COMMA);
+		
+		write_byte(tokens[0].value + register_offset);
 
 		break;
 	}
