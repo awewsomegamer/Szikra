@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
 		ref_list[i].where += error;
-		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what + 1)) + 1; // Number of bytes added
+		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what) + 1) + 1; // Number of bytes added
 		
 		if (ref_list[i].where > ref_list[i].what)
 			for (int j = 0; j < i && ref_list[j].where <= ref_list[i].what; j++)
