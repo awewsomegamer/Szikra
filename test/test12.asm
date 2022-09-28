@@ -4,4 +4,4 @@ ONE:
 
 !AT 0x100
 TWO:
-	mov bx, ONE
+	mov ax, ONE

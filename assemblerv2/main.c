@@ -86,21 +86,30 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	for (int i = 0; i < total_references; i++)
+		printf("%X : %X\n", ref_list[i].where, ref_list[i].what);
+
 	// New address calculator
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
 		ref_list[i].where += error;
 		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what) + 1) + 1; // Number of bytes added
-		
+
 		if (ref_list[i].where > ref_list[i].what)
-			for (int j = 0; j < i && ref_list[j].where <= ref_list[i].what; j++)
+			for (int j = 0; (j < i) && (ref_list[j].where <= ref_list[i].what); j++)
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
 		else
-			for (int j = i; j < total_references && ref_list[j].where <= ref_list[i].what; j++)
+			for (int j = i; (j < total_references) && (ref_list[j].where <= ref_list[i].what); j++)
+				// printf("%d %X %X %X -> ", j, ref_list[i].what, ref_list[j].what, size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1);
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+				// printf("%X\n", ref_list[i].what);
 		
+		// printf("\n");
 	}
 	
+	for (int i = 0; i < total_references; i++)
+		printf("%X : %X\n", ref_list[i].where, ref_list[i].what);
+
 	fclose(_output_file);
 
 	// Filler
@@ -109,11 +118,14 @@ int main(int argc, char** argv) {
 	long out_temp_size = 1;
 	long out_temp_ptr = 0;
 
-	uint16_t byte = 0x0;
+	uint8_t byte = 0x0;
+	int FF_counter = 0;
 	set_writer_position(0);
 	error = 0;
 
-	while ((byte = fgetc(temp)) != 0xFFFF) {
+	while (FF_counter != 5) {
+		byte = fgetc(temp);
+
 		out_temp_size++;
 		out_temp = realloc(out_temp, out_temp_size);
 		out_temp[out_temp_ptr++] = byte & 0xFF;
@@ -127,12 +139,17 @@ int main(int argc, char** argv) {
 				for (int j = 0; j < size_in_bytes(ref_list[i].what) + 1; j++)
 					out_temp[out_temp_ptr++] = (ref_list[i].what) >> (j * 8) & 0xFF;
 			}
+
+		if (byte == 0xFF)
+			FF_counter++;
+		else
+			FF_counter = 0;
 	}
 
 	fclose(temp);
 
 	_output_file = fopen(_output_file_name, "w");
-	fwrite(out_temp, 1, out_temp_ptr, _output_file);
+	fwrite(out_temp, 1, out_temp_ptr - FF_counter, _output_file);
 	fclose(_output_file);
 
 	return 0;

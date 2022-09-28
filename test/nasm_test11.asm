@@ -1,13 +1,13 @@
-mov bx, MESSAGE
+mov ebx, MESSAGE
 
 LOOP:
-	mov ax, [bx]
-	cmp ax, 0
+	mov eax, [ebx]
+	cmp eax, 0
 	je END
 	
 	int 1
 
-	add bx, 1
+	add ebx, 1
 
 	jmp LOOP
 
