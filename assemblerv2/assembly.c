@@ -224,82 +224,8 @@ void assemble(struct token* tokens, int size) {
 
 				break;
 			} else if (!label->defined) {
-				label->address = get_writer_position();// + (label->reference_count * (size_in_bytes(get_writer_position()) + 1));
+				label->address = get_writer_position();
 				label->defined = 1;
-
-				// printf("%s:%X\n", label->name, label->address);
-
-				// uint8_t* filled = malloc(1);
-				// uint32_t filled_size = 1;
-				// uint32_t filled_ptr = 0;
-
-				// FILE* redo = fopen(_output_file_name, "r");
-				
-				// uint16_t byte = 0;
-				// int error = 0;
-
-				// while ((byte = fgetc(redo)) != 0xFFFF) {
-				// 	long where = ftell(redo);
-
-				// 	for (int i = 0; i < label->reference_count; i++) {
-				// 		if (label->references[i] != -1 && where == (label->references[i] + error)) {
-				// 			filled_size += size_in_bytes(label->address) + 1;
-				// 			filled = realloc(filled, filled_size);
-
-				// 			for (int j = 0; j < size_in_bytes(label->address) + 1; j++)
-				// 				filled[filled_ptr++] = (label->address >> (j * 8)) & 0xFF;
-
-				// 			error += size_in_bytes(label->address) + 1;
-
-				// 			label->references[i] = -1;
-				// 		}
-				// 	}
-
-				// 	filled_size++;
-				// 	filled = realloc(filled, filled_size);
-
-				// 	filled[filled_ptr++] = byte;
-				// }
-
-				// for (int j = 0; j < filled_size; j++)
-				// 	printf("%02X ", filled[j]);
-				// printf("\n");
-
-
-				// fclose(redo);
-
-				// _output_file = fopen(_output_file_name, "w");
-
-				// fwrite(filled, 1, sizeof(filled), _output_file);
-
-				// fseek(_output_file, 0, SEEK_END);
-				// long end = ftell(_output_file);
-				// set_writer_position(end);
-
-				// int error = 0;
-				// while (1) {
-				// 	for (int i = 0; i < label->reference_count; i++) {
-				// 		if (get_writer_position() == label->references[i]) {
-				// 			filled_size += size_in_bytes(label->address) + 1;
-				// 			filled = realloc(filled, filled_size);
-
-				// 			for (int j = 0; j < size_in_bytes(label->address) + 1; j++)
-				// 				*(filled + get_writer_position() + j + error) = (label->address >> (j * 8)) & 0xFF;
-
-				// 			error = size_in_bytes(label->address) + 1;
-				// 			set_writer_position(get_writer_position() + size_in_bytes(label->address) + 1);
-				// 		}
-				// 	}
-
-				// 	filled_size++;
-				// 	filled = realloc(filled, filled_size);
-				// 	*(filled + error) = byte;
-					
-				// 	if (get_writer_position() == limit)
-				// 		break;
-				// }
-				
-
 
 				if (2 < size)
 					assemble(tokens + 2, size);

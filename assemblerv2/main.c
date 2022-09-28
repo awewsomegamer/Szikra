@@ -17,7 +17,6 @@ uint32_t _label_count = 0;
 struct reference {
 	uint32_t where;
 	uint32_t what;
-	uint8_t modified;
 };
 
 int main(int argc, char** argv) {
@@ -72,8 +71,7 @@ int main(int argc, char** argv) {
 
 		for (int j = 0; j < _labels[i].reference_count; j++) {
 			ref_list[reference_i].where = _labels[i].references[j];
-			ref_list[reference_i].what = _labels[i].index;
-			ref_list[reference_i++].modified = 0;
+			ref_list[reference_i].what = _labels[i].address;
 		}
 	}
 
@@ -89,34 +87,27 @@ int main(int argc, char** argv) {
 	}
 
 	for (int i = 0; i < total_references; i++)
-		printf("%X: %X\n", ref_list[i].where, _labels[ref_list[i].what].address);
+		printf("%X: %X\n", ref_list[i].where, ref_list[i].what);
 
+	// New address calculator
 	int error = 0;
-	// for (int j = 0; j < 2; j++) {
-		for (int i = 0; i < total_references; i++) {
-			// if (ref_list[i].where < _labels[ref_list[i].what].address) {
+	for (int i = 0; i < total_references; i++) {
+		ref_list[i].where += error;
+		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what + 1)) + 1; // Number of bytes added
+		
+		if (ref_list[i].where > ref_list[i].what)
+			for (int j = 0; j < i && ref_list[j].where <= ref_list[i].what; j++)
+				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+		else
+			for (int j = i; j < total_references && ref_list[j].where <= ref_list[i].what; j++)
+				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+		
+	}
 
-				ref_list[i].where += error;
-				error += size_in_bytes(_labels[ref_list[i].what].address + size_in_bytes(_labels[ref_list[i].what].address) + 1) + 1; // Number of bytes added
-				
-				for (int j = i; j < total_references && ref_list[j].where <= _labels[ref_list[i].what].address; j++)
-					_labels[ref_list[i].what].address += size_in_bytes(_labels[ref_list[j].what].address + size_in_bytes(_labels[ref_list[j].what].address) + 1) + 1;
-
-				// _labels[ref_list[i].what].address;
-
-				// if (j == 0) {
-				// 	_labels[ref_list[i].what].address += size_in_bytes(_labels[ref_list[i].what].address) + 1;
-				// } else if (j == 1) {
-				// 	// ref_list[i].what = _labels[ref_list[i].what].address;
-				// }
-			// }
-		}
-	// }
-	
 	printf("\n");
 
 	for (int i = 0; i < total_references; i++)
-		printf("%X: %X\n", ref_list[i].where, _labels[ref_list[i].what].address);
+		printf("%X: %X\n", ref_list[i].where, ref_list[i].what);
 	
 	fclose(_output_file);
 
@@ -137,12 +128,12 @@ int main(int argc, char** argv) {
 
 		for (int i = 0; i < total_references; i++)
 			if (get_writer_position() == ref_list[i].where - error) {
-				out_temp_size += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+				out_temp_size += size_in_bytes(ref_list[i].what) + 1;
 				out_temp = realloc(out_temp, out_temp_size);
-				error += size_in_bytes(_labels[ref_list[i].what].address) + 1;
+				error += size_in_bytes(ref_list[i].what) + 1;
 
-				for (int j = 0; j < size_in_bytes(_labels[ref_list[i].what].address) + 1; j++)
-					out_temp[out_temp_ptr++] = ((_labels[ref_list[i].what].address) >> (j * 8)) & 0xFF;
+				for (int j = 0; j < size_in_bytes(ref_list[i].what) + 1; j++)
+					out_temp[out_temp_ptr++] = (ref_list[i].what >> (j * 8)) & 0xFF;
 			}
 	}
 
@@ -152,43 +143,5 @@ int main(int argc, char** argv) {
 	fwrite(out_temp, 1, out_temp_ptr, _output_file);
 	fclose(_output_file);
 
-	// int error = 0;
-	// int previous_error = 0;
-	// int error_counter = 0;
-
-	// for (int i = 0; i < total_references; i++)
-	// 	printf("%d\n", ref_list[i].what);
-
-	// while (error_counter < 2) {
-	// 	for (int i = 0; i < total_references; i++) {
-	// 		// if (ref_list[i].where < ref_list[i].what) {
-
-	// 		// 	// error += size_in_bytes(ref_list[i].what) + 1 + error;
-	// 		// 	// ref_list[i].what += error;
-	// 		// } else {
-	// 			int current_size = size_in_bytes(ref_list[i].what) + 1;
-	// 			int future_size = size_in_bytes(ref_list[i].what + current_size + error) + 1;
-
-	// 			if (current_size != future_size || !ref_list[i].modified) {
-	// 				error += future_size;
-	// 				ref_list[i].what += error;
-	// 				ref_list[i].modified = 1;
-	// 			}
-				
-
-	// 			// error += size_in_bytes(ref_list[i].what + (size_in_bytes(ref_list[i].what) + 1 + error));
-	// 			// ref_list[i].what += error;
-	// 		// }
-
-	// 		if (error == previous_error)
-	// 			error_counter++;
-
-	// 		previous_error = error;
-	// 	}
-	// }
-
-	// printf("---\n");
-	// for (int i = 0; i < total_references; i++)
-	// 	printf("%d %d\n", ref_list[i].what, ref_list[i].modified);
-
+	return 0;
 }
