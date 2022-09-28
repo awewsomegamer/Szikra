@@ -100,11 +100,7 @@ int main(int argc, char** argv) {
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
 		else
 			for (int j = i; (j < total_references) && (ref_list[j].where <= ref_list[i].what); j++)
-				// printf("%d %X %X %X -> ", j, ref_list[i].what, ref_list[j].what, size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1);
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
-				// printf("%X\n", ref_list[i].what);
-		
-		// printf("\n");
 	}
 	
 	for (int i = 0; i < total_references; i++)
