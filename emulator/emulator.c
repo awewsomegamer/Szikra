@@ -18,9 +18,9 @@ void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
 		   else if (instruction == I_DIV_INSTRUCTION) value1 /=  value2; \ 
 		   else if (instruction == I_AND_INSTRUCTION) value1 &=  value2; \ 
 		   else if (instruction == I_OR_INSTRUCTION)  value1 |=  value2; \ 
-		   else if (instruction == I_XOR_INSTRUCTION) value1 ^=  value2; \ 
 		   else if (instruction == I_SHR_INSTRUCTION) value1 >>= value2; \ 
 		   else if (instruction == I_SHL_INSTRUCTION) value1 <<= value2;
+		//    else if (instruction == I_XOR_INSTRUCTION) value1 ^=  value2; \ 
 
 
 // Ensure instruction is valid, if so return the opcode and increment IP
@@ -31,19 +31,22 @@ int fetch_instruction() {
 
 // Return a list of arguments based on ISA[instruction]
 void load_arguments(int instruction, struct argument* argument_list) {
-	for (int i = 0; i < ISA[instruction].argc; i++) {
-		argument_list[i].type      =  (memory[registers[I_REG_IP]] >> 6) & 0b11;
-		argument_list[i].length    = ((memory[registers[I_REG_IP]] >> 4) & 0b11) + 1;
-		argument_list[i].cast      =  (memory[registers[I_REG_IP]] >> 2) & 0b11;
-		argument_list[i].offset    =  (memory[registers[I_REG_IP]] >> 1) & 0b1;
-		argument_list[i].sign      =  (memory[registers[I_REG_IP]] >> 0) & 0b1;
-		argument_list[i].info_byte =   memory[registers[I_REG_IP]];
-
+	int i = 0;
+	while (((memory[registers[I_REG_IP]] >> 7) & 1)) {
+		argument_list[i].instruction =  (memory[registers[I_REG_IP]] >> 7) & 0b1;
+		argument_list[i].type        =  (memory[registers[I_REG_IP]] >> 5) & 0b11;
+		argument_list[i].length      = ((memory[registers[I_REG_IP]] >> 3) & 0b11) + 1;
+		argument_list[i].cast        =  (memory[registers[I_REG_IP]] >> 1) & 0b11;
+		argument_list[i].offset      =  (memory[registers[I_REG_IP]] >> 0) & 0b1;
+		argument_list[i].info_byte   =   memory[registers[I_REG_IP]];
+		
 		registers[I_REG_IP]++;
 
 		argument_list[i].value = 0;
 		for (int j = 0; j < argument_list[i].length; j++)
 			argument_list[i].value |= memory[registers[I_REG_IP]++] << (j * 8);
+
+		i++;
 	}
 }
 
@@ -215,7 +218,7 @@ void IRET_INSTRUCTION(struct argument* arguments) {
 void CMP_INSTRUCTION(struct argument* arguments) {
 	uint32_t a = evaluate_argument(arguments[0]);
 	uint32_t b = evaluate_argument(arguments[1]);
-	
+
 	if (a > b) {
 		cflags.carry = 1;
 		cflags.zero = 0;
@@ -312,10 +315,11 @@ void process_instruction(int instruction, struct argument* arguments) {
 void* proccess_cycle(void* arg) {
 	while (emulator_running) {
 		struct argument arguments[256];
+		load_arguments(0, arguments);
 		int instruction = fetch_instruction();
-		load_arguments(instruction, arguments);
 
 		process_instruction(instruction, arguments);
+		// printf("%c\n", registers[I_REG_AX]);
 	}
 }
 

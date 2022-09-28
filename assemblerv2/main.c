@@ -86,9 +86,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	for (int i = 0; i < total_references; i++)
-		printf("%X : %X\n", ref_list[i].where, ref_list[i].what);
-
 	// New address calculator
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
@@ -103,9 +100,6 @@ int main(int argc, char** argv) {
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
 	}
 	
-	for (int i = 0; i < total_references; i++)
-		printf("%X : %X\n", ref_list[i].where, ref_list[i].what);
-
 	fclose(_output_file);
 
 	// Filler
@@ -122,19 +116,29 @@ int main(int argc, char** argv) {
 	while (FF_counter != 5) {
 		byte = fgetc(temp);
 
-		out_temp_size++;
-		out_temp = realloc(out_temp, out_temp_size);
-		out_temp[out_temp_ptr++] = byte & 0xFF;
+		uint8_t found_reference = 0;
 
 		for (int i = 0; i < total_references; i++)
 			if (get_writer_position() == ref_list[i].where - error) {
-				out_temp_size += size_in_bytes(ref_list[i].what) + 1;
+				byte |= (size_in_bytes(ref_list[i].what) & 0b11) << 3;
+
+				out_temp_size += size_in_bytes(ref_list[i].what) + 2;
 				out_temp = realloc(out_temp, out_temp_size);
 				error += size_in_bytes(ref_list[i].what) + 1;
 
+				out_temp[out_temp_ptr++] = byte & 0xFF;
+
 				for (int j = 0; j < size_in_bytes(ref_list[i].what) + 1; j++)
 					out_temp[out_temp_ptr++] = (ref_list[i].what) >> (j * 8) & 0xFF;
+
+				found_reference = 1;
 			}
+
+		if (!found_reference) {
+			out_temp_size++;
+			out_temp = realloc(out_temp, out_temp_size);
+			out_temp[out_temp_ptr++] = byte & 0xFF;
+		}
 
 		if (byte == 0xFF)
 			FF_counter++;

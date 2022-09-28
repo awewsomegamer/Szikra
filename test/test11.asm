@@ -1,6 +1,6 @@
 ; Hello World application in Szikra assembly
 ; Write this code at 0x0 in the file
-!AT 0x100
+!AT 0x0
 
 ; Set BX to the pointer of the message 
 mov bx, MESSAGE
