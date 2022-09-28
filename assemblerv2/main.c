@@ -17,6 +17,7 @@ uint32_t _label_count = 0;
 struct reference {
 	uint32_t where;
 	uint32_t what;
+	uint8_t modified;
 };
 
 int main(int argc, char** argv) {
@@ -52,7 +53,6 @@ int main(int argc, char** argv) {
 		i = 0;
 	}
 
-
 	// Fill in references
 	int total_references = 0;
 	for (int i = 0; i < _label_count; i++)
@@ -60,7 +60,6 @@ int main(int argc, char** argv) {
 
 	struct reference ref_list[total_references];
 	int reference_i = 0;
-
 
 	// Sort all references into a big list in ascending order
 	for (int i = 0; i < _label_count; i++) {
@@ -72,6 +71,7 @@ int main(int argc, char** argv) {
 		for (int j = 0; j < _labels[i].reference_count; j++) {
 			ref_list[reference_i].where = _labels[i].references[j];
 			ref_list[reference_i].what = _labels[i].address;
+			ref_list[reference_i++].modified = 0;
 		}
 	}
 
@@ -85,9 +85,6 @@ int main(int argc, char** argv) {
 			}
 		}
 	}
-
-	for (int i = 0; i < total_references; i++)
-		printf("%X: %X\n", ref_list[i].where, ref_list[i].what);
 
 	// New address calculator
 	int error = 0;
@@ -103,11 +100,6 @@ int main(int argc, char** argv) {
 				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
 		
 	}
-
-	printf("\n");
-
-	for (int i = 0; i < total_references; i++)
-		printf("%X: %X\n", ref_list[i].where, ref_list[i].what);
 	
 	fclose(_output_file);
 
@@ -133,7 +125,7 @@ int main(int argc, char** argv) {
 				error += size_in_bytes(ref_list[i].what) + 1;
 
 				for (int j = 0; j < size_in_bytes(ref_list[i].what) + 1; j++)
-					out_temp[out_temp_ptr++] = (ref_list[i].what >> (j * 8)) & 0xFF;
+					out_temp[out_temp_ptr++] = (ref_list[i].what) >> (j * 8) & 0xFF;
 			}
 	}
 
