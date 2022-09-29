@@ -58,21 +58,21 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 	uint8_t t1 = arguments[0].type;
 	uint8_t t2 = arguments[1].type;
 
-	if (instruction >= I_MOVA_INSTRUCTION && instruction <= I_MOVI4_INSTRUCTION) {
-		if (t1 == CODE_RREG) {
-			EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], registers[arguments[0].value]);
-			return;
-		} else if (t1 == CODE_PREG) {
-			EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[registers[arguments[0].value]]);
-			return;
-		} else if (t1 == CODE_RVALUE) {
-			EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], arguments[0].value);
-			return;
-		} else if (t1 == CODE_PVALUE) {
-			EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[arguments[0].value]);
-			return;
-		}
-	}
+	// if (instruction == I_MOVR_INSTRUCTION) {
+	// 	if (t1 == CODE_RREG) {
+	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], registers[arguments[0].value]);
+	// 		return;
+	// 	} else if (t1 == CODE_PREG) {
+	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[registers[arguments[0].value]]);
+	// 		return;
+	// 	} else if (t1 == CODE_RVALUE) {
+	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], arguments[0].value);
+	// 		return;
+	// 	} else if (t1 == CODE_PVALUE) {
+	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[arguments[0].value]);
+	// 		return;
+	// 	}
+	// }
 
 	// A [B], [C]
 	// A B, [C]
@@ -306,10 +306,10 @@ void POP_INSTRUCTION(struct argument* arguments) {
 }
 
 void process_instruction(int instruction, struct argument* arguments) {
-	if ((ISA[instruction].argc == 2 || (instruction >= I_MOVA_INSTRUCTION && instruction <= I_MOVI4_INSTRUCTION)) && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
-		do_expression_dependent_instruction(instruction, arguments);
-	else
-		(*evaluated_instructions[instruction])(arguments);
+	// if ((ISA[instruction].argc == 2 || (instruction >= I_MOVA_INSTRUCTION && instruction <= I_MOVI4_INSTRUCTION)) && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
+	// 	do_expression_dependent_instruction(instruction, arguments);
+	// else
+	// 	(*evaluated_instructions[instruction])(arguments);
 }
 
 void* proccess_cycle(void* arg) {

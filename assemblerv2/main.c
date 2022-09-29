@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
 
 	struct token tokens[1024];
 	int i = 0;
+
 	while (!_eof_reached) {
 		while (next_token(&tokens[i], tokens, i) && tokens[i].type != T_NEWLINE) i++;
 		assemble(tokens, i + 1);

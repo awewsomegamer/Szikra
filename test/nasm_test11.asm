@@ -1,18 +1,20 @@
-mov ebx, MESSAGE
+; mov ebx, MESSAGE
 
-LOOP:
-	mov eax, [ebx]
-	cmp eax, 0
-	je END
+; LOOP:
+; 	mov eax, [ebx]
+; 	cmp eax, 0
+; 	je END
 	
-	int 1
+; 	int 1
 
-	add ebx, 1
+; 	add ebx, 1
 
-	jmp LOOP
+; 	jmp LOOP
 
-END:
-	jmp END
+; END:
+; 	jmp END
 
-MESSAGE:
-	db "Hello Szikra World", 0xA, 0xD, 0x0
+; MESSAGE:
+; 	db "Hello Szikra World", 0xA, 0xD, 0x0
+
+add ax, 1
