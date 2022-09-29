@@ -8,7 +8,7 @@ pthread_t process_thread;
 uint32_t registers[I_REG_MAX];
 struct flags cflags;
 
-void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
+void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments, int instruction);
 
 #define EXPRESSION_DEPENDENT_BACKEND(instruction, value1, value2) \
 		        if (instruction == I_MOV_INSTRUCTION) value1 =   value2; \ 
@@ -22,6 +22,10 @@ void(*evaluated_instructions[I_INSTRUCTION_MAX])(struct argument* arguments);
 		   else if (instruction == I_SHL_INSTRUCTION) value1 <<= value2;
 		//    else if (instruction == I_XOR_INSTRUCTION) value1 ^=  value2; \ 
 
+
+int next_byte() {
+	return memory[registers[I_REG_IP]++];
+}
 
 // Ensure instruction is valid, if so return the opcode and increment IP
 int fetch_instruction() {
@@ -58,21 +62,21 @@ void do_expression_dependent_instruction(int instruction, struct argument* argum
 	uint8_t t1 = arguments[0].type;
 	uint8_t t2 = arguments[1].type;
 
-	// if (instruction == I_MOVR_INSTRUCTION) {
-	// 	if (t1 == CODE_RREG) {
-	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], registers[arguments[0].value]);
-	// 		return;
-	// 	} else if (t1 == CODE_PREG) {
-	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[registers[arguments[0].value]]);
-	// 		return;
-	// 	} else if (t1 == CODE_RVALUE) {
-	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], arguments[0].value);
-	// 		return;
-	// 	} else if (t1 == CODE_PVALUE) {
-	// 		EXPRESSION_DEPENDENT_BACKEND(I_MOV_INSTRUCTION, registers[instruction - I_MOV_INSTRUCTION], memory[arguments[0].value]);
-	// 		return;
-	// 	}
-	// }
+	if (instruction >= I_MOV_INSTRUCTION && instruction < I_CMP_INSTRUCTION && ((instruction - 1) % 2) == 1) {
+		if (t1 == CODE_RREG) {
+			EXPRESSION_DEPENDENT_BACKEND((instruction - 1), registers[next_byte()], registers[arguments[0].value]);
+			return;
+		} else if (t1 == CODE_PREG) {
+			EXPRESSION_DEPENDENT_BACKEND((instruction - 1), registers[next_byte()], memory[registers[arguments[0].value]]);
+			return;
+		} else if (t1 == CODE_RVALUE) {
+			EXPRESSION_DEPENDENT_BACKEND((instruction - 1), registers[next_byte()], arguments[0].value);
+			return;
+		} else if (t1 == CODE_PVALUE) {
+			EXPRESSION_DEPENDENT_BACKEND((instruction - 1), registers[next_byte()], memory[arguments[0].value]);
+			return;
+		}
+	}
 
 	// A [B], [C]
 	// A B, [C]
@@ -178,9 +182,9 @@ uint32_t stack_pop() {
 	return result;
 }
 
-void NOP_INSTRUCTION(struct argument* arguments) { }
+void NOP_INSTRUCTION(struct argument* arguments, int instruction) { }
 
-void NOT_INSTRUCTION(struct argument* arguments) {
+void NOT_INSTRUCTION(struct argument* arguments, int instruction) {
 	switch (arguments[0].type) {
 	case CODE_RVALUE:
 	case CODE_PVALUE:
@@ -197,27 +201,35 @@ void NOT_INSTRUCTION(struct argument* arguments) {
 	}
 }
 
-void INT_INSTRUCTION(struct argument* arguments) {
+void INT_INSTRUCTION(struct argument* arguments, int instruction) {
 	// Call interrupt wrapper
 	call_interrupt(evaluate_argument(arguments[0]));
 }
 
-void SIVTE_INSTRUCTION(struct argument* arguments) {
+void SIVTE_INSTRUCTION(struct argument* arguments, int instruction) {
 	// Call interrupt set instruction
 }
 
-void RIVTE_INSTRUCTION(struct argument* arguments) {
+void RIVTE_INSTRUCTION(struct argument* arguments, int instruction) {
 	// Call interupt reset instruction
 }
 
-void IRET_INSTRUCTION(struct argument* arguments) {
+void IRET_INSTRUCTION(struct argument* arguments, int instruction) {
 	// RET with a few extra steps, depends on what is done before
 	// interrupt wrapper is called in INT_INSTRUCTION
 }
 
-void CMP_INSTRUCTION(struct argument* arguments) {
-	uint32_t a = evaluate_argument(arguments[0]);
-	uint32_t b = evaluate_argument(arguments[1]);
+void CMP_INSTRUCTION(struct argument* arguments, int instruction) {
+	uint32_t a = 0;
+	uint32_t b = 0;
+
+	if (instruction == I_CMPR_INSTRUCTION) {
+		a = registers[next_byte()];
+		b = evaluate_argument(arguments[0]);
+	} else {
+		a = evaluate_argument(arguments[0]);
+		b = evaluate_argument(arguments[1]);
+	}
 
 	if (a > b) {
 		cflags.carry = 1;
@@ -231,66 +243,66 @@ void CMP_INSTRUCTION(struct argument* arguments) {
 	}
 }
 
-void JMP_INSTRUCTION(struct argument* arguments) {
+void JMP_INSTRUCTION(struct argument* arguments, int instruction) {
 	registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void CALL_INSTRUCTION(struct argument* arguments) {
+void CALL_INSTRUCTION(struct argument* arguments, int instruction) {
 	stack_push(registers[I_REG_IP]);
 	registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void RET_INSTRUCTION(struct argument* arguments) {
+void RET_INSTRUCTION(struct argument* arguments, int instruction) {
 	registers[I_REG_IP] = stack_pop();
 }
 
-void JE_INSTRUCTION(struct argument* arguments) {
+void JE_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (!cflags.carry && !cflags.zero) {
 		registers[I_REG_IP] = evaluate_argument(arguments[0]);
 	}
 }
 
-void JNE_INSTRUCTION(struct argument* arguments) {
+void JNE_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (cflags.carry || cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JG_INSTRUCTION(struct argument* arguments) {
+void JG_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (cflags.carry && !cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JGE_INSTRUCTION(struct argument* arguments) {
+void JGE_INSTRUCTION(struct argument* arguments, int instruction) {
 	if ((!cflags.carry && !cflags.zero) || (cflags.carry && !cflags.zero)) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JL_INSTRUCTION(struct argument* arguments) {
+void JL_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (!cflags.carry && cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JLE_INSTRUCTION(struct argument* arguments) {
+void JLE_INSTRUCTION(struct argument* arguments, int instruction) {
 	if ((!cflags.carry && !cflags.zero) || (!cflags.carry && cflags.zero)) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JC_INSTRUCTION(struct argument* arguments) {
+void JC_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (cflags.carry) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JNC_INSTRUCTION(struct argument* arguments) {
+void JNC_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (!cflags.carry) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JZ_INSTRUCTION(struct argument* arguments) {
+void JZ_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void JNZ_INSTRUCTION(struct argument* arguments) {
+void JNZ_INSTRUCTION(struct argument* arguments, int instruction) {
 	if (!cflags.zero) registers[I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
-void PUSH_INSTRUCTION(struct argument* arguments) {
+void PUSH_INSTRUCTION(struct argument* arguments, int instruction) {
 	stack_push(evaluate_argument(arguments[0]));
 }
 
-void POP_INSTRUCTION(struct argument* arguments) {
+void POP_INSTRUCTION(struct argument* arguments, int instruction) {
 	switch (arguments[0].type) {
 	case CODE_RVALUE:
 	case CODE_PVALUE:
@@ -306,10 +318,10 @@ void POP_INSTRUCTION(struct argument* arguments) {
 }
 
 void process_instruction(int instruction, struct argument* arguments) {
-	// if ((ISA[instruction].argc == 2 || (instruction >= I_MOVA_INSTRUCTION && instruction <= I_MOVI4_INSTRUCTION)) && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
-	// 	do_expression_dependent_instruction(instruction, arguments);
-	// else
-	// 	(*evaluated_instructions[instruction])(arguments);
+	if ((ISA[instruction].argc == 2 || (instruction >= I_MOV_INSTRUCTION && instruction < I_CMP_INSTRUCTION))  && instruction != I_SIVTE_INSTRUCTION && instruction != I_CMP_INSTRUCTION)
+		do_expression_dependent_instruction(instruction, arguments);
+	else
+		(*evaluated_instructions[instruction])(arguments, instruction);
 }
 
 void* proccess_cycle(void* arg) {
@@ -333,6 +345,7 @@ void init_emulator() {
 	evaluated_instructions[I_RIVTE_INSTRUCTION] = RIVTE_INSTRUCTION;
 	evaluated_instructions[I_IRET_INSTRUCTION]  = IRET_INSTRUCTION;
 	evaluated_instructions[I_CMP_INSTRUCTION]   = CMP_INSTRUCTION;
+	evaluated_instructions[I_CMPR_INSTRUCTION]  = CMP_INSTRUCTION;
 	evaluated_instructions[I_JMP_INSTRUCTION]   = JMP_INSTRUCTION;
 	evaluated_instructions[I_CALL_INSTRUCTION]  = CALL_INSTRUCTION;
 	evaluated_instructions[I_RET_INSTRUCTION]   = RET_INSTRUCTION;

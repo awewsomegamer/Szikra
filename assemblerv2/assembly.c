@@ -128,10 +128,7 @@ void build_instruction(struct token* tokens, int size) {
 				continue;
 			}
 
-			if (arg.type == CODE_RREG && arg_i == 0 &&
-			   (tokens[0].type != I_INT_INSTRUCTION && tokens[0].type != I_SIVTE_INSTRUCTION 
-			   && tokens[0].type != I_RIVTE_INSTRUCTION && tokens[0].type != I_IRET_INSTRUCTION 
-			   && tokens[0].type != I_RET_INSTRUCTION)) {
+			if (arg.type == CODE_RREG && arg_i == 0 && tokens[0].value <= I_CMPR_INSTRUCTION) {
 				register_offset = arg.value;
 				arg_i++;
 				continue;
@@ -146,7 +143,7 @@ void build_instruction(struct token* tokens, int size) {
 			arg_i++;
 		} while (tokens[i].type == T_COMMA);
 		
-		printf("%d\n", (tokens[0].value == I_MOV_INSTRUCTION ? register_offset : 0));
+		printf("%d\n", register_offset);
 		write_byte(tokens[0].value + (register_offset != 0 ? 1 : 0));
 
 		if (register_offset != 0) write_byte(register_offset);
