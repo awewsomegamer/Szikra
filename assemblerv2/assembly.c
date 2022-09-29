@@ -143,9 +143,7 @@ void build_instruction(struct token* tokens, int size) {
 			arg_i++;
 		} while (tokens[i].type == T_COMMA);
 		
-		printf("%d\n", register_offset);
 		write_byte(tokens[0].value + (register_offset != 0 ? 1 : 0));
-
 		if (register_offset != 0) write_byte(register_offset);
 
 		break;
