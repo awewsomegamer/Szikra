@@ -29,7 +29,11 @@ int next_byte() {
 
 // Ensure instruction is valid, if so return the opcode and increment IP
 int fetch_instruction() {
-	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) printf("Invalid opcode (%X) at %X\n", memory[registers[I_REG_IP]], registers[I_REG_IP]); // Call invalid opcode interrupt
+	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) {
+		 printf("Invalid opcode (%X) at %X\n", memory[registers[I_REG_IP]], registers[I_REG_IP]); // Call invalid opcode interrupt
+		 for (;;);
+		 return 0;
+	}
 	return memory[registers[I_REG_IP]++];
 }
 

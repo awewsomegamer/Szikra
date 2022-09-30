@@ -18,6 +18,8 @@ struct reference {
 	uint32_t where;
 	uint32_t what;
 	char* name;
+	uint32_t offset_where;
+	uint32_t offset_what;
 };
 
 int main(int argc, char** argv) {
@@ -95,28 +97,23 @@ int main(int argc, char** argv) {
 	// New address calculator
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
-		ref_list[i].where += error;
+		ref_list[i].offset_where = error;
+		ref_list[i].offset_what = 0;
+
 		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what) + 1) + 1; // Number of bytes added
-
-		// if (ref_list[i].where > ref_list[i].what)
-		printf("\"%s\"[%d]: ", ref_list[i].name, i);
-		int org_what = ref_list[i].what;
-		for (int j = 0; (ref_list[j].where < ref_list[i].what) && (ref_list[j].name != NULL) && (ref_list[j].where <= org_what); j++) {
-			ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+		
+		printf("%s = ", ref_list[i].name);
+		for (int j = 0; (ref_list[j].where < ref_list[i].what) && j < total_references; j++) {
 			printf("%s (%d) + ", ref_list[j].name, size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1);
+			ref_list[i].offset_what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;		
 		}
-		printf("\n");
-
-		// else
-		// 	for (int j = i; (j < total_references) && (ref_list[j].where <= ref_list[i].what); j++)
-		// 		ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+		printf(" = %d\n", ref_list[i].offset_what);
 	}
 
 	printf("\nPost calc:\n");
 	for (int i = 0; i < total_references; i++)
-		printf("%X \"%s\": %X\n", ref_list[i].where, ref_list[i].name, ref_list[i].what);
-		
-	
+		printf("%X \"%s\": %X + %X = %X\n", ref_list[i].where + ref_list[i].offset_where, ref_list[i].name, ref_list[i].what, ref_list[i].offset_what, (ref_list[i].name, ref_list[i].what + ref_list[i].offset_what));
+
 	fclose(_output_file);
 
 	// Filler
@@ -135,17 +132,17 @@ int main(int argc, char** argv) {
 		uint8_t found_reference = 0;
 
 		for (int i = 0; i < total_references; i++)
-			if (get_writer_position() == ref_list[i].where - error) {
+			if (get_writer_position() == (ref_list[i].where + ref_list[i].offset_where) - error) {
 				byte |= (size_in_bytes(ref_list[i].what) & 0b11) << 3;
 
-				out_temp_size += size_in_bytes(ref_list[i].what) + 2;
+				out_temp_size += size_in_bytes(ref_list[i].what + ref_list[i].offset_what) + 2;
 				out_temp = realloc(out_temp, out_temp_size);
-				error += size_in_bytes(ref_list[i].what) + 1;
+				error += size_in_bytes(ref_list[i].what + ref_list[i].offset_what) + 1;
 
 				out_temp[out_temp_ptr++] = byte & 0xFF;
 
-				for (int j = 0; j < size_in_bytes(ref_list[i].what) + 1; j++)
-					out_temp[out_temp_ptr++] = (ref_list[i].what) >> (j * 8) & 0xFF;
+				for (int j = 0; j < size_in_bytes(ref_list[i].what + ref_list[i].offset_what) + 1; j++)
+					out_temp[out_temp_ptr++] = (ref_list[i].what + ref_list[i].offset_what) >> (j * 8) & 0xFF;
 
 				found_reference = 1;
 			}

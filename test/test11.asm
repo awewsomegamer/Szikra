@@ -19,11 +19,20 @@ LOOP:
 
 ; Termination loop
 END:
-	mov ax, 'A'
+	mov bx, MESSAGE
+LOOPE:
+	mov ax, [bx]
+	cmp ax, 0
+	je ENDE
+
 	int 1
 
+	add bx, 1
+
+	jmp LOOPE
 ENDE:
-	jmp END
+	jmp ENDE
+
 
 ; "Hello World\n\r"
 MESSAGE:

@@ -41,7 +41,7 @@ void render() {
 }
 
 void scr_putc(char c) {
-	printf("%c\n", c);
+	printf("%c %d\n", c, SDL_GetTicks());
 	
 	switch (c) {
 	case '\n':
@@ -84,5 +84,12 @@ void scr_putc(char c) {
 	}
 
 	cx += FONT_WIDTH;
+	if (cx > SCR_WIDTH) {
+		cx = 0;
+		cy += FONT_HEIGHT;
+	} else if (cy > SCR_HEIGHT) {
+		cy = 0;
+	}
+
 }
 
