@@ -36,6 +36,6 @@ ENDE:
 
 ; "Hello World\n\r"
 MESSAGE:
-	db "Hello Szikra World", 0x0
+	db "Hello Szikra World", 0xA, 0xD, 0x0
 
 

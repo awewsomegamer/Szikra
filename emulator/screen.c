@@ -75,7 +75,7 @@ void scr_putc(char c) {
 		for (int j = FONT_WIDTH - 1; j >= 0; j--) {
 			if ((data[i] >> j) & 1) {
 				SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-				SDL_RenderDrawPoint(renderer, (cx + rx), (cy * SCR_WIDTH + i));
+				SDL_RenderDrawPoint(renderer, (cx + rx), (cy + i));
 			}
 			rx++;
 		}
