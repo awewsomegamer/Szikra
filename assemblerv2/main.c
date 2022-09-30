@@ -111,7 +111,6 @@ int main(int argc, char** argv) {
 
 	uint8_t byte = 0x0;
 	int FF_counter = 0;
-	set_writer_position(0);
 	error = 0;
 
 	while (FF_counter != 5) {

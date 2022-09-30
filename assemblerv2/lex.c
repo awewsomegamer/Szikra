@@ -58,9 +58,12 @@ int read_number(char c, int base) {
 	return strtol(get_string(c, isalnum), NULL, base);
 }
 
+uint8_t isname(char c) {
+	return (isalnum(c) || c == '_');
+}
+
 int next_token(struct token* t, struct token* tokens, int index) {
 	char c = next_char();
-	// printf("RECIEVED %c\n", c);
 
 	switch (c) {
 	case EOF:
@@ -197,8 +200,8 @@ int next_token(struct token* t, struct token* tokens, int index) {
 
 			error("Unable to get number on line %d", _line);
 			return 0;
-		} else if (isalnum(c)) {
-			char* keyword = get_string(c, isalnum);
+		} else if (isname(c)) {
+			char* keyword = get_string(c, isname);
 
 			// Compare to directive
 			if (index > 0 && tokens[index - 1].type == T_DIRECTIVE) {
@@ -228,6 +231,7 @@ int next_token(struct token* t, struct token* tokens, int index) {
 					return 1;
 				}
 			}
+
 			// Compare to size
 			t->type = T_SIZE;
 			if (strcasecmp(keyword, "byte") == 0)
@@ -236,7 +240,6 @@ int next_token(struct token* t, struct token* tokens, int index) {
 				t->value = SZ_BYTE;
 			else if (strcasecmp(keyword, "byte") == 0)
 				t->value = SZ_BYTE;
-
 
 			// It is a label
 			t->type = T_STRING;

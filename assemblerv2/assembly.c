@@ -125,10 +125,11 @@ void build_instruction(struct token* tokens, int size) {
 			if (arg.type == CODE_REF) {
 				write_byte(1 << 7);
 				insert_reference(&_labels[arg.value], get_writer_position());
+				arg_i++;
 				continue;
 			}
 
-			if (arg.type == CODE_RREG && arg_i == 0 && tokens[0].value <= I_CMPR_INSTRUCTION) {
+			if (arg.type == CODE_RREG && arg_i == 0 && tokens[0].value <= I_CMPR_INSTRUCTION && tokens[0].value >= I_MOV_INSTRUCTION) {
 				register_offset = arg.value;
 				arg_i++;
 				continue;
@@ -236,7 +237,7 @@ void assemble(struct token* tokens, int size) {
 			
 			error("Label %s, originally defined at line %d, redefined at %d", label->name, label->line, _line);
 		} else {
-			error("Unexpected string found on line %d", _line);
+			error("Unexpected string \"%s\" found on line %d", tokens[0].extra_bytes, _line);
 		}
 
 		break;
