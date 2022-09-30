@@ -1,6 +1,6 @@
 ; Hello World application in Szikra assembly
 ; Write this code at 0x0 in the file
-!AT 0x0
+!AT 0x100
 
 ; Set BX to the pointer of the message 
 mov bx, MESSAGE
@@ -19,10 +19,14 @@ LOOP:
 
 ; Termination loop
 END:
+	mov ax, 'A'
+	int 1
+
+ENDE:
 	jmp END
 
 ; "Hello World\n\r"
 MESSAGE:
-	db "Hello Szikra World", 0xA, 0xD, 0x0
+	db "Hello Szikra World", 0x0
 
 

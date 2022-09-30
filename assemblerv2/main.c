@@ -17,7 +17,7 @@ uint32_t _label_count = 0;
 struct reference {
 	uint32_t where;
 	uint32_t what;
-	uint8_t modified;
+	char* name;
 };
 
 int main(int argc, char** argv) {
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 		for (int j = 0; j < _labels[i].reference_count; j++) {
 			ref_list[reference_i].where = _labels[i].references[j];
 			ref_list[reference_i].what = _labels[i].address;
-			ref_list[reference_i++].modified = 0;
+			ref_list[reference_i++].name = _labels[i].name;
 		}
 	}
 
@@ -87,19 +87,35 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	printf("Pre calc:\n");
+	for (int i = 0; i < total_references; i++)
+		printf("%X \"%s\": %X\n", ref_list[i].where, ref_list[i].name, ref_list[i].what);
+	printf("\n");
+
 	// New address calculator
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
 		ref_list[i].where += error;
 		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what) + 1) + 1; // Number of bytes added
 
-		if (ref_list[i].where > ref_list[i].what)
-			for (int j = 0; (j < i) && (ref_list[j].where <= ref_list[i].what); j++)
-				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
-		else
-			for (int j = i; (j < total_references) && (ref_list[j].where <= ref_list[i].what); j++)
-				ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+		// if (ref_list[i].where > ref_list[i].what)
+		printf("\"%s\"[%d]: ", ref_list[i].name, i);
+		int org_what = ref_list[i].what;
+		for (int j = 0; (ref_list[j].where < ref_list[i].what) && (ref_list[j].name != NULL) && (ref_list[j].where <= org_what); j++) {
+			ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
+			printf("%s (%d) + ", ref_list[j].name, size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1);
+		}
+		printf("\n");
+
+		// else
+		// 	for (int j = i; (j < total_references) && (ref_list[j].where <= ref_list[i].what); j++)
+		// 		ref_list[i].what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;
 	}
+
+	printf("\nPost calc:\n");
+	for (int i = 0; i < total_references; i++)
+		printf("%X \"%s\": %X\n", ref_list[i].where, ref_list[i].name, ref_list[i].what);
+		
 	
 	fclose(_output_file);
 

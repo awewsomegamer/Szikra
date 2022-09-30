@@ -29,7 +29,7 @@ int next_byte() {
 
 // Ensure instruction is valid, if so return the opcode and increment IP
 int fetch_instruction() {
-	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) printf("Invalid opcode at %X\n"); // Call invalid opcode interrupt
+	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) printf("Invalid opcode (%X) at %X\n", memory[registers[I_REG_IP]], registers[I_REG_IP]); // Call invalid opcode interrupt
 	return memory[registers[I_REG_IP]++];
 }
 
@@ -326,12 +326,14 @@ void process_instruction(int instruction, struct argument* arguments) {
 
 void* proccess_cycle(void* arg) {
 	while (emulator_running) {
+		if (registers[I_REG_IP] >= sizeof(memory))
+			registers[I_REG_IP] = 0x0;
+
 		struct argument arguments[256];
 		load_arguments(0, arguments);
 		int instruction = fetch_instruction();
 
 		process_instruction(instruction, arguments);
-		// printf("%c\n", registers[I_REG_AX]);
 	}
 }
 
@@ -342,8 +344,6 @@ void init_emulator() {
 	evaluated_instructions[I_NOT_INSTRUCTION]   = NOT_INSTRUCTION;
 	evaluated_instructions[I_INT_INSTRUCTION]   = INT_INSTRUCTION;
 	evaluated_instructions[I_SIVTE_INSTRUCTION] = SIVTE_INSTRUCTION;
-	evaluated_instructions[I_RIVTE_INSTRUCTION] = RIVTE_INSTRUCTION;
-	evaluated_instructions[I_IRET_INSTRUCTION]  = IRET_INSTRUCTION;
 	evaluated_instructions[I_CMP_INSTRUCTION]   = CMP_INSTRUCTION;
 	evaluated_instructions[I_CMPR_INSTRUCTION]  = CMP_INSTRUCTION;
 	evaluated_instructions[I_JMP_INSTRUCTION]   = JMP_INSTRUCTION;

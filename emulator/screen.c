@@ -41,6 +41,8 @@ void render() {
 }
 
 void scr_putc(char c) {
+	printf("%c\n", c);
+	
 	switch (c) {
 	case '\n':
 		cy += FONT_HEIGHT;
