@@ -89,11 +89,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	printf("Pre calc:\n");
-	for (int i = 0; i < total_references; i++)
-		printf("%X \"%s\": %X\n", ref_list[i].where, ref_list[i].name, ref_list[i].what);
-	printf("\n");
-
 	// New address calculator
 	int error = 0;
 	for (int i = 0; i < total_references; i++) {
@@ -102,17 +97,9 @@ int main(int argc, char** argv) {
 
 		error += size_in_bytes(ref_list[i].what + size_in_bytes(ref_list[i].what) + 1) + 1; // Number of bytes added
 		
-		printf("%s = ", ref_list[i].name);
-		for (int j = 0; (ref_list[j].where < ref_list[i].what) && j < total_references; j++) {
-			printf("%s (%d) + ", ref_list[j].name, size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1);
+		for (int j = 0; (ref_list[j].where < ref_list[i].what) && j < total_references; j++)
 			ref_list[i].offset_what += size_in_bytes(ref_list[j].what + size_in_bytes(ref_list[j].what) + 1) + 1;		
-		}
-		printf(" = %d\n", ref_list[i].offset_what);
 	}
-
-	printf("\nPost calc:\n");
-	for (int i = 0; i < total_references; i++)
-		printf("%X \"%s\": %X + %X = %X\n", ref_list[i].where + ref_list[i].offset_where, ref_list[i].name, ref_list[i].what, ref_list[i].offset_what, (ref_list[i].name, ref_list[i].what + ref_list[i].offset_what));
 
 	fclose(_output_file);
 

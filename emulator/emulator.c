@@ -338,6 +338,7 @@ void* proccess_cycle(void* arg) {
 		int instruction = fetch_instruction();
 
 		process_instruction(instruction, arguments);
+		usleep(1000);
 	}
 }
 

@@ -1,9 +1,12 @@
 ; Hello World application in Szikra assembly
 ; Write this code at 0x0 in the file
-!AT 0x100
+!AT 0x0
 
 ; Set BX to the pointer of the message 
-mov bx, MESSAGE
+mov cx, 1
+
+START:
+	mov bx, MESSAGE
 
 ; Print character at BX while the character is not 0
 LOOP:
@@ -18,21 +21,18 @@ LOOP:
 	jmp LOOP
 
 ; Termination loop
-END:
-	mov bx, MESSAGE
-LOOPE:
-	mov ax, [bx]
-	cmp ax, 0
-	je ENDE
-
+END:	
+	mov ax, '0'
+	add ax, cx
+	int 1
+	mov ax, 0xA
 	int 1
 
-	add bx, 1
-
-	jmp LOOPE
-ENDE:
-	jmp ENDE
-
+	add cx, 1
+	cmp cx, 9
+	jle START
+TERMINATE:
+	jmp TERMINATE
 
 ; "Hello World\n\r"
 MESSAGE:

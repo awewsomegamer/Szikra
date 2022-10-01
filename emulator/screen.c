@@ -41,8 +41,6 @@ void render() {
 }
 
 void scr_putc(char c) {
-	printf("%c %d\n", c, SDL_GetTicks());
-	
 	switch (c) {
 	case '\n':
 		cy += FONT_HEIGHT;
