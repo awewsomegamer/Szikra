@@ -141,64 +141,67 @@ Interrupt 3: Keyboard interrupt
 
 </pre>
 
-### Microcode (not up to date)
+### Microcode
 <pre>
-* Everything reads in from the bus, and writes out to the bus
++= Write to registers =+
+ARIN
+BRIN
+CRIN
+DRIN
+ERIN
+FRIN
+GRIN
+HRIN
+I1IN
+I2IN
+I3IN
+I4IN
+I5IN
+I6IN
+I7IN
+I8IN
+BPIN
+SPIN
+IPIN
 
-+= Read into registers =+
-| AIN			|
-| BIN			|
-| CIN			|
-| DIN			|
-| SPIN			|
-| BPIN			|
-| IPIN			|
-| I1IN			|
-| I2IN			|
-| I3IN			|
-| I4IN			|
-+-----------------------+
++= Read from registers =+
+AROUT
+BROUT
+CROUT
+DROUT
+EROUT
+FROUT
+GROUT
+HROUT
+I1OUT
+I2OUT
+I3OUT
+I4OUT
+I5OUT
+I6OUT
+I7OUT
+I8OUT
+BPOUT
+SPOUT
+IPOUT
 
-+= Write out from registers =+
-| AOUT			     |
-| BOUT			     |
-| COUT			     |
-| DOUT			     |
-| SPOUT			     |
-| BPOUT			     |
-| IPOUT			     |
-| I1OUT			     |
-| I2OUT			     |
-| I3OUT			     |
-| I4OUT			     |
-+----------------------------+
-
-+= Increment Program Counter =+
-PCI
++= Increment Instruction Pointer =+
+IPI
 
 += Write to RAM =+
-MO
+RAMOUT
 
 += Read in from RAM =+
-MI
+RAMIN
 
 += Write to memory address register =+
-WMR
+WRMR
 
 += Read from memory address register =+
-RMR
+RDMR
 
-+= Write bus =+
-WBUS
-
-+= Write bus =+
-RBUS
-
-// The operation will be set using a bus, A OP B = C
 += ALU Registers =+
-| R1IN		  | // A
-| R2IN		  | // B
-| R3OUT		  | // C
-+-----------------+    
-
+R1IN
+R2IN
+R1OUT
 </pre>
