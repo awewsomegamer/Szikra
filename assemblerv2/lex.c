@@ -215,22 +215,40 @@ int next_token(struct token* t, struct token* tokens, int index) {
 			}
 
 			// Compare to instruction
-			for (int i = 0; i < I_INSTRUCTION_MAX; i++) {
-				if (strcasecmp(ISA[i].name, keyword) == 0) {
-					t->type = T_INSTRUCTION;
-					t->value = i;
-					return 1;
+			if (_varient == 2)
+				for (int i = 0; i < I_INSTRUCTION_MAX; i++) {
+					if (strcasecmp(ISA[i].name, keyword) == 0) {
+						t->type = T_INSTRUCTION;
+						t->value = i;
+						return 1;
+					}
 				}
-			}
+			else if (_varient == 3)
+				for (int i = 0; i < V3_I_INSTRUCTION_MAX; i++) {
+					if (strcasecmp(V3_ISA[i].name, keyword) == 0) {
+						t->type = T_INSTRUCTION;
+						t->value = i;
+						return 1;
+					}
+				}
 
 			// Comapre to registers
-			for (int i = 1; i < I_REG_MAX; i++) {
-				if (strcasecmp(REGISTERS[i], keyword) == 0) {
-					t->type = T_REGISTER;
-					t->value = i;
-					return 1;
+			if (_varient == 2)
+				for (int i = 1; i < I_REG_MAX; i++) {
+					if (strcasecmp(REGISTERS[i], keyword) == 0) {
+						t->type = T_REGISTER;
+						t->value = i;
+						return 1;
+					}
 				}
-			}
+			if (_varient == 3)
+				for (int i = 1; i < V3_I_REG_MAX; i++) {
+					if (strcasecmp(V3_REGISTERS[i], keyword) == 0) {
+						t->type = T_REGISTER;
+						t->value = i;
+						return 1;
+					}
+				}
 
 			// Compare to size
 			t->type = T_SIZE;

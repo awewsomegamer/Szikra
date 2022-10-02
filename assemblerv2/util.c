@@ -48,8 +48,10 @@ struct label* find_label(char* name) {
 	return NULL;
 }
 
-void insert_reference(struct label* label, int value) {
+void insert_reference(struct label* label, int value, int argc, int offset) {
 	label->reference_count++;
 	label->references = realloc(label->references, label->reference_count);
-	label->references[label->reference_count - 1] = value;
+	label->references[label->reference_count - 1].where = value;
+	label->references[label->reference_count - 1].argc = argc;
+	label->references[label->reference_count - 1].info_offset = offset;
 }

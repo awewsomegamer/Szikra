@@ -3,33 +3,33 @@
 !AT 0x0
 
 ; Set BX to the pointer of the message 
-mov cx, 1
+mov cr, 1
 
 START:
-	mov bx, MESSAGE
+	mov br, MESSAGE
 
 ; Print character at BX while the character is not 0
 LOOP:
-	mov ax, [bx]
-	cmp ax, 0
+	mov ar, [br]
+	cmp ar, 0
 	je END
 
 	int 1
 
-	add bx, 1
+	add br, 1
 
 	jmp LOOP
 
 ; Termination loop
 END:	
-	mov ax, '0'
-	add ax, cx
+	mov ar, '0'
+	add ar, cr
 	int 1
-	mov ax, 0xA
+	mov ar, 0xA
 	int 1
 
-	add cx, 1
-	cmp cx, 9
+	add cr, 1
+	cmp cr, 9
 	jle START
 TERMINATE:
 	jmp TERMINATE

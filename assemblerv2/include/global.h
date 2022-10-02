@@ -21,4 +21,6 @@ extern uint32_t _line;
 
 extern uint8_t _debug;
 
+extern int _varient;
+
 #endif

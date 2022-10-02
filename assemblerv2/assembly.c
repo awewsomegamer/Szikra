@@ -6,6 +6,8 @@
 uint32_t wrh_stack[1024];
 uint32_t wrh_ptr = 0;
 
+int _varient = 3;
+
 struct argument get_arg(struct token* tokens, int* i) {
 	struct argument ret;
 	memset(&ret, 0, sizeof(struct argument));
@@ -15,6 +17,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.type = CODE_RVALUE;
 		ret.length = size_in_bytes(tokens[*i].value);
 		ret.instruction = 1;
+		ret.reference = 0;
 		ret.value = tokens[*i].value;
 		
 		(*i)++;
@@ -29,6 +32,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.length = size_in_bytes(value.value);
 		ret.value = value.value;
 		ret.instruction = 1;
+		ret.reference = value.reference;
 
 		*i = _i;
 
@@ -50,7 +54,8 @@ struct argument get_arg(struct token* tokens, int* i) {
 			
 			// Return 32 bit 0
 			ret.value = label->index;
-			ret.type = CODE_REF;
+			ret.type = CODE_RVALUE;
+			ret.reference = 1;
 			ret.instruction = 1;
 
 			(*i)++;
@@ -58,7 +63,8 @@ struct argument get_arg(struct token* tokens, int* i) {
 			return ret;
 		} else if (!label->defined) {
 			ret.value = label->index;
-			ret.type = CODE_REF;
+			ret.type = CODE_RVALUE;
+			ret.reference = 1;
 			ret.instruction = 1;
 
 			(*i)++;
@@ -67,8 +73,9 @@ struct argument get_arg(struct token* tokens, int* i) {
 		}
 
 		ret.instruction = 1;
+		ret.type = CODE_RVALUE;
 		ret.value = label->index;
-		ret.type = CODE_REF;
+		ret.reference = 1;
 
 		(*i)++;
 
@@ -79,6 +86,7 @@ struct argument get_arg(struct token* tokens, int* i) {
 		ret.length = 0;
 		ret.value = tokens[*i].value;
 		ret.instruction = 1;
+		ret.reference = 0;
 
 		(*i)++;
 
@@ -98,6 +106,7 @@ void build_instruction(struct token* tokens, int size) {
 	int i = 1;
 
 	switch (tokens[0].value) {
+	case V3_I_DB_INSTRUCTION:
 	case I_DB_INSTRUCTION: {
 		do {
 			if (tokens[i].type == T_STRING) {
@@ -115,37 +124,64 @@ void build_instruction(struct token* tokens, int size) {
 	}
 
 	default: {
-		// While there are more arguments, write them
-		uint8_t register_offset = 0;
-		int arg_i = 0;
+		if (_varient == 2) {
+			uint8_t register_offset = 0;
+			int arg_i = 0;
 
-		do {
-			struct argument arg = get_arg(tokens, &i);
+			do {
+				struct argument arg = get_arg(tokens, &i);
+				
+				if (arg.reference) {
+					write_byte(1 << 7);
+					insert_reference(&_labels[arg.value], get_writer_position(), -1, 0);
+					arg_i++;
+					continue;
+				}
+
+				if (arg.type == CODE_RREG && arg_i == 0 && tokens[0].value <= I_CMPR_INSTRUCTION && tokens[0].value >= I_MOV_INSTRUCTION) {
+					register_offset = arg.value;
+					arg_i++;
+					continue;
+				}
+
+				uint8_t info_byte = (arg.instruction << 7) | (arg.type << 5) | (arg.length << 3) | (arg.cast << 1) | (arg.offset << 0);
+				write_byte(info_byte);
+
+				for (int j = 0; j < arg.length + 1; j++)
+					write_byte((arg.value >> (j * 8)) & 0xFF);
+
+				arg_i++;
+			} while (tokens[i].type == T_COMMA);
 			
-			if (arg.type == CODE_REF) {
-				write_byte(1 << 7);
-				insert_reference(&_labels[arg.value], get_writer_position());
-				arg_i++;
-				continue;
+			write_byte(tokens[0].value + (register_offset != 0 ? 1 : 0));
+			if (register_offset != 0) write_byte(register_offset);
+		} else if (_varient == 3) {
+			write_byte(tokens[0].value);
+			struct argument arguments[256];
+
+			uint8_t information = 0;
+			int arg_i = 0;
+			
+			for (int j = 0; j < V3_ISA[tokens[0].value].argc; j++) {
+				arguments[arg_i++] = get_arg(tokens, &i);
+
+				information |= ((arguments[arg_i - 1].length << 2) | arguments[arg_i - 1].type) << (4 * j);
 			}
 
-			if (arg.type == CODE_RREG && arg_i == 0 && tokens[0].value <= I_CMPR_INSTRUCTION && tokens[0].value >= I_MOV_INSTRUCTION) {
-				register_offset = arg.value;
-				arg_i++;
-				continue;
+			write_byte(information);
+			int offset = 0;
+			for (int j = 0; j < arg_i; j++) {
+				if (arguments[j].reference) {
+					insert_reference(&_labels[arguments[j].value], get_writer_position(), j, offset);
+					continue;
+				}
+
+				for (int x = 0; x < size_in_bytes(arguments[j].value) + 1; x++)
+					write_byte((arguments[j].value >> (8 * x)) & 0xFF);
+
+				offset += size_in_bytes(arguments[j].value) + 1;
 			}
-
-			uint8_t info_byte = (arg.instruction << 7) | (arg.type << 5) | (arg.length << 3) | (arg.cast << 1) | (arg.offset << 0);
-			write_byte(info_byte);
-
-			for (int j = 0; j < arg.length + 1; j++)
-				write_byte((arg.value >> (j * 8)) & 0xFF);
-
-			arg_i++;
-		} while (tokens[i].type == T_COMMA);
-		
-		write_byte(tokens[0].value + (register_offset != 0 ? 1 : 0));
-		if (register_offset != 0) write_byte(register_offset);
+		}
 
 		break;
 	}

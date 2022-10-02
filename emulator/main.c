@@ -2,10 +2,14 @@
 #include <screen.h>
 #include <message_handler.h>
 #include <unistd.h>
+#include <string.h>
 
 FILE* input_file = NULL;
 
 int main(int argc, char** argv) {
+	init_emulator();
+	init_screen();
+
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-i") == 0) {
 			input_file = fopen(argv[i + 1], "r");
@@ -15,22 +19,18 @@ int main(int argc, char** argv) {
 			printf("./emulator -i /path/to/input.bin [additional options]\n");
 			printf("-m number : Sets the number of bytes memory has");
 			return 0;
+		} else if (strcmp(argv[i], "-v") == 0) {
+			_varient == atoi(argv[i + 1]);
 		}
-
-	} 
-
-
-	if (input_file == NULL) {
-		fatal_error("No input file specified");
 	}
+	
+	if (input_file == NULL)
+		fatal_error("No input file specified");
 	
 	fseek(input_file, 0, SEEK_END);
 	long file_size = ftell(input_file);
 	fseek(input_file, 0, SEEK_SET);
 	fread(memory, 1, file_size, input_file);
-
-	init_emulator();
-	init_screen();
 
 	pthread_create(&process_thread, NULL, proccess_cycle, NULL);
 
