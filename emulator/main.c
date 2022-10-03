@@ -19,8 +19,6 @@ int main(int argc, char** argv) {
 			printf("./emulator -i /path/to/input.bin [additional options]\n");
 			printf("-m number : Sets the number of bytes memory has");
 			return 0;
-		} else if (strcmp(argv[i], "-v") == 0) {
-			_varient = atoi(argv[i + 1]);
 		}
 	}
 	

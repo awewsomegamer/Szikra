@@ -16,7 +16,7 @@ void call_interrupt(uint16_t interrupt) {
 void INTERRUPT_NULL() { }
 
 void INTERRUPT_1() {
-	scr_putc(get_register(_varient == 2 ? I_REG_AX : V3_I_REG_AR));
+	scr_putc(registers[V3_I_REG_AR]);
 }
 
 void INTERRUPT_2() {

@@ -94,9 +94,9 @@ IP	- Instruction pointer register
 + 1 byte opcode
 + 1 byte information
 	+ 2 bits - (Size - 1) (in bytes) of operand 2
-	+ 2 bits - Operand 2 is: 0: Regular, 1: Register, 2: Pointer, 3: Register Pointer
+	+ 2 bits - Operand 2 is: 0: Regular, 1: Pointer, 2: Register, 3: Register Pointer
 	+ 2 bits - (Size - 1) (in bytes) of operand 1
-	+ 2 bits - Operand 1 is: 0: Regular, 1: Register, 2: Pointer, 3: Register Pointer
+	+ 2 bits - Operand 1 is: 0: Regular, 1: Pointer, 2: Register, 3: Register Pointer
 
 +-- Repeated for each operand --+
 |	+ x byte operand	|
