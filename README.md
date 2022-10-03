@@ -146,6 +146,8 @@ Interrupt 2: Disk functions
 
 Interrupt 3: Keyboard interrupt
 
+Interrupt 4: Error Interrupt
+	+ AR - Error code
 </pre>
 
 ### Microcode
