@@ -4,7 +4,7 @@ CFLAGS := -I ./include -lSDL2
 
 all: $(OFILES)
 	nasm -f elf64 -o bin/assembly.o assembly.asm
-	gcc ./bin/*.o -no-pie -lSDL2 -o ../emulator.out
+	gcc ./bin/*.o -no-pie -lSDL2 -o ../emulator.out -Wl,-z,multidefs
 
 %.o: %.c
 	gcc -c $< -o ./bin/$@ $(CFLAGS)

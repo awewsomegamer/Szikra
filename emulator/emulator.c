@@ -1,36 +1,49 @@
 #include <emulator.h>
 #include <interrupts.h>
+#include <v2processor.h>
+#include <v3processor.h>
 
-uint8_t memory[UINT16_MAX];
+uint8_t* memory;
 uint8_t emulator_running = 1;
 pthread_t process_thread;
 
-int next_byte() {
-	return memory[registers[I_REG_IP]++];
-}
+int _varient;
 
-// Ensure instruction is valid, if so return the opcode and increment IP
-int fetch_instruction() {
-	if (memory[registers[I_REG_IP]] > I_INSTRUCTION_MAX) {
-		 printf("Invalid opcode (%X) at %X\n", memory[registers[I_REG_IP]], registers[I_REG_IP]); // Call invalid opcode interrupt
-		 for (;;);
-		 return 0;
+uint32_t get_register(int reg) {
+	switch (_varient) {
+	case 2:
+		return v2_get_register(reg);
+	case 3:
+		return v3_get_register(reg);
 	}
-	return memory[registers[I_REG_IP]++];
 }
 
 void* proccess_cycle(void* arg) {
 	while (emulator_running) {
-		if (registers[I_REG_IP] >= sizeof(memory))
-			registers[I_REG_IP] = 0x0;
-
-		v2_cycle();
+		switch(_varient) {
+		case 2:
+			v2_cycle();
+			break;
+		case 3:
+			v3_cycle();
+			break;
+		}
 
 		usleep(1000);
 	}
 }
 
 void init_emulator() {
+	_varient = 3;
+	memory = malloc(UINT16_MAX);
+
 	init_interrupts();
-	init_v2();
+	switch(_varient) {
+	case 2:
+		init_v2();
+		break;
+	case 3:
+		init_v3();
+		break;
+	}
 }

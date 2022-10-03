@@ -14,11 +14,8 @@
 extern int _varient;
 
 extern FILE* input_file;
-extern uint8_t memory[];
+extern uint8_t* memory;
 extern uint8_t emulator_running;
-
-extern uint32_t registers[];
-extern struct flags cflags;
 
 extern pthread_t process_thread;
 
@@ -325,10 +322,8 @@ static const char* V3_REGISTERS[] = {
 };
 // End
 
+uint32_t get_register(int reg);
 void* proccess_cycle(void* arg);
 void init_emulator();
-
-void v2_cycle();
-void init_v2();
 
 #endif
