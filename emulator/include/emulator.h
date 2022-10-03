@@ -20,6 +20,9 @@ extern uint8_t emulator_running;
 extern uint32_t registers[];
 extern struct flags cflags;
 
+extern uint8_t _disassemble;
+extern long _file_size;
+
 extern pthread_t process_thread;
 
 struct instruction {

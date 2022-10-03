@@ -5,6 +5,8 @@ uint8_t memory[UINT16_MAX];
 uint8_t emulator_running = 1;
 pthread_t process_thread;
 
+uint8_t _disassemble = 0;
+
 #define EXPRESSION_DEPENDENT_BACKEND(instruction, value1, value2) \
 		        if (instruction == V3_I_MOV_INSTRUCTION) value1 =   value2; \ 
 		   else if (instruction == V3_I_ADD_INSTRUCTION) value1 +=  value2; \ 
@@ -24,8 +26,8 @@ struct flags cflags;
 
 int fetch_instruction() {
 	if (memory[registers[V3_I_REG_IP]] >= V3_I_INSTRUCTION_MAX) {
-		printf("Invalid opcode %X at %X V3\n", memory[registers[V3_I_REG_IP]], registers[V3_I_REG_IP]);
-		for (;;);
+		printf("Invalid opcode %X at %X\n", memory[registers[V3_I_REG_IP]], registers[V3_I_REG_IP]);
+		exit(1);
 	}
 
 	return memory[registers[V3_I_REG_IP]++];
@@ -294,22 +296,71 @@ void process_instruction(int instruction, struct argument* arguments) {
 }
 
 void* proccess_cycle(void* arg) {
-	while (emulator_running) {
-		if (registers[V3_I_REG_IP] >= sizeof(memory))
-			registers[V3_I_REG_IP] = 0x0;
+	if (!_disassemble) {
+		while (emulator_running) {
+			if (registers[V3_I_REG_IP] >= sizeof(memory))
+				registers[V3_I_REG_IP] = 0x0;
 
-		int instruction = fetch_instruction();
-		int information = next_byte();
-		
-		struct argument arguments[256];
-		load_arguments(instruction, information, arguments);
-		
-		process_instruction(instruction, arguments);
+			int instruction = fetch_instruction();
+			struct argument arguments[256];
+			int information = -1;
 
-		usleep(1000);
+			if (V3_ISA[instruction].argc > ZERO_ARGUMENTS) {
+				information = next_byte();
+				load_arguments(instruction, information, arguments);
+			}
+			
+			process_instruction(instruction, arguments);
+
+			usleep(100);
+		}
+	} else {
+		char* string = malloc(256);
+		char* current = malloc(25);
+
+		while (registers[V3_I_REG_IP] != _file_size) {
+			int instruction = fetch_instruction();
+			printf("%02X ", instruction);
+
+			sprintf(current, "%s ", V3_ISA[instruction].name);
+			strcat(string, current);
+
+			if (V3_ISA[instruction].argc > ZERO_ARGUMENTS) {
+				struct argument arguments[256];
+				int information = next_byte();
+
+				printf("%02X ", information);
+
+				load_arguments(instruction, information, arguments);
+
+				for (int i = 0; i < V3_ISA[instruction].argc; i++) {
+					printf("%04X ", arguments[i].value);
+					
+					switch (arguments[i].type) {
+					case CODE_RVALUE:
+						sprintf(current, "0x%X%c ", arguments[i].value, ((V3_ISA[instruction].argc == TWO_ARGUMENTS && i == 0) ? ',' : 0));
+						break;
+					case CODE_PVALUE:
+						sprintf(current, "[0x%X]%c ", arguments[i].value, ((V3_ISA[instruction].argc == TWO_ARGUMENTS && i == 0) ? ',' : 0));
+						break;
+					case CODE_RREG:
+						sprintf(current, "%s%c ", V3_REGISTERS[arguments[i].value], ((V3_ISA[instruction].argc == TWO_ARGUMENTS && i == 0) ? ',' : 0));
+						break;
+					case CODE_PREG:
+						sprintf(current, "[%s]%c ", V3_REGISTERS[arguments[i].value], ((V3_ISA[instruction].argc == TWO_ARGUMENTS && i == 0) ? ',' : 0));
+						break;
+					}
+
+					strcat(string, current);
+				}
+			}
+			
+			printf("\t%c%s\n", (V3_ISA[instruction].argc < TWO_ARGUMENTS ? '\t' : 0), string);
+
+			memset(string, 0, 256);
+		}
 	}
 }
-
 
 void init_emulator() {
 	init_interrupts();
