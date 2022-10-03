@@ -21,7 +21,11 @@ void set_interrupt(int interrupt, uint32_t where) {
 void INTERRUPT_NULL() { }
 
 void INTERRUPT_1() {
-	scr_putc(registers[V3_I_REG_AR]);
+	switch (registers[V3_I_REG_CR]) {
+	case 0:
+		scr_putc(registers[V3_I_REG_AR], registers[V3_I_REG_BR]);
+		break;
+	}
 }
 
 void INTERRUPT_2() {

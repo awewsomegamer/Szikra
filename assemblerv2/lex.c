@@ -45,6 +45,7 @@ char* get_string(char c, uint8_t(*function)(char c)) {
 		c = get_next();
 	}
 
+
 	putback = c;
 
 	char* str = malloc(i + 1);
@@ -68,7 +69,6 @@ uint8_t isstrlit(char c) {
 
 int next_token(struct token* t, struct token* tokens, int index) {
 	char c = next_char();
-
 	switch (c) {
 	case EOF:
 		debug("EOF");

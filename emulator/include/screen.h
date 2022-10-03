@@ -12,6 +12,7 @@ void init_screen();
 
 void update();
 void render();
-void scr_putc(char c);
+void scr_putp(uint32_t where, uint32_t color);
+void scr_putc(char c, uint32_t color);
 
 #endif

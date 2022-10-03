@@ -46,7 +46,12 @@ void render() {
 	SDL_RenderPresent(renderer);
 }
 
-void scr_putc(char c) {
+void scr_putp(uint32_t where, uint32_t color) { 
+	SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0xFF);
+	SDL_RenderDrawPoint(renderer, (where >> 16) & 0xFFFF, (where) & 0xFFFF);
+}
+
+void scr_putc(char c, uint32_t color) {
 	switch (c) {
 	case '\n':
 		cy += FONT_HEIGHT;
@@ -60,12 +65,12 @@ void scr_putc(char c) {
 		if (cx == 0) {
 			cx = SCR_WIDTH - FONT_WIDTH;
 			cy -= FONT_HEIGHT;
-			scr_putc(' ');
+			scr_putc(' ', color);
 			cx = SCR_WIDTH - FONT_WIDTH;
 			cy -= FONT_HEIGHT;
 		} else {
 			cx -= FONT_WIDTH;
-			scr_putc(' ');
+			scr_putc(' ', color);
 			cx -= FONT_WIDTH;
 		}
 
@@ -78,7 +83,7 @@ void scr_putc(char c) {
 	for (int i = 0; i < FONT_HEIGHT; i++) {
 		for (int j = FONT_WIDTH - 1; j >= 0; j--) {
 			if ((data[i] >> j) & 1) {
-				SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0xFF);
 				SDL_RenderDrawPoint(renderer, (cx + rx), (cy + i));
 			}
 			rx++;

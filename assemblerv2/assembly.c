@@ -105,6 +105,8 @@ struct argument get_arg(struct token* tokens, int* i) {
 void build_instruction(struct token* tokens, int size) {
 	int i = 1;
 
+	// printf("%s\n", V3_ISA[tokens[0].value].name);
+
 	switch (tokens[0].value) {
 	case V3_I_DB_INSTRUCTION:
 	case I_DB_INSTRUCTION: {
@@ -189,6 +191,7 @@ void build_instruction(struct token* tokens, int size) {
 			write_byte(tokens[0].value);
 
 			if (V3_ISA[tokens[0].value].argc > ZERO_ARGUMENTS) {
+
 				struct argument arguments[256];
 
 				uint8_t information = 0;
@@ -221,6 +224,7 @@ void build_instruction(struct token* tokens, int size) {
 	}
 
 	// If tokens are still left, call assemble function
+	printf("%d\n", i);
 	if (i < size)
 		assemble(tokens + i, size - i);
 }
@@ -268,12 +272,18 @@ void do_directive(struct token* tokens, int size) {
 }
 
 void assemble(struct token* tokens, int size) {
-	debug("ASSEMBLING TOKENS (%d):", _line);
-	for (int i = 0; i < size; i++)
-		debug("%s (%d, %s, %s)", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes, ISA[tokens[i].value].name);
+	// printf("%s %X %d\n", TOKEN_NAMES[tokens[size-2].type], tokens[size-2].value, _line);
+
+
+	// debug("ASSEMBLING TOKENS (%d):", _line);
+	// for (int i = 0; i < size; i++)
+	// 	debug("%s (%d, %s, %s)", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes, V3_ISA[tokens[i].value].name);
 
 	switch (tokens[0].type) {
 	case T_INSTRUCTION:
+		for (int i = 0; i < size; i++)
+			printf("%s ", TOKEN_NAMES[tokens[i].type]);
+		printf("\n");
 		build_instruction(tokens, size);
 
 		break;
