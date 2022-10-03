@@ -62,6 +62,10 @@ uint8_t isname(char c) {
 	return (isalnum(c) || c == '_');
 }
 
+uint8_t isstrlit(char c) {
+	return c != '\"';
+}
+
 int next_token(struct token* t, struct token* tokens, int index) {
 	char c = next_char();
 
@@ -265,24 +269,17 @@ int next_token(struct token* t, struct token* tokens, int index) {
 
 			return 1;
 		} else if (c == '\"') {
-			char* string = malloc(1);
-			int string_size = 1;
-			char last = 0;
+			c = read_char();
+			if (c != EOF) {
+				char* string = get_string(c, isstrlit);
 
-			do {
-				last = c;
-				c = read_char();
+				t->type = T_STRING;
+				t->extra_bytes = string;
 
-				if (c != '\"' || (last == '\\' && c == '\"')) {
-					*(string + string_size - 1) = c;
-					string_size++;
-				}
-			} while (c != '\"');
+				return 1;
+			}
 
-			t->type = T_STRING;
-			t->extra_bytes = string;
-
-			return 1;
+			return 0;
 		}
 
 		return 0;

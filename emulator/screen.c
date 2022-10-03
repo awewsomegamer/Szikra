@@ -1,5 +1,6 @@
 #include <screen.h>
 #include <emulator.h>
+#include <interrupts.h>
 #include <message_handler.h>
 
 SDL_Window* window;
@@ -28,6 +29,11 @@ void update() {
 	SDL_PollEvent(&event);
 
 	switch (event.type) {
+	case SDL_KEYDOWN:
+		ports[1] = event.key.keysym.scancode;
+		call_interrupt(I_INTERRUPT_KEYBOARD);
+		break;
+		
 	case SDL_QUIT:
 		emulator_running = 0;
 		SDL_DestroyRenderer(renderer);

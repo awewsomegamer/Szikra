@@ -18,6 +18,7 @@ extern uint8_t memory[];
 extern uint8_t emulator_running;
 
 extern uint32_t registers[];
+extern uint32_t ports[];
 extern struct flags cflags;
 
 extern uint8_t _disassemble;
@@ -98,6 +99,10 @@ enum {
 	V3_I_JNZ_INSTRUCTION,
 	V3_I_PUSH_INSTRUCTION,
 	V3_I_POP_INSTRUCTION,
+
+	V3_I_RDPR_INSTRUCTION,
+	V3_I_WRPR_INSTRUCTION,
+	
 	V3_I_DB_INSTRUCTION,
 	V3_I_DS_INSTRUCTION,
 	V3_I_INSTRUCTION_MAX
@@ -135,6 +140,9 @@ static const struct instruction V3_ISA[] = {
 	[V3_I_JNZ_INSTRUCTION] =   DEFINE_INSTRUCTION("JNZ", ONE_ARGUMENT),
 	[V3_I_PUSH_INSTRUCTION] =  DEFINE_INSTRUCTION("PUSH", ONE_ARGUMENT),
 	[V3_I_POP_INSTRUCTION] =   DEFINE_INSTRUCTION("POP",  ONE_ARGUMENT),
+
+	[V3_I_RDPR_INSTRUCTION] =  DEFINE_INSTRUCTION("RDPR", TWO_ARGUMENTS),
+	[V3_I_WRPR_INSTRUCTION] =  DEFINE_INSTRUCTION("WRPR",  TWO_ARGUMENTS),
 	
 	[V3_I_DB_INSTRUCTION] = DEFINE_INSTRUCTION("DB", N_ARGUMENTS),
 	[V3_I_DS_INSTRUCTION] = DEFINE_INSTRUCTION("DS", N_ARGUMENTS)
@@ -187,6 +195,9 @@ static const char* V3_REGISTERS[] = {
 	[V3_I_REG_I8] = "I8",
 };
 // End
+
+void stack_push(uint32_t value);
+uint32_t stack_pop();
 
 void* proccess_cycle(void* arg);
 void init_emulator();

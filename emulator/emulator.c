@@ -2,6 +2,7 @@
 #include <interrupts.h>
 
 uint8_t memory[UINT16_MAX];
+uint32_t ports[16];
 uint8_t emulator_running = 1;
 pthread_t process_thread;
 
@@ -187,12 +188,7 @@ void V3_INT_INSTRUCTION(struct argument* arguments, int instruction) {
 }
 
 void V3_SIVTE_INSTRUCTION(struct argument* arguments, int instruction) {
-	// Call interrupt set instruction
-}
-
-void IV3_RET_INSTRUCTION(struct argument* arguments, int instruction) {
-	// RET with a few extra steps, depends on what is done before
-	// interrupt wrapper is called in V3_INT_INSTRUCTION
+	set_interrupt(evaluate_argument(arguments[0]), evaluate_argument(arguments[1]));
 }
 
 void V3_CMP_INSTRUCTION(struct argument* arguments, int instruction) {
@@ -288,8 +284,16 @@ void V3_POP_INSTRUCTION(struct argument* arguments, int instruction) {
 	}
 }
 
+void V3_RDRP_INSTRUCTION(struct argument* arguments, int instruction) {
+	registers[arguments[1].value] = ports[arguments[0].value];
+}
+
+void V3_WRRP_INSTRUCTION(struct argument* arguments, int instruction) {
+	ports[arguments[0].value] = registers[arguments[1].value];
+}
+
 void process_instruction(int instruction, struct argument* arguments) {
-	if (V3_ISA[instruction].argc == 2  && instruction != V3_I_SIVTE_INSTRUCTION && instruction != V3_I_CMP_INSTRUCTION)
+	if (V3_ISA[instruction].argc == 2 && instruction > 0 && instruction < V3_I_CMP_INSTRUCTION)
 		do_expression_dependent_instruction(instruction, arguments);
 	else
 		(*evaluated_instructions[instruction])(arguments, instruction);
@@ -334,7 +338,7 @@ void* proccess_cycle(void* arg) {
 				load_arguments(instruction, information, arguments);
 
 				for (int i = 0; i < V3_ISA[instruction].argc; i++) {
-					printf("%04X ", arguments[i].value);
+					printf("%08X ", arguments[i].value);
 					
 					switch (arguments[i].type) {
 					case CODE_RVALUE:
@@ -355,7 +359,7 @@ void* proccess_cycle(void* arg) {
 				}
 			}
 			
-			printf("\t%c%s\n", (V3_ISA[instruction].argc < TWO_ARGUMENTS ? '\t' : 0), string);
+			printf("\t%c%C%c%s\n", (V3_ISA[instruction].argc < TWO_ARGUMENTS ? '\t' : 0), (V3_ISA[instruction].argc < TWO_ARGUMENTS ? '\t' : 0), (V3_ISA[instruction].argc == ZERO_ARGUMENTS ? '\t' : 0), string);
 
 			memset(string, 0, 256);
 		}
@@ -385,4 +389,6 @@ void init_emulator() {
 	evaluated_instructions[V3_I_JNZ_INSTRUCTION]   = V3_JNZ_INSTRUCTION;
 	evaluated_instructions[V3_I_PUSH_INSTRUCTION]  = V3_PUSH_INSTRUCTION;
 	evaluated_instructions[V3_I_POP_INSTRUCTION]   = V3_POP_INSTRUCTION;
+	evaluated_instructions[V3_I_RDPR_INSTRUCTION]  = V3_RDRP_INSTRUCTION;
+	evaluated_instructions[V3_I_WRPR_INSTRUCTION]  = V3_WRRP_INSTRUCTION;
 }

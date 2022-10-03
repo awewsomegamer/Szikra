@@ -123,6 +123,36 @@ void build_instruction(struct token* tokens, int size) {
 		break;
 	}
 
+	case V3_I_WRPR_INSTRUCTION:
+	case V3_I_RDPR_INSTRUCTION: {
+		if (_varient == 3) {
+			struct argument arguments[256];
+			int arg_i = 0;
+			
+			uint8_t information = 0;
+
+			for (int j = 0; j < V3_ISA[tokens[0].value].argc; j++) {
+				arguments[arg_i++] = get_arg(tokens, &i);
+
+				information |= ((arguments[arg_i - 1].length << 2) | arguments[arg_i - 1].type) << (4 * j);
+			}
+
+			if (arguments[0].type != CODE_RVALUE || arguments[1].type != CODE_RREG || arguments[0].reference) {
+				error("Incorrect syntax for %s instruction, should be %s INT, REG", V3_ISA[tokens[0].value].name, V3_ISA[tokens[0].value].name);
+				return;
+			}
+
+			write_byte(tokens[0].value);
+			write_byte(information);
+
+			for (int j = 0; j < arg_i; j++)
+				for (int x = 0; x < size_in_bytes(arguments[j].value) + 1; x++)
+					write_byte((arguments[j].value >> (8 * x)) & 0xFF);
+
+			break;
+		}
+	}
+
 	default: {
 		if (_varient == 2) {
 			uint8_t register_offset = 0;
@@ -157,29 +187,32 @@ void build_instruction(struct token* tokens, int size) {
 			if (register_offset != 0) write_byte(register_offset);
 		} else if (_varient == 3) {
 			write_byte(tokens[0].value);
-			struct argument arguments[256];
 
-			uint8_t information = 0;
-			int arg_i = 0;
-			
-			for (int j = 0; j < V3_ISA[tokens[0].value].argc; j++) {
-				arguments[arg_i++] = get_arg(tokens, &i);
+			if (V3_ISA[tokens[0].value].argc > ZERO_ARGUMENTS) {
+				struct argument arguments[256];
 
-				information |= ((arguments[arg_i - 1].length << 2) | arguments[arg_i - 1].type) << (4 * j);
-			}
+				uint8_t information = 0;
+				int arg_i = 0;
+				
+				for (int j = 0; j < V3_ISA[tokens[0].value].argc; j++) {
+					arguments[arg_i++] = get_arg(tokens, &i);
 
-			write_byte(information);
-			int offset = 0;
-			for (int j = 0; j < arg_i; j++) {
-				if (arguments[j].reference) {
-					insert_reference(&_labels[arguments[j].value], get_writer_position(), j, offset);
-					continue;
+					information |= ((arguments[arg_i - 1].length << 2) | arguments[arg_i - 1].type) << (4 * j);
 				}
 
-				for (int x = 0; x < size_in_bytes(arguments[j].value) + 1; x++)
-					write_byte((arguments[j].value >> (8 * x)) & 0xFF);
+				write_byte(information);
+				int offset = 0;
+				for (int j = 0; j < arg_i; j++) {
+					if (arguments[j].reference) {
+						insert_reference(&_labels[arguments[j].value], get_writer_position(), j, offset);
+						continue;
+					}
 
-				offset += size_in_bytes(arguments[j].value) + 1;
+					for (int x = 0; x < size_in_bytes(arguments[j].value) + 1; x++)
+						write_byte((arguments[j].value >> (8 * x)) & 0xFF);
+
+					offset += size_in_bytes(arguments[j].value) + 1;
+				}
 			}
 		}
 

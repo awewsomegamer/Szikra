@@ -10,7 +10,7 @@ A revised version of awewsomegamer/Compiler and awewsomegamer/Emulator
 
 /compiler/	- Simple compiler designed to compile to the assembly language (not yet worked on)
 
-/emulator/ 	- Works with assemblerv2
+/emulator/ 	- Works with assemblerv2 -v 3
 
 /test/		- Test files 
 </pre>
@@ -33,7 +33,7 @@ AND		V1, V2 		  ; Bitwise AND V1 with V2
 NOT		V1	  	  ; Bitwise NOT V1
 
 INT 		V1		  ; Call interrupt V1
-SIVTE 		V1, V2 		  ; Set interrupt V1 to point to V2
+SIVTE 		V1, V2 		  ; Set interrupt V1 to point to V2 (MOV [V1 * 4], V2)
 
 CMP 		V1, V2 		  ; Compare V1 with V2
 
@@ -59,6 +59,9 @@ JNZ		V1		  ; Jump to V1 if zero flag is not set
 
 PUSH		V1		  ; Push V1 to the stack
 POP		V1 	   	  ; Pop the last element on the stack into V1
+
+RDRP		V1, V2		  ; V1 Must be an integer, V2 must be a register, will read from port V1 into register V2
+WRRP		V1, V2		  ; V1 Must be an integer, V2 must be a register, will write to port V1 from register V2
 
 DB		... <, ...> 	  ; Define (a) value(s)
 DS		"..." <, "...">   ; Define (a) string(s) of ASCII characters
@@ -119,10 +122,14 @@ IP	- Instruction pointer register
 `!POPWRH` Restores the last write position <br>
 
 ### Memory map
-`0x0 -> 0x1FF` Boot sector (marked by last two bytes being 0xAABB)
+`0x0 -> 0x400` Interrupt Vector Table
 
-### IO Device Map
-`0x0` Keyboard scancode
+### IO Port Map
+<pre>
+Port 0      : Reserved
+Port 1      : Keyboard
+Port 2 - 16 : Free
+</pre>
 
 ### Interrupt Map
 <pre>
