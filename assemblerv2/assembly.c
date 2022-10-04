@@ -224,7 +224,6 @@ void build_instruction(struct token* tokens, int size) {
 	}
 
 	// If tokens are still left, call assemble function
-	printf("%d\n", i);
 	if (i < size)
 		assemble(tokens + i, size - i);
 }
@@ -275,15 +274,10 @@ void assemble(struct token* tokens, int size) {
 	// printf("%s %X %d\n", TOKEN_NAMES[tokens[size-2].type], tokens[size-2].value, _line);
 
 
-	// debug("ASSEMBLING TOKENS (%d):", _line);
-	// for (int i = 0; i < size; i++)
-	// 	debug("%s (%d, %s, %s)", TOKEN_NAMES[tokens[i].type], tokens[i].type, tokens[i].extra_bytes, V3_ISA[tokens[i].value].name);
+	// debug("ASSEMBLING TOKENS (%d): ", _line);
 
 	switch (tokens[0].type) {
 	case T_INSTRUCTION:
-		for (int i = 0; i < size; i++)
-			printf("%s ", TOKEN_NAMES[tokens[i].type]);
-		printf("\n");
 		build_instruction(tokens, size);
 
 		break;

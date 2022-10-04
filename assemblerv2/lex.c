@@ -69,6 +69,7 @@ uint8_t isstrlit(char c) {
 
 int next_token(struct token* t, struct token* tokens, int index) {
 	char c = next_char();
+
 	switch (c) {
 	case EOF:
 		debug("EOF");
@@ -272,7 +273,8 @@ int next_token(struct token* t, struct token* tokens, int index) {
 			c = read_char();
 			if (c != EOF) {
 				char* string = get_string(c, isstrlit);
-
+				next_char();
+				
 				t->type = T_STRING;
 				t->extra_bytes = string;
 
