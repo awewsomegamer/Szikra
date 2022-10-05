@@ -5,12 +5,16 @@
 
 SDL_Window* window;
 SDL_Renderer* renderer;
+SDL_Texture* texture;
 SDL_Event event;
 
 extern uint8_t _FONT;
 
 int cx = 0;
 int cy = 0;
+
+uint32_t VRAM[480][640];
+
 
 void init_screen() {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -23,6 +27,10 @@ void init_screen() {
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
+	
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, 0, 640, 480);
+
+	SDL_Delay(100);
 }
 
 void update() {
@@ -43,12 +51,15 @@ void update() {
 }
 
 void render() {
+	SDL_UpdateTexture(texture, NULL, (void*)&VRAM, 640*4);
+
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
+	SDL_Delay(16);
 }
 
 void scr_putp(uint32_t where, uint32_t color) { 
-	SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0xFF);
-	SDL_RenderDrawPoint(renderer, (where >> 16) & 0xFFFF, (where) & 0xFFFF);
+	VRAM[(where) & 0xFFFF][(where >> 16) & 0xFFFF] = color;
 }
 
 void scr_putc(char c, uint32_t color) {
@@ -83,9 +94,11 @@ void scr_putc(char c, uint32_t color) {
 	for (int i = 0; i < FONT_HEIGHT; i++) {
 		for (int j = FONT_WIDTH - 1; j >= 0; j--) {
 			if ((data[i] >> j) & 1) {
-				SDL_SetRenderDrawColor(renderer, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0xFF);
-				SDL_RenderDrawPoint(renderer, (cx + rx), (cy + i));
+				VRAM[cy + i][cx + rx] = color;
+			} else {
+				VRAM[cy + i][cx + rx] = 0;
 			}
+			SDL_RenderPresent(renderer);
 			rx++;
 		}
 
@@ -93,12 +106,15 @@ void scr_putc(char c, uint32_t color) {
 	}
 
 	cx += FONT_WIDTH;
-	if (cx > SCR_WIDTH) {
-		cx = 0;
-		cy += FONT_HEIGHT;
-	} else if (cy > SCR_HEIGHT) {
-		cy = 0;
-	}
 
+	if (cx > SCR_WIDTH - FONT_WIDTH) {
+		cy += FONT_HEIGHT;
+		cx = 0;
+	}
+	
+	if (cy > SCR_HEIGHT - FONT_HEIGHT) {
+		cy = 0;
+		cx = 0;
+	}
 }
 

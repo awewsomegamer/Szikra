@@ -1,5 +1,6 @@
 #include <emulator.h>
 #include <interrupts.h>
+#include <screen.h>
 
 uint8_t memory[UINT16_MAX];
 uint32_t ports[16];
@@ -315,8 +316,7 @@ void* proccess_cycle(void* arg) {
 			}
 			
 			process_instruction(instruction, arguments);
-
-			usleep(100);
+			usleep(1);
 		}
 	} else {
 		char* string = malloc(256);
