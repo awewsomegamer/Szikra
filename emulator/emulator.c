@@ -19,7 +19,6 @@ uint8_t _disassemble = 0;
 		   else if (instruction == V3_I_OR_INSTRUCTION)  value1 |=  value2; \ 
 		   else if (instruction == V3_I_SHR_INSTRUCTION) value1 >>= value2; \ 
 		   else if (instruction == V3_I_SHL_INSTRUCTION) value1 <<= value2;
-		//    else if (instruction == I_XOR_INSTRUCTION) value1 ^=  value2; \ 
 
 void(*evaluated_instructions[V3_I_INSTRUCTION_MAX])(struct argument* arguments, int instruction);
 
@@ -225,9 +224,7 @@ void V3_RET_INSTRUCTION(struct argument* arguments, int instruction) {
 }
 
 void V3_JE_INSTRUCTION(struct argument* arguments, int instruction) {
-	if (!cflags.carry && !cflags.zero) {
-		registers[V3_I_REG_IP] = evaluate_argument(arguments[0]);
-	}
+	if (!cflags.carry && !cflags.zero) registers[V3_I_REG_IP] = evaluate_argument(arguments[0]);
 }
 
 void V3_JNE_INSTRUCTION(struct argument* arguments, int instruction) {
@@ -316,7 +313,7 @@ void* proccess_cycle(void* arg) {
 			}
 			
 			process_instruction(instruction, arguments);
-			usleep(1);
+			
 		}
 	} else {
 		char* string = malloc(256);
